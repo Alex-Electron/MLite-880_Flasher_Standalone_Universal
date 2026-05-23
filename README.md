@@ -30,7 +30,7 @@ To fix this, use the included **Zadig** tool:
 5. Ensure the driver on the **right side** of the green arrow is set to WinUSB.
 6. Click the large Install Driver (or Replace Driver) button.
 7. Wait for the installation to finish (it may take up to a minute).
-8. Close Zadig and run lash_MLite880.bat again!
+8. Close Zadig and run Flash_MLite880.bat again!
 
 ## macOS / Linux Notes
 - **macOS:** You need to have dfu-util installed via Homebrew. Run brew install dfu-util in your terminal.
