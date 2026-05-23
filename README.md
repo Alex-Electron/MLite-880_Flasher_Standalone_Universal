@@ -45,7 +45,7 @@ This repository bundles several third-party binaries to provide a seamless "out-
 *   **[dfu-util](https://dfu-util.sourceforge.net/)** (dfu-util.exe) - Licensed under **GPLv2**.
 *   **[libusb](https://libusb.info/)** (libusb-1.0.dll) - Licensed under **LGPL**.
 *   **[Zadig](https://zadig.akeo.ie/)** (zadig-2.9.exe) - Licensed under **GPLv3**.
-*   **Firmware Files (.bin)** - Property of their respective authors/manufacturers. Provided here purely for convenience. The firmware files included in this repository are sourced from the official Telegram group https://t.me/MalahitReceiver/434371 and the official website https://elecevolve.com/download/.
+*   **Firmware Files (.bin)** - Property of their respective authors/manufacturers. Provided here purely for convenience. The firmware files included in this repository are sourced from the official Telegram group https://t.me/MalahitReceiver/409671 and the official website https://elecevolve.com/download/.
 
 **DISCLAIMER OF LIABILITY:**
 The firmware files and flashing tools in this repository are provided "AS IS", without warranty of any kind. The author of this repository (Alexander Lavrinovich) is **NOT** responsible for any damage, "bricking", or loss of functionality that may occur to your Malachite DSP receiver or computer as a result of using these scripts, tools, or firmware files. Flash at your own risk!

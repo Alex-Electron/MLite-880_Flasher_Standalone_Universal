@@ -16,7 +16,7 @@ set "DFU_EXE=dfu-util.exe"
 set "DFU_UTIL=%~dp0%DFU_EXE%"
 
 echo ===================================================
-echo             Malachite DSP Flasher
+echo             Malachite DSP Flasher v1.0.1
 echo.
 echo   Developed by: Alexander Lavrinovich
 echo   GitHub:       https://github.com/Alex-Electron
@@ -75,7 +75,8 @@ echo Selected firmware: %FIRMWARE_FILE%
 echo ===================================================
 echo.
 echo 1. Connect the receiver via USB.
-echo 2. Put the receiver into DFU mode.
+echo 2. Put the receiver into DFU mode:
+echo    (Press and hold '1', turn on radio, wait 3s, release '1')
 echo.
 pause
 
@@ -107,3 +108,5 @@ echo [ERROR] Invalid selection! Please enter a number from 1 to %count%.
 echo.
 pause
 exit /b
+
+
