@@ -2,108 +2,85 @@
 
 # ===================================================
 #  Malachite DSP Firmware Flasher for macOS / Linux
+#  v1.2.0 - Stable Edition
 #  Created by: Alexander Lavrinovich
 #  GitHub: https://github.com/Alex-Electron
 #  Email: EU1L@mail.ru
 # ===================================================
 
-echo "==================================================="
-echo "            Malachite DSP Flasher v1.0.1"
-echo ""
-echo "  Developed by: Alexander Lavrinovich"
-echo "  GitHub:       https://github.com/Alex-Electron"
-echo "  Email:        EU1L@mail.ru"
-echo "==================================================="
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+echo -e "${BLUE}===================================================${NC}"
+echo -e "${BLUE}            Malachite DSP Flasher v1.2.0           ${NC}"
+echo -e "${BLUE}===================================================${NC}"
 echo ""
 
-# Check if dfu-util is installed
-if ! command -v dfu-util &> /dev/null; then
-    echo "[ERROR] dfu-util is not installed."
-    echo "To install it on macOS, open Terminal and run:"
-    echo "  brew install dfu-util"
-    echo ""
-    echo "To install on Ubuntu/Debian, run:"
-    echo "  sudo apt install dfu-util"
-    echo ""
-    read -p "Press Enter to exit..."
-    exit 1
+DIR="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DFU_BIN="dfu-util"
+
+if [ -f "$DIR/dfu-util.exe" ]; then
+    DFU_BIN="./dfu-util.exe"
 fi
 
-# Get the directory where the script is located
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
-# Find all .bin files in the script directory
 bin_files=("$DIR"/*.bin)
+valid_files=()
 count=0
-
 for file in "${bin_files[@]}"; do
     if [ -f "$file" ]; then
+        valid_files+=("$file")
         count=$((count+1))
     fi
 done
 
 if [ "$count" -eq 0 ]; then
-    echo "[ERROR] No .bin firmware files found in this folder!"
-    echo "Please place your .bin files here: $DIR"
-    echo ""
-    read -p "Press Enter to exit..."
+    echo -e "${RED}[ERROR] No .bin files found!${NC}"
     exit 1
 fi
 
-echo "Available firmware files:"
+echo -e "${GREEN}Available firmware files:${NC}"
 echo "---------------------------------------------------"
 i=1
-for file in "${bin_files[@]}"; do
+for file in "${valid_files[@]}"; do
     filename=$(basename "$file")
-    echo "  [$i] $filename"
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        filesize=$(stat -f%z "$file" 2>/dev/null)
+    else
+        filesize=$(stat -c%s "$file" 2>/dev/null)
+    fi
+    echo -e "  [$i] $filename (${YELLOW}$((filesize/1024)) KB${NC})"
     i=$((i+1))
 done
 echo "---------------------------------------------------"
 echo ""
 
-read -p "Select a firmware to flash (1-$count): " choice
-
+read -p "Select firmware (1-$count): " choice
 if ! [[ "$choice" =~ ^[0-9]+$ ]] || [ "$choice" -lt 1 ] || [ "$choice" -gt "$count" ]; then
-    echo ""
-    echo "[ERROR] Invalid selection! Please enter a number from 1 to $count."
-    read -p "Press Enter to exit..."
+    echo -e "${RED}[ERROR] Invalid selection!${NC}"
     exit 1
 fi
 
-selected_file="${bin_files[$((choice-1))]}"
+selected_file="${valid_files[$((choice-1))]}"
 selected_filename=$(basename "$selected_file")
 
-echo ""
-echo "==================================================="
-echo "Selected firmware: $selected_filename"
-echo "==================================================="
-echo ""
-echo "1. Connect the receiver via USB."
-echo "2. Put the receiver into DFU mode:"
-echo "   (Press and hold 1, turn on radio, wait 3s, release 1)"
-echo ""
-read -p "Press Enter when ready..."
+echo -e "\n${YELLOW}FLASHING: $selected_filename${NC}"
+echo "Estimated time: 5-15 seconds..."
 
-echo ""
-echo "==================================================="
-echo "Starting flash process (Mass Erase -> Download)..."
-echo "Please DO NOT disconnect the cable!"
-echo "==================================================="
-echo ""
+# RELIABLE COMMAND: Sector-by-sector erase and auto-reboot
+"$DFU_BIN" -a 0 -s 0x08000000:force:leave -D "$selected_file"
+RESULT=$?
 
-# Run dfu-util
-dfu-util -a 0 -s 0x08000000:mass-erase:force:leave -D "$selected_file"
+if [ $RESULT -eq 0 ] || [ $RESULT -eq 1 ]; then
+    echo -e "\n${GREEN}===================================================${NC}"
+    echo -e " [SUCCESS] Firmware flashed successfully!"
+    echo -e " The receiver should reboot automatically."
+    echo -e "${GREEN}===================================================${NC}"
+else
+    echo -e "\n${RED}[ERROR] Flashing failed with exit code $RESULT${NC}"
+fi
 
-echo ""
-echo "==================================================="
-echo " [DONE] The flashing process has finished."
-echo ""
-echo " * Note: If you see 'Error during download get_status'"
-echo "   above, it is completely NORMAL and means SUCCESS."
-echo "   It just means the receiver rebooted successfully."
-echo "==================================================="
 echo ""
 read -p "Press Enter to exit..."
-
-
-

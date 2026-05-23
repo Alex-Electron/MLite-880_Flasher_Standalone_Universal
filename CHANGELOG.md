@@ -1,4 +1,4 @@
-# Changelog
+﻿# Changelog
 
 All notable changes to this project will be documented in this file.
 
@@ -22,3 +22,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bundled `zadig-2.9.exe` for easy WinUSB driver installation on Windows.
 - Comprehensive `README.md` with instructions for Windows, macOS, and Linux.
 - Added MIT License.
+
