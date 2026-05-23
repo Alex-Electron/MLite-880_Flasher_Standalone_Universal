@@ -1,4 +1,4 @@
-﻿# Changelog
+# Changelog
 
 All notable changes to this project will be documented in this file.
 
@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Unified naming convention for all firmware files (\MLite880_vX.XX_YYYYMMDD.bin\) for better sorting and clarity.
 - Interactive selection menu in both \.bat\ and \.sh\ scripts now displays firmware file sizes and versions clearly.
-- ANSI color output for the macOS/Linux script (\lash_MLite880.sh\).
+- ANSI color output for the macOS/Linux script (flash_MLite880.sh).
 - Explicit DFU mode instructions provided in the console before starting the flash process.
 - Complete standalone package: bundled \dfu-util\, \libusb\, and \Zadig\ for Windows users.
 
@@ -31,6 +31,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Initial release of the Universal Flasher for Malachite DSP (MLite-880).
-- Windows batch script (\lash_MLite880.bat\) with interactive menu.
-- macOS / Linux bash script (\lash_MLite880.sh\) with interactive menu.
+- Windows batch script (flash_MLite880.bat) with interactive menu.
+- macOS / Linux bash script (flash_MLite880.sh) with interactive menu.
 - Added MIT License and initial documentation.
