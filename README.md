@@ -35,3 +35,17 @@ To fix this, use the included **Zadig** tool:
 ## macOS / Linux Notes
 - **macOS:** You need to have dfu-util installed via Homebrew. Run brew install dfu-util in your terminal.
 - **Ubuntu/Debian:** Run sudo apt install dfu-util.
+
+---
+
+## ⚖️ Third-Party Software, Licenses & Disclaimer
+
+This repository bundles several third-party binaries to provide a seamless "out-of-the-box" experience. These files are not covered by this repository's MIT License. They are distributed under their respective licenses:
+
+*   **[dfu-util](https://dfu-util.sourceforge.net/)** (dfu-util.exe) - Licensed under **GPLv2**.
+*   **[libusb](https://libusb.info/)** (libusb-1.0.dll) - Licensed under **LGPL**.
+*   **[Zadig](https://zadig.akeo.ie/)** (zadig-2.9.exe) - Licensed under **GPLv3**.
+*   **Firmware Files (.bin)** - Property of their respective authors/manufacturers. Provided here purely for convenience.
+
+**DISCLAIMER OF LIABILITY:**
+The firmware files and flashing tools in this repository are provided "AS IS", without warranty of any kind. The author of this repository (Alexander Lavrinovich) is **NOT** responsible for any damage, "bricking", or loss of functionality that may occur to your Malachite DSP receiver or computer as a result of using these scripts, tools, or firmware files. Flash at your own risk!
