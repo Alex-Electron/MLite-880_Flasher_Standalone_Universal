@@ -11,7 +11,7 @@ Email: EU1L@mail.ru
 1. Place your firmware .bin files into this directory.
 2. Connect your receiver to your computer via USB.
 3. Put the receiver into **DFU mode**: Press and hold the **1** button, turn on the radio, wait for 3 seconds, then release the **1** button. The radio will now be in DFU mode.
-4. **On Windows:** Double-click Flash_MLite880.bat.
+4. **On Windows:** Double-click flash_MLite880.bat.
    **On macOS/Linux:** Open Terminal, navigate to this folder, and run ./flash_MLite880.sh.
 5. Follow the on-screen menu to select the firmware you want to flash.
 
@@ -30,7 +30,7 @@ To fix this, use the included **Zadig** tool:
 5. Ensure the driver on the **right side** of the green arrow is set to WinUSB.
 6. Click the large Install Driver (or Replace Driver) button.
 7. Wait for the installation to finish (it may take up to a minute).
-8. Close Zadig and run Flash_MLite880.bat again!
+8. Close Zadig and run flash_MLite880.bat again!
 
 ## macOS / Linux Notes
 - **macOS:** You need to have dfu-util installed via Homebrew. Run brew install dfu-util in your terminal.
