@@ -10,7 +10,7 @@ Email: EU1L@mail.ru
 
 1. Place your firmware .bin files into this directory.
 2. Connect your receiver to your computer via USB.
-3. Put the receiver into **DFU mode**.
+3. Put the receiver into **DFU mode**: Press and hold the **1** button, turn on the radio, wait for 3 seconds, then release the **1** button. The radio will now be in DFU mode.
 4. **On Windows:** Double-click Flash_MLite880.bat.
    **On macOS/Linux:** Open Terminal, navigate to this folder, and run ./flash_MLite880.sh.
 5. Follow the on-screen menu to select the firmware you want to flash.
@@ -49,5 +49,6 @@ This repository bundles several third-party binaries to provide a seamless "out-
 
 **DISCLAIMER OF LIABILITY:**
 The firmware files and flashing tools in this repository are provided "AS IS", without warranty of any kind. The author of this repository (Alexander Lavrinovich) is **NOT** responsible for any damage, "bricking", or loss of functionality that may occur to your Malachite DSP receiver or computer as a result of using these scripts, tools, or firmware files. Flash at your own risk!
+
 
 
