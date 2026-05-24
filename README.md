@@ -59,7 +59,8 @@ This repository bundles tools licensed under GPL/LGPL for convenience.
 - **libusb**: https://libusb.info/ (LGPL)
 - **Zadig**: https://zadig.akeo.ie/ (GPLv3)
 - **Firmware Files (.bin):**
-  - Sourced from the official Telegram group: https://t.me/MalahitReceiver/434371
-  - Sourced from the official website: https://elecevolve.com/download/
+  - Official Telegram Group: https://t.me/MalahitReceiver/409671
+  - Official Website: https://elecevolve.com/download/
+  - Facebook Group: https://www.facebook.com/groups/1604528603918557/
 
 **DISCLAIMER:** This software is provided "AS IS". The author is NOT responsible for any damage ("bricking") to your device. Flash at your own risk!
