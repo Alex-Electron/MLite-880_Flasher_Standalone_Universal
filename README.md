@@ -40,7 +40,7 @@ By default, Linux requires root privileges for raw USB access. You have two opti
 #### Option 1: One-time setup (Recommended)
 Grant permanent access to your user so you don't need `sudo` anymore:
 ```bash
-echo 'SUBSYSTEM=="usb", ATTR{idVendor}="0483", ATTR{idProduct}="df11", MODE="0666"' | sudo tee /etc/udev/rules.d/50-dfu-malachite.rules     
+echo 'SUBSYSTEM=="usb", ATTR{idVendor}=="0483", ATTR{idProduct}=="df11", MODE="0666"' | sudo tee /etc/udev/rules.d/50-dfu-malachite.rules     
 sudo udevadm control --reload-rules
 ```
 *After running this, unplug and reconnect the receiver.*
