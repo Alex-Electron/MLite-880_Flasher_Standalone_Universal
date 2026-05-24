@@ -1,6 +1,6 @@
 # Malachite DSP (MLite-880) Universal Flasher v1.2.1
 
-This is a standalone firmware flashing toolkit for the Malachite DSP (MLite-880) receiver. 
+This is a standalone firmware flashing toolkit for the Malachite DSP (MLite-880) receiver.
 Supports Windows, macOS, and Linux.
 
 Developed by: Alexander Lavrinovich
@@ -19,7 +19,7 @@ Email: EU1L@mail.ru
 
 ---
 
-## 🛠 Setup & Troubleshooting
+## 🛠️ Setup & Troubleshooting
 
 ### 🪟 Windows: USB Driver Issue
 If the script says "No DFU capable USB device available", you need to install the **WinUSB driver**:
@@ -40,7 +40,7 @@ By default, Linux requires root privileges for raw USB access. You have two opti
 #### Option 1: One-time setup (Recommended)
 Grant permanent access to your user so you don't need `sudo` anymore:
 ```bash
-echo 'SUBSYSTEM=="usb", ATTR{idVendor}="0483", ATTR{idProduct}="df11", MODE="0666"' | sudo tee /etc/udev/rules.d/50-dfu-malachite.rules
+echo 'SUBSYSTEM=="usb", ATTR{idVendor}="0483", ATTR{idProduct}="df11", MODE="0666"' | sudo tee /etc/udev/rules.d/50-dfu-malachite.rules     
 sudo udevadm control --reload-rules
 ```
 *After running this, unplug and reconnect the receiver.*
@@ -55,7 +55,11 @@ sudo ./flash_MLite880.sh
 
 ## ⚖️ Third-Party Software & Disclaimer
 This repository bundles tools licensed under GPL/LGPL for convenience.
-- **dfu-util** (GPLv2) | **libusb** (LGPL) | **Zadig** (GPLv3)
-- **Firmware Files (.bin):** Sourced from official [Telegram](https://t.me/MalahitReceiver/434371) and [elecevolve.com](https://elecevolve.com/download/).
+- **dfu-util**: https://dfu-util.sourceforge.net/ (GPLv2)
+- **libusb**: https://libusb.info/ (LGPL)
+- **Zadig**: https://zadig.akeo.ie/ (GPLv3)
+- **Firmware Files (.bin):**
+  - Sourced from the official Telegram group: https://t.me/MalahitReceiver/434371
+  - Sourced from the official website: https://elecevolve.com/download/
 
 **DISCLAIMER:** This software is provided "AS IS". The author is NOT responsible for any damage ("bricking") to your device. Flash at your own risk!
