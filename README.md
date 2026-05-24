@@ -1,54 +1,61 @@
-﻿# Malachite DSP (MLite-880) Universal Flasher
+# Malachite DSP (MLite-880) Universal Flasher v1.2.1
 
 This is a standalone firmware flashing toolkit for the Malachite DSP (MLite-880) receiver. 
+Supports Windows, macOS, and Linux.
 
 Developed by: Alexander Lavrinovich
 GitHub: https://github.com/Alex-Electron
 Email: EU1L@mail.ru
 
-## How to Flash Firmware
+## 🚀 How to Flash Firmware
 
-1. Place your firmware .bin files into this directory.
+1. Place your firmware `.bin` files into this directory.
 2. Connect your receiver to your computer via USB.
 3. Put the receiver into **DFU mode**: Press and hold the **1** button, turn on the radio, wait for 3 seconds, then release the **1** button. The radio will now be in DFU mode.
-4. **On Windows:** Double-click flash_MLite880.bat.
-   **On macOS/Linux:** Open Terminal, navigate to this folder, and run ./flash_MLite880.sh.
-5. Follow the on-screen menu to select the firmware you want to flash.
+4. Run the flasher:
+   - **Windows:** Double-click `flash_MLite880.bat`.
+   - **macOS / Linux:** Open Terminal and run `./flash_MLite880.sh`.
+5. Follow the on-screen menu to select the firmware version.
 
 ---
 
-## WINDOWS ONLY: USB Driver Issue (Device Not Found)
+## 🛠 Setup & Troubleshooting
 
-If the .bat script immediately closes or says "No DFU capable USB device available", your Windows system does not have the required **WinUSB driver** installed. 
+### 🪟 Windows: USB Driver Issue
+If the script says "No DFU capable USB device available", you need to install the **WinUSB driver**:
+1. Run the included `zadig-2.9.exe`.
+2. Click `Options` -> `List All Devices`.
+3. Select `STM32 BOOTLOADER` from the list.
+4. Ensure the target driver is set to `WinUSB`.
+5. Click `Install Driver` and wait for completion.
 
-To fix this, use the included **Zadig** tool:
+### 🍎 macOS
+1. Install requirements: `brew install dfu-util`
+2. Root privileges (sudo) are usually **not required**.
+3. If the device is not found, check **System Settings > Privacy & Security** to ensure USB accessories are allowed.
 
-1. Make sure your receiver is connected and is in **DFU mode**.
-2. Run zadig-2.9.exe (included in this folder).
-3. In Zadig, click Options in the top menu and select List All Devices.
-4. In the main dropdown menu, select your receiver (it is usually named STM32 BOOTLOADER or something with DFU in FS Mode).
-5. Ensure the driver on the **right side** of the green arrow is set to WinUSB.
-6. Click the large Install Driver (or Replace Driver) button.
-7. Wait for the installation to finish (it may take up to a minute).
-8. Close Zadig and run flash_MLite880.bat again!
+### 🐧 Linux (Ubuntu, Debian, etc.)
+By default, Linux requires root privileges for raw USB access. You have two options:
 
-## macOS / Linux Notes
-- **macOS:** You need to have dfu-util installed via Homebrew. Run brew install dfu-util in your terminal.
-- **Ubuntu/Debian:** Run sudo apt install dfu-util.
+#### Option 1: One-time setup (Recommended)
+Grant permanent access to your user so you don't need `sudo` anymore:
+```bash
+echo 'SUBSYSTEM=="usb", ATTR{idVendor}="0483", ATTR{idProduct}="df11", MODE="0666"' | sudo tee /etc/udev/rules.d/50-dfu-malachite.rules
+sudo udevadm control --reload-rules
+```
+*After running this, unplug and reconnect the receiver.*
+
+#### Option 2: Run with sudo
+If you prefer not to create a system rule:
+```bash
+sudo ./flash_MLite880.sh
+```
 
 ---
 
-## ⚖️ Third-Party Software, Licenses & Disclaimer
+## ⚖️ Third-Party Software & Disclaimer
+This repository bundles tools licensed under GPL/LGPL for convenience.
+- **dfu-util** (GPLv2) | **libusb** (LGPL) | **Zadig** (GPLv3)
+- **Firmware Files (.bin):** Sourced from official [Telegram](https://t.me/MalahitReceiver/434371) and [elecevolve.com](https://elecevolve.com/download/).
 
-This repository bundles several third-party binaries to provide a seamless "out-of-the-box" experience. These files are not covered by this repository's MIT License. They are distributed under their respective licenses:
-
-*   **[dfu-util](https://dfu-util.sourceforge.net/)** (dfu-util.exe) - Licensed under **GPLv2**.
-*   **[libusb](https://libusb.info/)** (libusb-1.0.dll) - Licensed under **LGPL**.
-*   **[Zadig](https://zadig.akeo.ie/)** (zadig-2.9.exe) - Licensed under **GPLv3**.
-*   **Firmware Files (.bin)** - Property of their respective authors/manufacturers. Provided here purely for convenience. The firmware files included in this repository are sourced from the official Telegram group https://t.me/MalahitReceiver/409671 and the official website https://elecevolve.com/download/.
-
-**DISCLAIMER OF LIABILITY:**
-The firmware files and flashing tools in this repository are provided "AS IS", without warranty of any kind. The author of this repository (Alexander Lavrinovich) is **NOT** responsible for any damage, "bricking", or loss of functionality that may occur to your Malachite DSP receiver or computer as a result of using these scripts, tools, or firmware files. Flash at your own risk!
-
-
-
+**DISCLAIMER:** This software is provided "AS IS". The author is NOT responsible for any damage ("bricking") to your device. Flash at your own risk!
