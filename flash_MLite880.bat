@@ -3,7 +3,7 @@ setlocal EnableDelayedExpansion
 title Flashing Malachite DSP (MLite-880)
 
 :: ===================================================
-::  Malachite DSP Firmware Flasher v1.1.3
+::  Malachite DSP Firmware Flasher v1.2.1
 ::  Created by: Alexander Lavrinovich
 ::  GitHub: https://github.com/Alex-Electron
 ::  Email: EU1L@mail.ru
