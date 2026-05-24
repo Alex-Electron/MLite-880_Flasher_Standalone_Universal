@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-05-24
+
+### Added
+- **macOS: Interactive Auto-Install** — if Homebrew and/or `dfu-util` are missing, the script will automatically offer to install them.
+- **Debian/Ubuntu: Interactive Auto-Install** — if `dfu-util` is missing, the script will automatically offer to install it via `apt`.
+- **Auto-elevate to `sudo` on Linux/macOS** when raw USB DFU access is denied — no need to manually prefix `sudo` anymore.
+- **Upfront USB device detection** across all platforms before firmware selection: `lsusb` on Linux, `system_profiler` on macOS, `pnputil` on Windows. The user gets a clear message ("device not in DFU mode" vs "driver missing") instead of confusing dfu-util errors.
+- **Windows: Silent WinUSB driver install** — if the STM32 BOOTLOADER device is on the USB bus but the WinUSB driver is missing, the `.bat` self-elevates to Administrator and runs the bundled `qmk_driver_installer.exe`. No clicks required. It then programmatically restarts the USB port (`pnputil /restart-device`) to bind the driver without requiring a physical unplug/replug.
+- Added `qmk_driver_installer.exe` (6.19 MB, SHA256 in sidecar file `qmk_driver_installer.exe.sha256`) for silent WinUSB installation.
+- Added a `tools/` folder containing cleanup scripts for testing and environment resets: `cleanup_drivers.bat` (Windows, handles UTF-16 INF files) and `cleanup_mac.sh` (macOS).
+
+### Fixed
+- **False-positive failure on a successful flash (Exit Code 74)**: Both `.sh` and `.bat` scripts now correctly interpret Exit Code 74 combined with device disconnection (or log verification) as a successful flash.
+- **Windows false-positive success on driver failure**: Fixed a bug where a `LIBUSB_ERROR_NOT_SUPPORTED` failure on Windows was incorrectly reported as a success. The `.bat` script now strictly verifies that the exit code is 74 *and* the device is no longer on the bus, while maintaining the native `dfu-util` real-time progress bar (avoiding carriage return rendering issues caused by PowerShell pipes).
+- `udev` hint after a flash failure now matches all Linux distros (`linux*` in `$OSTYPE`).
+
+### Changed
+- Bumped script version to **2.0.0** in `flash_MLite880.sh` and `flash_MLite880.bat`.
+
 ## [1.2.1] - 2026-05-23
 
 ### Fixed
