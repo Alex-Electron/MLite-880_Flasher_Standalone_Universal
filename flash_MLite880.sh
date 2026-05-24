@@ -83,8 +83,16 @@ fi
 selected_file="${valid_files[$choice-1]}"
 selected_filename=$(basename "$selected_file")
 
-echo -e "\n${YELLOW}FLASHING: $selected_filename${NC}"
-echo "Estimated time: 5-15 seconds..."
+echo -e "\n${YELLOW}Selected: $selected_filename${NC}"
+echo "1. Connect USB."
+echo "2. Put receiver into DFU mode (Hold '1', turn on, wait 3s)."
+echo ""
+read -p "Press Enter when ready to flash..."
+
+echo -e "\n${YELLOW}===================================================${NC}"
+echo -e "${YELLOW}FLASHING... (Please wait 5-15 seconds)${NC}"
+echo -e "${YELLOW}DO NOT DISCONNECT!${NC}"
+echo -e "${YELLOW}===================================================${NC}"
 
 # Execute flashing command
 "$DFU_BIN" -a 0 -s 0x08000000:force:leave -D "$selected_file"
