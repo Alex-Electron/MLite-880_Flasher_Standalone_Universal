@@ -2,12 +2,13 @@
 
 # ===================================================
 #  Malachite DSP Firmware Flasher for macOS / Linux
-#  v1.2.0 - Stable Edition
+#  v1.2.1 - Universal Stable Edition
 #  Created by: Alexander Lavrinovich
 #  GitHub: https://github.com/Alex-Electron
 #  Email: EU1L@mail.ru
 # ===================================================
 
+# ANSI Color Codes
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -15,17 +16,33 @@ BLUE='\033[0;34m'
 NC='\033[0m'
 
 echo -e "${BLUE}===================================================${NC}"
-echo -e "${BLUE}            Malachite DSP Flasher v1.2.0           ${NC}"
+echo -e "${BLUE}            Malachite DSP Flasher v1.2.1           ${NC}"
 echo -e "${BLUE}===================================================${NC}"
 echo ""
 
 DIR="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-DFU_BIN="dfu-util"
 
-if [ -f "$DIR/dfu-util.exe" ]; then
-    DFU_BIN="./dfu-util.exe"
+# Smart DFU binary detection
+# On Windows/GitBash: prefer bundled .exe
+# On macOS/Linux: use system-installed dfu-util
+DFU_BIN="dfu-util"
+if [[ "$OSTYPE" == "msys"* || "$OSTYPE" == "cygwin"* || "$OSTYPE" == "win32"* ]]; then
+    if [ -f "$DIR/dfu-util.exe" ]; then
+        DFU_BIN="$DIR/dfu-util.exe"
+    fi
 fi
 
+# Check if binary exists or is in PATH
+if ! command -v "$DFU_BIN" &> /dev/null && [ ! -f "$DFU_BIN" ]; then
+    echo -e "${RED}[ERROR] dfu-util is not installed.${NC}"
+    echo "To install it on macOS: brew install dfu-util"
+    echo "To install on Ubuntu:   sudo apt install dfu-util"
+    echo ""
+    read -p "Press Enter to exit..."
+    exit 1
+fi
+
+# Find all .bin files
 bin_files=("$DIR"/*.bin)
 valid_files=()
 count=0
@@ -37,7 +54,7 @@ for file in "${bin_files[@]}"; do
 done
 
 if [ "$count" -eq 0 ]; then
-    echo -e "${RED}[ERROR] No .bin files found!${NC}"
+    echo -e "${RED}[ERROR] No .bin firmware files found!${NC}"
     exit 1
 fi
 
@@ -57,19 +74,19 @@ done
 echo "---------------------------------------------------"
 echo ""
 
-read -p "Select firmware (1-$count): " choice
+read -p "Select a firmware to flash (1-$count): " choice
 if ! [[ "$choice" =~ ^[0-9]+$ ]] || [ "$choice" -lt 1 ] || [ "$choice" -gt "$count" ]; then
     echo -e "${RED}[ERROR] Invalid selection!${NC}"
     exit 1
 fi
 
-selected_file="${valid_files[$((choice-1))]}"
+selected_file="${valid_files[$choice-1]}"
 selected_filename=$(basename "$selected_file")
 
 echo -e "\n${YELLOW}FLASHING: $selected_filename${NC}"
 echo "Estimated time: 5-15 seconds..."
 
-# RELIABLE COMMAND: Sector-by-sector erase and auto-reboot
+# Execute flashing command
 "$DFU_BIN" -a 0 -s 0x08000000:force:leave -D "$selected_file"
 RESULT=$?
 
@@ -80,6 +97,9 @@ if [ $RESULT -eq 0 ] || [ $RESULT -eq 1 ]; then
     echo -e "${GREEN}===================================================${NC}"
 else
     echo -e "\n${RED}[ERROR] Flashing failed with exit code $RESULT${NC}"
+    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        echo -e "${YELLOW}Hint:${NC} Check your udev rules (see README.md)"
+    fi
 fi
 
 echo ""

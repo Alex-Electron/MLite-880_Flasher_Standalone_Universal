@@ -1,9 +1,15 @@
-# Changelog
+﻿# Changelog
 
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [1.2.1] - 2026-05-23
+
+### Fixed
+- Improved OS detection logic to correctly handle bundled binaries on Windows while using system binaries on macOS and Linux.
+- Fixed 'Permission denied' error when running the bash script on Linux/macOS.
 
 ## [1.2.0] - 2026-05-23
 
@@ -34,3 +40,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Windows batch script (`flash_MLite880.bat`) with interactive menu.
 - macOS / Linux bash script (`flash_MLite880.sh`) with interactive menu.
 - Added MIT License and initial documentation.
+

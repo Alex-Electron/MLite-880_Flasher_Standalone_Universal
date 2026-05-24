@@ -13,7 +13,7 @@ set "DFU_EXE=dfu-util.exe"
 set "DFU_UTIL=%~dp0%DFU_EXE%"
 
 echo ===================================================
-echo             Malachite DSP Flasher v1.2.0
+echo             Malachite DSP Flasher v1.2.1
 echo.
 echo   Developed by: Alexander Lavrinovich
 echo   GitHub:       https://github.com/Alex-Electron
@@ -90,4 +90,5 @@ exit /b
 echo [ERROR] Invalid selection!
 pause
 exit /b
+
 
