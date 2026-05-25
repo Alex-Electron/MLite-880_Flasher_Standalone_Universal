@@ -38,8 +38,8 @@ Since v2.0.0 the `.bat` installs the WinUSB driver **silently** when needed. If 
 
 **First-run note:** because the installer is an unsigned binary from a GitHub release, Windows SmartScreen may show a warning the very first time. Click **More info → Run anyway** once and Windows will remember it by hash.
 
-If something goes wrong with the silent install, the script falls back to the bundled `zadig-2.9.exe` (interactive). You can also install the driver manually:
-1. Run `zadig-2.9.exe`.
+If something goes wrong with the silent install, the script falls back to the interactive Zadig utility. You can also install the driver manually:
+1. Run `tools/zadig-2.9.exe`.
 2. Click `Options` -> `List All Devices`.
 3. Select `STM32 BOOTLOADER` from the list.
 4. Ensure the target driver is set to `WinUSB`.
