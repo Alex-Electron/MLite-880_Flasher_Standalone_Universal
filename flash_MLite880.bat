@@ -12,7 +12,7 @@ title Flashing Malachite DSP (MLite-880)
 set "SCRIPT_DIR=%~dp0"
 set "DFU_EXE=%SCRIPT_DIR%dfu-util.exe"
 set "WDI_EXE=%SCRIPT_DIR%qmk_driver_installer.exe"
-set "ZADIG_EXE=%SCRIPT_DIR%zadig-2.9.exe"
+set "ZADIG_EXE=%SCRIPT_DIR%tools\zadig-2.9.exe"
 set "STM_VID=0483"
 set "STM_PID=df11"
 
