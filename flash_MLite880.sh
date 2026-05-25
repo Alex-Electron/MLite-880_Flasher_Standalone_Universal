@@ -2,7 +2,7 @@
 
 # ===================================================
 #  Malachite DSP Firmware Flasher for macOS / Linux
-#  v2.0.0 - Universal Stable Edition
+#  v2.1.0 - Universal Stable Edition
 #  Created by: Alexander Lavrinovich
 #  GitHub: https://github.com/Alex-Electron
 #  Email: EU1L@mail.ru
@@ -16,7 +16,7 @@ BLUE='\033[0;34m'
 NC='\033[0m'
 
 echo -e "${BLUE}===================================================${NC}"
-echo -e "${BLUE}            Malachite DSP Flasher v2.0.0           ${NC}"
+echo -e "${BLUE}            Malachite DSP Flasher v2.1.0           ${NC}"
 echo -e "${BLUE}===================================================${NC}"
 echo ""
 

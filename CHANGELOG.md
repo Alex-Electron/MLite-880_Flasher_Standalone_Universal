@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2026-05-25
+
+### Added
+- Added new firmware: **MLite880_v1.54_20260526.bin**.
+
+### Fixed
+- **Windows: UI responsiveness at the end of the script**: Removed a slow PowerShell-based input buffer flush that caused a delay and required an extra keypress before displaying the final "Press any key" prompt.
+
+### Changed
+- Bumped script version to **2.1.0** in `flash_MLite880.sh` and `flash_MLite880.bat`.
+
 ## [2.0.0] - 2026-05-24
 
 ### Added

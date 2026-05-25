@@ -266,8 +266,15 @@ if "%RESULT%"=="0" (
 )
 echo ===================================================
 echo.
-:: Flush any buffered keypresses that may have leaked into cmd's stdin during the flash.
-powershell -NoProfile -Command "while ($Host.UI.RawUI.KeyAvailable) { [void]$Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown') }" 2>nul
+echo Press any key to close this window...
+pause >nul
+exit /b %RESULT%
+
+:invalid
+echo [ERROR] Invalid selection.
+pause
+exit /b 1
+Host.UI.RawUI.KeyAvailable) { [void]$Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown') }" 2>nul
 echo Press any key to close this window...
 pause >nul
 exit /b %RESULT%
