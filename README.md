@@ -8,6 +8,8 @@ Developed by: Alexander Lavrinovich
 GitHub: https://github.com/Alex-Electron
 Email: EU1L@mail.ru
 
+> For per-version firmware changes (compiled from the author's posts in the official Telegram chat), see [FIRMWARE_CHANGELOG.md](FIRMWARE_CHANGELOG.md). Firmware author: **RX9CIM (Георгий)**.
+
 ## 🚀 How to Flash Firmware
 
 1. All current firmware `.bin` files (as of May 27, 2026) are already included in this folder. If new versions are released in the future, simply drop the new `.bin` files into this directory, and the flasher will automatically detect them.
