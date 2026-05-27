@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2026-05-27
+
+### Added
+- Added new firmware: **MLite880_v1.55_20260527.bin**.
+
+### Fixed
+- **Windows: Version display in `flash_MLite880.bat`** — the script header still showed `v2.0.0` even though the changelog claimed it was bumped in v2.1.0. Now correctly shows the current version.
+- **Windows: Removed orphaned dead code** at the end of `flash_MLite880.bat` (leftover PowerShell input-flush fragment from the v2.1.0 cleanup).
+
+### Changed
+- Bumped script version to **2.2.0** in `flash_MLite880.sh` and `flash_MLite880.bat`.
+
 ## [2.1.0] - 2026-05-25
 
 ### Added
