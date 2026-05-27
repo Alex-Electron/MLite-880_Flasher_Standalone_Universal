@@ -11,8 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added new firmware: **MLite880_v1.55_20260527.bin**.
 
 ### Fixed
-- **Windows: Version display in `flash_MLite880.bat`** — the script header still showed `v2.0.0` even though the changelog claimed it was bumped in v2.1.0. Now correctly shows the current version.
+- **Windows: Version display in `flash_MLite880.bat`** — the script header still showed `v2.0.0`, even though the v2.1.0 changelog claimed it was bumped.
 - **Windows: Removed orphaned dead code** at the end of `flash_MLite880.bat` (leftover PowerShell input-flush fragment from the v2.1.0 cleanup).
+- **Removed `test_check.bat`** — local diagnostic script with a hardcoded absolute path, accidentally committed during v2.0.0 development.
 
 ### Changed
 - Bumped script version to **2.2.0** in `flash_MLite880.sh` and `flash_MLite880.bat`.
