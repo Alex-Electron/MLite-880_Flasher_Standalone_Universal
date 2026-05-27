@@ -16,13 +16,14 @@ Firmware files the author actually attached to the chat:
 | Version | File name in chat | Message timestamp |
 | ------- | ----------------- | ----------------- |
 | 1.20 | `MLite_1_2_060226.zip` | 2026-02-19 15:27 (build dated 2026-02-06) |
+| 1.30 | *— (not attached to chat; released on `malahiteam.com`)* | 2026-03-15 21:24 release post in «Прошивки» topic |
 | 1.51 | `MLite880_1_51_180526.zip` | 2026-05-18 12:39 |
 | 1.52 | `MLite880_1_52_190526.zip` | 2026-05-19 07:58 |
 | 1.53 | `MLite880_1_53_210526.zip` | 2026-05-21 21:14 |
 | 1.54 | `MLite880_1_54_250526.zip` | 2026-05-25 08:55 |
 | 1.55 | `MLite880_1_55_270526.zip` | 2026-05-27 08:39 (re-upload) |
 
-Firmware 1.30, 1.40 and 1.50 were never posted to the chat — the author published them on `malahiteam.com` or handed them to the manufacturer (Elecevolve). 1.40 and 1.50 are explicitly called "interim" releases by the author.
+Firmware 1.40 and 1.50 were never posted to the chat nor to «Прошивки» — the author calls both "interim" releases (1.40 was a factory-only build for new hardware, 1.50 leaked through the manufacturer and was effectively rolled into 1.51).
 
 ---
 
