@@ -1,8 +1,10 @@
 # MLite-880 Firmware Changelog
 
 Firmware author: **RX9CIM (Георгий)**.
-Source: «Технический чат - MLite-880» Telegram chat, messages by the author himself.
-Export window: 2026-02-03 — 2026-05-27.
+
+Sources:
+- «Технический чат - MLite-880» Telegram topic — discussion + occasional release notes by the author. Export window: 2026-02-03 — 2026-05-27.
+- «Прошивки» Telegram topic — author's release-only posts (consolidated changelogs). Coverage: 2024-04-25 — 2026-05-27.
 
 This document is NOT the flasher changelog — for that see [CHANGELOG.md](CHANGELOG.md).
 This file collects what changed inside each firmware `.bin`, based on what the author wrote in the chat.
@@ -130,20 +132,24 @@ Author's release post: 2026-05-21 21:04:07 (file attached at 21:14).
 
 ### English
 
-Author's release post: 2026-05-19 07:57:51 (file attached at 07:58:00).
+Initial release in the Tech chat: 2026-05-19 07:57:51 — "Looks like the menu 8 bug is fixed" (RX9CIM), file attached at 07:58:00, no details.
 
-**Fixed:**
-- "Looks like the menu 8 bug is fixed" (RX9CIM). No detailed list of changes provided.
+Author later posted a consolidated cumulative changelog in the «Прошивки» topic on 2026-05-20 10:14:25 — same full feature list as the 1.51 release post above, and one explicit delta against 1.51:
+
+**Fixed (vs. 1.51):**
+- Memory-cell handling bug.
 
 **Known issues:**
 - A "preset step" bug surfaced shortly after release in 1.52/1.53 (per the author on 2026-05-24 22:48: "was mentioned in the chat earlier, almost right away").
 
 ### Русский
 
-Релизное сообщение автора: 2026-05-19 07:57:51 (файл выложен в 07:58:00).
+Первое сообщение в Тех. чате: 2026-05-19 07:57:51 — «Вроде баг при работе с меню 8 устранил» (RX9CIM), файл выложен в 07:58:00, без деталей.
 
-**Исправлено:**
-- «Вроде баг при работе с меню 8 устранил» (RX9CIM). Подробного списка изменений не приводится.
+Автор позже выложил накопительный changelog в topic «Прошивки» 2026-05-20 10:14:25 — тот же полный список фич, что и в релиз-посте 1.51 выше, плюс одно явное отличие от 1.51:
+
+**Исправлено (vs. 1.51):**
+- Ошибка при работе с ячейками памяти.
 
 **Известные проблемы:**
 - Позже выяснился баг с шагом в 1.52/53 (по словам автора 2026-05-24 22:48 «писалось ранее в чате, почти сразу же»).
@@ -258,39 +264,69 @@ Bottom line: 1.40 was never publicly distributed; it was installed at the factor
 
 ### English
 
-No detailed release notes from the author.
+Author's release post: 2026-03-15 21:24:13, posted to the «Прошивки» topic (not the Tech chat).
+File never posted to Telegram — distributed via malahiteam.com (RX9CIM 2026-03-28 06:35:46: "Posted the firmware and the manual on malahiteam.com.").
 
-- 2026-03-16 — version 1.3 starts reaching users. File never posted to Telegram.
-- 2026-03-28 06:35:46 RX9CIM: "Posted the firmware and the manual on malahiteam.com."
+**Added:**
+- Another brightness-control option — night mode ("the smouldering effect is perfect at night").
+- Deemphasis setting, multipath-suppression and channel-equalizer options in menu 1.
+- S-meter display in dBm — improved S-meter item in the Visual menu. Note: levels above ~73 dBm are not displayed due to a hardware limitation.
+- Spectrum range adjustment — new "Spectrum gain" item in menu 5.
+- WFM reception-window indicator (visir).
 
-Changes confirmed by users (from author replies and discussion) relative to 1.20:
-- exFAT memory card support (1.2 required FAT) — RX9CIM 2026-03-18: "if the firmware is 1.3, both extFAT and FAT32 are supported."
-- Night-mode backlight added ("the smouldering effect is perfect at night").
-- On 2026-03-16 the author notes "to make the step work correctly a fairly large rework is needed" — by context, this had NOT yet been done in 1.30.
+**Changed:**
+- Frequency correction is now split for frequencies below 27 MHz and above 108 MHz.
+- SD card data format changed from FAT to exFAT (1.2 required FAT) — RX9CIM 2026-03-18: "if the firmware is 1.3, both extFAT and FAT32 are supported."
+- Display no longer wakes up on encoder rotation if it was turned off via key 9.
+- "Display off" overlay removed when toggling display with key 9.
+- Volume leveled across AM, FM, SSB.
+
+**Fixed:**
+- File creation-date bug and player display.
+- Font fixes — letters `g`, `:`, `I`.
+- Encoder behavior.
+- Recorder file-naming bug.
+- Recorder not recording in CW mode.
 
 **Known issues (from chat on 1.3):**
 - In the Visual menu, rotating the encoder on page 2/2 (S-meter / Spectrum gain) changes the inactive item instead (reported 2026-03-18).
 - AM Scan on the air band "jumps to 30 MHz and below or to 130 kHz and above."
 - In AM mode there is no 25 kHz or 12.5 kHz step on the air band.
 - The NR level in the Audio menu only becomes active after NR has been physically turned on via the C key.
+- 2026-03-16 author notes: "to make the step work correctly a fairly large rework is needed" — by context, this had not yet been done in 1.30.
 
 ### Русский
 
-Нет развёрнутого release notes от автора в чате.
+Релизное сообщение автора: 2026-03-15 21:24:13, выложено в topic «Прошивки» (не в Тех. чат).
+Файл в Telegram не выкладывался — распространялся через malahiteam.com (RX9CIM 2026-03-28 06:35:46: «На сайте malahiteam.com выложил прошивку и инструкцию.»).
 
-- 2026-03-16 — версия 1.3 начала появляться у пользователей. Файл в Telegram не выкладывался.
-- 2026-03-28 06:35:46 RX9CIM: «На сайте malahiteam.com выложил прошивку и инструкцию.»
+**Добавлено:**
+- Ещё один пункт регулировки яркости — ночной режим («тлеющий эффект ночью самое то»).
+- В меню 1 — настройка деэмфазиса, опции подавления многолучевого приёма и канального эквалайзера.
+- Вывод S-метра в dBm — доработан пункт S-метр в меню Visual. Внимание: уровни выше ~73 дБм не отображаются, связано с аппаратным ограничением.
+- Регулировка диапазона отображения спектра — новый пункт «Spectrum gain» в меню 5.
+- Отображение визира (области приёма) в режиме WFM.
 
-Подтверждённые пользователями изменения относительно 1.20 (упоминаются в ответах автора и в обсуждении):
-- Поддержка карт памяти exFAT (на 1.2 нужно было FAT) — RX9CIM 2026-03-18: «если прошивка 1.3 то поддерживается и extFAT и FAT32».
-- Добавлен ночной режим подсветки («тлеющий эффект ночью самое то»).
-- В обсуждении 2026-03-16 автор отмечает, что «для того, чтобы шаг корректно работал нужна достаточно большая переделка» — судя по контексту, в 1.30 это ещё не было сделано.
+**Изменено:**
+- Коррекция частоты разделена для частот ниже 27 МГц и выше 108 МГц.
+- Формат данных на SD карте изменён с FAT на exFAT (на 1.2 нужно было FAT) — RX9CIM 2026-03-18: «если прошивка 1.3 то поддерживается и extFAT и FAT32».
+- Дисплей не просыпается при вращении энкодера, если был выключен кнопкой 9.
+- Убрана надпись при выключении дисплея кнопкой 9.
+- Выровнена громкость в АМ, ЧМ, SSB.
+
+**Исправлено:**
+- Баг с датой создания файлов и отображением в плеере.
+- Шрифт — буквы `g`, `:`, `I`.
+- Работа энкодера.
+- Ошибка наименования файлов рекордера.
+- Отсутствие записи рекордера в режиме CW.
 
 **Известные проблемы (из чата по 1.3):**
 - В меню Visual вращение энкодера на странице 2/2 (S-meter / Spectrum gain) меняет настройку неактивного пункта (баг от 2026-03-18).
 - AM Scan на авиа-диапазоне «перепрыгивает на 30 МГц и ниже или на 130 кГц и выше».
 - В режиме AM нет шага 25 кГц или 12.5 кГц на авиа-диапазоне.
 - Уровень NR в меню Аудио активируется только после физического включения NR кнопкой С.
+- 2026-03-16 автор отмечает: «для того, чтобы шаг корректно работал нужна достаточно большая переделка» — судя по контексту, в 1.30 это ещё не было сделано.
 
 ---
 
@@ -353,3 +389,10 @@ RX9CIM (2026-02-16): «Предыдущие прошивки содержали 
 2026-05-25  1.54         108 MHz fix, preset step fix, band labels added
 2026-05-27  1.55         preset fix, 108 MHz fix, P-letter fix, NOAA + pirate bands added
 ```
+
+---
+
+## References / Ссылки
+
+- Author's Telegram channel (MalahitReceiver) — release post used as the source for several entries above: <https://t.me/MalahitReceiver/212201>
+- malahiteam.com — official site where the author distributes firmware and manuals.
