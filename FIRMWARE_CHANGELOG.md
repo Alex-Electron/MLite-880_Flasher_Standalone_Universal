@@ -43,10 +43,6 @@ Author's release post: 2026-05-27 07:38:41.
 - Reception on 108 MHz.
 - The letter "P" in the font.
 
-**Notes:**
-- At 08:06 the author wrote "found a small bug, made it at night, will re-upload" — and at 08:39 re-uploaded `MLite880_1_55_270526.zip` with the same 1.55 build.
-- At 08:34 the author promised "ok, I'll make a plain .bin like before" in response to a complaint that flashing `.hex` and then `.bin` of the same build no longer worked.
-
 ### Русский
 
 Релизное сообщение автора: 2026-05-27 07:38:41.
@@ -63,10 +59,6 @@ Author's release post: 2026-05-27 07:38:41.
 - Ошибка при работе с пресетами (напоминание автора: пресеты можно редактировать только выбрав их в меню 0).
 - Ошибка приёма на частоте 108 МГц.
 - Буква «P» в шрифте.
-
-**Прочее:**
-- 2026-05-27 08:06 автор: «мелкую ошибку нашел, ночью делал. Перезалью файл». В 08:39 выложен исправленный `MLite880_1_55_270526.zip` с тем же билдом 1.55.
-- 2026-05-27 08:34 автор пообещал: «Ладно, сейчас чисто бин как раньше сделаю» (в ответ на жалобу, что после прошивки `.hex` затем `.bin` того же билда не становится).
 
 ---
 
@@ -87,10 +79,6 @@ Author's release post: 2026-05-25 08:58:32 (file attached at 08:55).
 - The 108 MHz reception bug.
 - The "step in presets" bug (mentioned earlier in the chat).
 
-**Notes from the author:**
-- 2026-05-25 08:55:20: "Please do not redistribute the firmware and don't mention it on Facebook yet, or strangers will start writing to me in DMs."
-- 2026-05-25 08:53:53: "For initial testing in this branch first, to close out the logical path" — i.e. positioned as a test build.
-
 ### Русский
 
 Релизное сообщение автора: 2026-05-25 08:58:32 (файл выложен в 08:55).
@@ -105,10 +93,6 @@ Author's release post: 2026-05-25 08:58:32 (file attached at 08:55).
 **Исправлено:**
 - Баг с частотой 108 МГц.
 - Баг с сохранением шага в пресетах (упоминался в чате ранее).
-
-**Прочее (от автора):**
-- 2026-05-25 08:55:20: «Просьба прошивку не распространять и пока не упоминать ни в каких фейсбуках, иначе потом люди непойми откуда начинают писать мне в личку».
-- 2026-05-25 08:53:53: «Для обкатки сначала в данной ветке, чтобы завершить логический путь.» — то есть прошивка позиционируется как тестовая.
 
 ---
 
@@ -149,10 +133,7 @@ Author's release post: 2026-05-21 21:04:07 (file attached at 21:14).
 Author's release post: 2026-05-19 07:57:51 (file attached at 07:58:00).
 
 **Fixed:**
-- "Looks like the menu 8 bug is fixed" (RX9CIM).
-
-**Notes:**
-- The author asks users to test. No detailed list of changes provided.
+- "Looks like the menu 8 bug is fixed" (RX9CIM). No detailed list of changes provided.
 
 **Known issues:**
 - A "preset step" bug surfaced shortly after release in 1.52/1.53 (per the author on 2026-05-24 22:48: "was mentioned in the chat earlier, almost right away").
@@ -162,10 +143,7 @@ Author's release post: 2026-05-19 07:57:51 (file attached at 07:58:00).
 Релизное сообщение автора: 2026-05-19 07:57:51 (файл выложен в 07:58:00).
 
 **Исправлено:**
-- «Вроде баг при работе с меню 8 устранил» (RX9CIM).
-
-**Прочее:**
-- Автор просит протестировать. Подробного списка изменений не приводит.
+- «Вроде баг при работе с меню 8 устранил» (RX9CIM). Подробного списка изменений не приводится.
 
 **Известные проблемы:**
 - Позже выяснился баг с шагом в 1.52/53 (по словам автора 2026-05-24 22:48 «писалось ранее в чате, почти сразу же»).
