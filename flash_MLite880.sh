@@ -2,7 +2,7 @@
 
 # ===================================================
 #  Malachite DSP Firmware Flasher for macOS / Linux
-#  v2.2.0 - Universal Stable Edition
+#  v2.3.0 - Universal Stable Edition
 #  Created by: Alexander Lavrinovich
 #  GitHub: https://github.com/Alex-Electron
 #  Email: EU1L@mail.ru
@@ -16,7 +16,7 @@ BLUE='\033[0;34m'
 NC='\033[0m'
 
 echo -e "${BLUE}===================================================${NC}"
-echo -e "${BLUE}            Malachite DSP Flasher v2.2.0           ${NC}"
+echo -e "${BLUE}            Malachite DSP Flasher v2.3.0           ${NC}"
 echo -e "${BLUE}===================================================${NC}"
 echo ""
 
@@ -71,21 +71,33 @@ if ! command -v "$DFU_BIN" &> /dev/null && [ ! -f "$DFU_BIN" ]; then
             exit 1
         fi
     else
-        # Auto-install prompt for Debian/Ubuntu
-        if command -v apt &> /dev/null; then
-            read -p "Would you like to install dfu-util via apt now? (Requires sudo password) (y/n): " install_apt
-            if [[ "$install_apt" =~ ^[Yy]$ ]]; then
+        # Auto-install prompt for major Linux distros (apt / pacman / dnf / zypper)
+        _install_dfu_util_pkg() {
+            local pkg_mgr="$1"
+            local install_cmd="$2"
+            read -p "Would you like to install dfu-util via ${pkg_mgr} now? (Requires sudo password) (y/n): " install_yn
+            if [[ "$install_yn" =~ ^[Yy]$ ]]; then
                 echo -e "${GREEN}Installing dfu-util...${NC}"
-                sudo apt update && sudo apt install -y dfu-util
+                eval "$install_cmd"
                 DFU_BIN="dfu-util"
             else
                 exit 1
             fi
-            
+
             if ! command -v "$DFU_BIN" &> /dev/null; then
                 echo -e "${RED}[ERROR] Failed to install dfu-util.${NC}"
                 exit 1
             fi
+        }
+
+        if command -v apt &> /dev/null; then
+            _install_dfu_util_pkg "apt" "sudo apt update && sudo apt install -y dfu-util"
+        elif command -v pacman &> /dev/null; then
+            _install_dfu_util_pkg "pacman" "sudo pacman -Sy --noconfirm dfu-util"
+        elif command -v dnf &> /dev/null; then
+            _install_dfu_util_pkg "dnf" "sudo dnf install -y dfu-util"
+        elif command -v zypper &> /dev/null; then
+            _install_dfu_util_pkg "zypper" "sudo zypper install -y dfu-util"
         else
             echo "To install it on Debian/Ubuntu: sudo apt install dfu-util"
             echo "To install it on Fedora/RHEL:   sudo dnf install dfu-util"

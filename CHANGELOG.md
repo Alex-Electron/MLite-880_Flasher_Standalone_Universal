@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.0] - 2026-05-29
+
+### Added
+- **Arch Linux: Interactive Auto-Install** — if `dfu-util` is missing, the script now automatically offers to install it via `pacman` (`sudo pacman -Sy --noconfirm dfu-util`). Same one-click UX as Debian/Ubuntu. Tested on Arch Linux live ISO.
+- **Fedora / RHEL: Interactive Auto-Install** — same auto-install flow via `dnf install -y dfu-util`.
+- **openSUSE: Interactive Auto-Install** — same auto-install flow via `zypper install -y dfu-util`.
+
+### Changed
+- Refactored Linux install path in `flash_MLite880.sh`: shared logic extracted into a `_install_dfu_util_pkg` helper to avoid duplication across the four package managers. The existing `apt` branch behaves identically to v2.2.0.
+- Bumped script version to **2.3.0** in `flash_MLite880.sh`, `flash_MLite880.bat`, and `README.md`.
+
 ## [2.2.0] - 2026-05-27
 
 ### Added
