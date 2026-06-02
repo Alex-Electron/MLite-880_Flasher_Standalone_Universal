@@ -22,8 +22,43 @@ Firmware files the author actually attached to the chat:
 | 1.53 | `MLite880_1_53_210526.zip` | 2026-05-21 21:14 |
 | 1.54 | `MLite880_1_54_250526.zip` | 2026-05-25 08:55 |
 | 1.55 | `MLite880_1_55_270526.zip` | 2026-05-27 08:39 (re-upload) |
+| 1.56 | `MLite880_1_56_020626.zip` | 2026-06-02 12:00 |
 
 Firmware 1.40 and 1.50 were never posted to the chat nor to «Прошивки» — the author calls both "interim" releases (1.40 was a factory-only build for new hardware, 1.50 leaked through the manufacturer and was effectively rolled into 1.51).
+
+---
+
+## [1.56] — 2026-06-02
+
+### English
+
+Author's release post: 2026-06-02.
+
+**Added:**
+- SAMU and SAML modes added. Switch using button 9 in menu 2 (select SAM first, then cycle through SAM, SAMU, SAML).
+- Menu 0: "GEN" function added to return to the frequency, modulation, and step settings used before selecting a preset.
+- Menu 1, page 1, item 4: option to toggle whether presets are used when entering frequency.
+- Menu "About": now displays the hardware version.
+
+**Changed:**
+- Encoder auto-reset: if in "Volume" mode, it automatically returns to "Frequency" mode after 5 seconds of inactivity. Note: if Volume mode was entered using the `#` key, the auto-reset is disabled.
+- S-meter accuracy improved (though it remains an indicative "posometer").
+- Preset editing remains restricted to menu 0 only.
+
+### Русский
+
+Релизное сообщение автора: 2026-06-02.
+
+**Добавлено:**
+- Добавлены режимы SAMU и SAML. Переключаются кнопкой 9 в меню 2 (сначала нужно выбрать SAM, а затем — конкретный тип: SAM, SAMU, SAML).
+- В меню 0 добавлена функция GEN — возврат к частоте, модуляции и шагу, которые были до выбора пресета.
+- В меню 1 (стр. 1, пункт 4) добавлена настройка: использовать ли пресеты при вводе частоты.
+- В меню About теперь указывается версия железа.
+
+**Изменено:**
+- Сброс энкодера: если установлен режим ГРОМКОСТЬ, через 5 секунд бездействия он автоматически переключается в режим ЧАСТОТА. Если режим ГРОМКОСТЬ был выбран кнопкой `#`, автосброс не происходит.
+- Повышена точность S-метра (остаётся оценочным «показометром»).
+- Редактирование пресетов по-прежнему доступно только при их выборе через меню 0.
 
 ---
 
