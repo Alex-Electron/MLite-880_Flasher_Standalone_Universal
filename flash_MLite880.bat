@@ -3,7 +3,7 @@ setlocal EnableDelayedExpansion EnableExtensions
 title Flashing Malachite DSP (MLite-880)
 
 :: ===================================================
-::  Malachite DSP Firmware Flasher v2.4.2
+::  Malachite DSP Firmware Flasher v2.4.3
 ::  Created by: Alexander Lavrinovich
 ::  GitHub: https://github.com/Alex-Electron
 ::  Email: EU1L@mail.ru
@@ -17,7 +17,7 @@ set "STM_VID=0483"
 set "STM_PID=df11"
 
 echo ===================================================
-echo             Malachite DSP Flasher v2.4.2
+echo             Malachite DSP Flasher v2.4.3
 echo.
 echo   Developed by: Alexander Lavrinovich
 echo   GitHub:       https://github.com/Alex-Electron
@@ -184,6 +184,85 @@ goto check_device
 
 :: ----- Firmware selection -----
 :select_firmware
+:: --- DFU device selection ---
+:: dfu-util -l prints one "Found DFU: [VID:PID] ... serial=..." line per alt setting.
+:: Collect the STM32 serials (deduped). If more than one STM32 is in DFU mode at once
+:: (rare), let the user pick which to flash and target it with -S <serial>. The serial is
+:: the last field on each line, so we take everything after "serial=" and strip the quotes.
+set "DFU_SELECT="
+set "devcount=0"
+:: Write the matching "Found DFU" lines to a temp file with a PLAIN command (pipe +
+:: redirect), then read the file with for /f. Putting the dfu-util ^| findstr pipe
+:: directly inside for /f needs fragile escaping and failed on Windows, so we avoid it.
+set "DFU_LIST=%TEMP%\mlite_dfu_%RANDOM%.txt"
+"%DFU_EXE%" -l 2>nul | findstr /C:"Found DFU: [%STM_VID%:%STM_PID%]" > "%DFU_LIST%"
+for /f "usebackq tokens=* delims=" %%L in ("%DFU_LIST%") do (
+    set "line=%%L"
+    :: !line:*serial=! removes up to "serial" but leaves the '=', so drop it with :~1
+    set "ser=!line:*serial=!"
+    set "ser=!ser:~1!"
+    set "ser=!ser:"=!"
+    set "pth=!line:*path=!"
+    set "pth=!pth:~1!"
+    for /f "tokens=1 delims=," %%p in ("!pth!") do set "pth=%%p"
+    set "pth=!pth:"=!"
+    if not defined seen_!ser! (
+        set "seen_!ser!=1"
+        set /a devcount+=1
+        set "devserial[!devcount!]=!ser!"
+        set "devpath[!devcount!]=!pth!"
+    )
+)
+del "%DFU_LIST%" 2>nul
+
+:: Friendly USB product name (best-effort). Run PowerShell as a PLAIN command into a temp
+:: file - the | and & inside the quoted -Command are safe there (no for /f escaping needed).
+:: Falls back to a generic name if PowerShell / Get-PnpDevice is missing or returns nothing.
+set "DEVNAME=STM32 BOOTLOADER"
+set "DN_FILE=%TEMP%\mlite_dn_%RANDOM%.txt"
+powershell -NoProfile -Command "(Get-PnpDevice -PresentOnly | Where-Object { $_.InstanceId -like '*VID_%STM_VID%&PID_%STM_PID%*' } | Select-Object -First 1 -ExpandProperty FriendlyName)" > "%DN_FILE%" 2>nul
+set /p DEVNAME=<"%DN_FILE%"
+del "%DN_FILE%" 2>nul
+:: strip shell metacharacters from the name so it cannot break the echo lines below
+set "DEVNAME=%DEVNAME:&= %"
+set "DEVNAME=%DEVNAME:|= %"
+set "DEVNAME=%DEVNAME:<= %"
+set "DEVNAME=%DEVNAME:>= %"
+
+if %devcount% GTR 1 goto pick_multi
+if %devcount% EQU 1 goto pick_single
+goto fw_select
+
+:pick_single
+call set "chosen_serial=%%devserial[1]%%"
+set "last4=%chosen_serial:~-4%"
+echo [OK] Target: %DEVNAME%   serial %chosen_serial%
+echo      On the receiver's screen (in DFU) you'll see an ID like this:
+echo          XXXX-XXXX-XXXX-%last4%-XXXX-XXXX
+echo      Check that the 4th group reads %last4% (the X groups differ per unit).
+echo.
+goto fw_select
+
+:pick_multi
+echo More than one STM32 DFU device is connected:
+echo ---------------------------------------------------
+for /L %%i in (1,1,%devcount%) do call :show_dev %%i
+echo ---------------------------------------------------
+echo On each receiver's screen, check that the 4th group of its ID matches the one
+echo shown above. You can also unplug one or check Device Manager.
+echo.
+set /p "dchoice=Select the device to flash (1-%devcount%): "
+if "%dchoice%"=="" goto invalid
+if %dchoice% LSS 1 goto invalid
+if %dchoice% GTR %devcount% goto invalid
+call set "chosen_serial=%%devserial[%dchoice%]%%"
+set "DFU_SELECT=-S %chosen_serial%"
+echo.
+echo Target: %DEVNAME%   serial %chosen_serial%
+echo.
+goto fw_select
+
+:fw_select
 set "count=0"
 :: Sort newest-first by the YYYYMMDD date embedded at the end of each filename
 :: (the last 8 chars before .bin), so the newest stays option [1] even when the
@@ -233,7 +312,7 @@ pause
 
 echo.
 echo ===================================================
-echo FLASHING... (this can take several minutes for 2 MB)
+echo FLASHING... (this takes about 3 minutes for 2 MB)
 echo DO NOT DISCONNECT the receiver until you see SUCCESS!
 echo ===================================================
 echo.
@@ -245,7 +324,7 @@ echo.
 :: comma as an argument separator.
 ::
 :: Run dfu-util directly (no pipe or redirect) so the user sees its live progress bar.
-"%DFU_EXE%" -d "%STM_VID%:%STM_PID%,%STM_VID%:%STM_PID%" -a 0 -s 0x08000000:force:leave -D "%FIRMWARE_PATH%"
+"%DFU_EXE%" -d "%STM_VID%:%STM_PID%,%STM_VID%:%STM_PID%" %DFU_SELECT% -a 0 -s 0x08000000:force:leave -D "%FIRMWARE_PATH%"
 set "DFU_EXIT=%ERRORLEVEL%"
 
 :: Judge success by the exit code. After a good flash dfu-util sends `:leave`, the device
@@ -277,3 +356,12 @@ exit /b %RESULT%
 echo [ERROR] Invalid selection.
 pause
 exit /b 1
+
+:show_dev
+:: print one device line + its expected on-screen ID template (called per device)
+call set "_s=%%devserial[%1]%%"
+call set "_p=%%devpath[%1]%%"
+set "_l4=!_s:~-4!"
+echo   [%1] %DEVNAME%   serial !_s!   USB port !_p!
+echo        on-screen ID: XXXX-XXXX-XXXX-!_l4!-XXXX-XXXX
+goto :eof

@@ -1,6 +1,7 @@
-# Malachite DSP (MLite-880) Universal Flasher v2.4.2
+# Malachite DSP (MLite-880) Universal Flasher v2.4.3
 
 **🌐 Language:** English · [Русский (Russian) →](README_RU.md)
+**📋 Changelog:** [CHANGELOG.md](CHANGELOG.md) (flasher version history)
 
 This is a standalone firmware flashing toolkit for the Malachite DSP (MLite-880) receiver.
 Supports Windows, macOS, and Linux.

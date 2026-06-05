@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.3] - 2026-06-05
+
+### Added
+- **DFU device picker.** When more than one STM32 is in DFU mode at once, the flasher lists the devices (product name, serial, USB port) and lets you pick which one to flash, targeting it with `-S <serial>`. A single device is shown as a confirmation. The receiver's on-screen ID is presented as a template `XXXX-XXXX-XXXX-<group>-XXXX-XXXX` so you can match the 4th group against the screen.
+- **Friendly product name** in the picker (e.g. `Malahit-Lite DFU`): macOS via `system_profiler`, Linux via sysfs, Windows via a best-effort PowerShell `Get-PnpDevice` call (falling back to `STM32 BOOTLOADER`).
+- **Russian changelog** (`CHANGELOG_RU.md`) and a direct **Changelog** link in the header of both `README.md` and `README_RU.md`.
+
+### Fixed
+- **Linux: serial and name read as "UNKNOWN".** On some setups (e.g. a receiver behind VM USB passthrough) dfu-util cannot read the device's USB string descriptors and reports `UNKNOWN`, even though the kernel cached them at enumeration. The picker now reads the serial and product name from sysfs by USB path, so they stay correct (verified on Arch and Ubuntu VMs).
+- **Misleading flashing-time message:** now says *"this takes about 3 minutes for 2 MB"* instead of *"5-15 seconds"* in both scripts.
+
+### Changed
+- Brighter (green) banner in `flash_MLite880.sh`.
+- Bumped script version to **2.4.3** in `flash_MLite880.sh`, `flash_MLite880.bat`, `README.md`, and `README_RU.md`.
+
 ## [2.4.2] - 2026-06-05
 
 ### Fixed

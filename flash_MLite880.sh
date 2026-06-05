@@ -2,7 +2,7 @@
 
 # ===================================================
 #  Malachite DSP Firmware Flasher for macOS / Linux
-#  v2.4.2 - Universal Stable Edition
+#  v2.4.3 - Universal Stable Edition
 #  Created by: Alexander Lavrinovich
 #  GitHub: https://github.com/Alex-Electron
 #  Email: EU1L@mail.ru
@@ -12,12 +12,12 @@
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
+BANNER='\033[1;92m'
 NC='\033[0m'
 
-echo -e "${BLUE}===================================================${NC}"
-echo -e "${BLUE}            Malachite DSP Flasher v2.4.2           ${NC}"
-echo -e "${BLUE}===================================================${NC}"
+echo -e "${BANNER}===================================================${NC}"
+echo -e "${BANNER}            Malachite DSP Flasher v2.4.3           ${NC}"
+echo -e "${BANNER}===================================================${NC}"
 echo ""
 
 DIR="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -200,6 +200,105 @@ fi
 echo -e "${GREEN}[OK] DFU device detected and ready.${NC}"
 echo ""
 
+# --- DFU device selection ---
+# dfu-util -l prints one "Found DFU: [VID:PID] ... serial=... path=..." line per alt
+# setting, so we collect the STM32 (0483:df11) lines and dedupe by serial. We also
+# look up each device's friendly USB product name (e.g. "Malahit-Lite DFU") from the
+# OS, because dfu-util only reports the flash-layout name. If more than one STM32 is
+# in DFU mode at once (rare), we let the user pick and target the choice with
+# `-S <serial>`. The on-screen receiver ID and the USB serial are different encodings
+# of the same chip UID — only the serial's last 4 digits appear on the screen, so we
+# show those as a sanity-check.
+
+# Capture the OS USB inventory once (macOS system_profiler is slow); used for the name.
+_usb_inv=""
+case "$OSTYPE" in
+    darwin*) _usb_inv="$(system_profiler SPUSBDataType 2>/dev/null)" ;;
+esac
+
+# Resolve a DFU device's serial + product name. dfu-util -l sometimes reports them as
+# "UNKNOWN" (e.g. a device behind VM USB passthrough, where dfu-util's libusb cannot read
+# the string descriptors) even though the kernel cached them at enumeration. So on Linux we
+# read both straight from sysfs by USB path; on macOS we key system_profiler on the serial.
+# Sets _pick_serial / _pick_name.  $1 = USB path (e.g. 1-2.1)   $2 = dfu-util's serial.
+_pick_serial=""; _pick_name=""
+_resolve_dev() {
+    _pick_serial=""; _pick_name=""
+    case "$OSTYPE" in
+        linux*)
+            if [ -d "/sys/bus/usb/devices/$1" ]; then
+                _pick_serial="$(cat "/sys/bus/usb/devices/$1/serial" 2>/dev/null)"
+                _pick_name="$(cat "/sys/bus/usb/devices/$1/product" 2>/dev/null)"
+            fi ;;
+        darwin*)
+            if [ -n "$2" ] && [ "$2" != "UNKNOWN" ]; then
+                _pick_serial="$2"
+                _pick_name="$(printf '%s\n' "$_usb_inv" | awk -v want="$2" '
+                    /:[[:space:]]*$/ { nm=$0; sub(/^[[:space:]]+/,"",nm); sub(/:[[:space:]]*$/,"",nm) }
+                    /Serial Number:/ { s=$0; sub(/.*Serial Number:[[:space:]]*/,"",s); if (s==want) { print nm; exit } }')"
+            fi ;;
+    esac
+    # fall back to dfu-util's own serial if the OS layer gave nothing usable
+    if [ -z "$_pick_serial" ] || [ "$_pick_serial" = "UNKNOWN" ]; then
+        if [ -n "$2" ] && [ "$2" != "UNKNOWN" ]; then _pick_serial="$2"; else _pick_serial=""; fi
+    fi
+    [ -n "$_pick_name" ] || _pick_name="STM32 BOOTLOADER"
+}
+
+DFU_SELECT=()                       # extra dfu-util args to target the chosen device
+sel_serials=()
+sel_paths=()
+sel_names=()
+while IFS= read -r _line; do
+    case "$_line" in
+        *"Found DFU: [0483:df11]"*)
+            _ser="${_line##*serial=\"}"; _ser="${_ser%%\"*}"
+            _pth="${_line##*path=\"}";   _pth="${_pth%%\"*}"
+            # dedupe by USB path (reliable even when the serial reads as UNKNOWN)
+            _dup=0
+            for _p in "${sel_paths[@]}"; do [ "$_p" = "$_pth" ] && _dup=1 && break; done
+            if [ "$_dup" -eq 0 ]; then
+                _resolve_dev "$_pth" "$_ser"
+                sel_serials+=("$_pick_serial")
+                sel_paths+=("$_pth")
+                sel_names+=("$_pick_name")
+            fi
+            ;;
+    esac
+done <<EOF
+$("$DFU_BIN" -l 2>/dev/null)
+EOF
+
+_devn=${#sel_serials[@]}
+if [ "$_devn" -gt 1 ]; then
+    echo -e "${GREEN}More than one STM32 DFU device is connected:${NC}"
+    echo "---------------------------------------------------"
+    _i=1
+    for _ser in "${sel_serials[@]}"; do
+        echo -e "  [$_i] ${sel_names[$_i-1]}   serial ${YELLOW}${_ser:-n/a}${NC}   USB port ${sel_paths[$_i-1]:-n/a}"
+        echo -e "        on-screen ID:  ${YELLOW}XXXX-XXXX-XXXX-${_ser: -4}-XXXX-XXXX${NC}"
+        _i=$((_i+1))
+    done
+    echo "---------------------------------------------------"
+    echo -e "${YELLOW}Which is which?${NC} On each receiver's screen, check that the 4th group of its ID"
+    echo -e "      matches the one shown above. You can also unplug one or match the USB port."
+    echo ""
+    read -p "Select the device to flash (1-$_devn): " _dchoice
+    if ! [[ "$_dchoice" =~ ^[0-9]+$ ]] || [ "$_dchoice" -lt 1 ] || [ "$_dchoice" -gt "$_devn" ]; then
+        echo -e "${RED}[ERROR] Invalid device selection!${NC}"
+        exit 1
+    fi
+    DFU_SELECT=(-S "${sel_serials[$_dchoice-1]}")
+    echo -e "${YELLOW}Target: ${sel_names[$_dchoice-1]}  serial ${sel_serials[$_dchoice-1]}  (screen 4th group ${sel_serials[$_dchoice-1]: -4})${NC}"
+    echo ""
+elif [ "$_devn" -eq 1 ] && [ -n "${sel_serials[0]}" ]; then
+    echo -e "${GREEN}[OK] Target: ${sel_names[0]}  serial ${sel_serials[0]}${NC}"
+    echo -e "     On the receiver's screen (in DFU) you'll see an ID like this:"
+    echo -e "         ${YELLOW}XXXX-XXXX-XXXX-${sel_serials[0]: -4}-XXXX-XXXX${NC}"
+    echo -e "     Check that the 4th group reads ${YELLOW}${sel_serials[0]: -4}${NC} (the X groups differ per unit)."
+    echo ""
+fi
+
 # Build the firmware list newest-first. Sort by the YYYYMMDD date embedded at the
 # end of each filename (MLite880_vX.YY_YYYYMMDD.bin) rather than by raw name, so the
 # newest stays option [1] even when the version-number width changes (e.g. v1.100 or
@@ -254,7 +353,7 @@ echo ""
 read -p "Press Enter when ready to flash..."
 
 echo -e "\n${YELLOW}===================================================${NC}"
-echo -e "${YELLOW}FLASHING... (Please wait 5-15 seconds)${NC}"
+echo -e "${YELLOW}FLASHING... (this takes about 3 minutes for 2 MB)${NC}"
 echo -e "${YELLOW}DO NOT DISCONNECT!${NC}"
 echo -e "${YELLOW}===================================================${NC}"
 
@@ -266,7 +365,7 @@ DFU_LOG="$(mktemp 2>/dev/null || echo "/tmp/dfu_log.$$")"
 # aborts with "More than one DFU capable device" when another DFU-capable device (e.g. a
 # laptop webcam) shares the USB bus. BOTH VID:PID pairs are required: a single pair filters
 # only run-time devices, not ones already in DFU mode (verified against dfu-util 0.11).
-"$DFU_BIN" -d 0483:df11,0483:df11 -a 0 -s 0x08000000:force:leave -D "$selected_file" 2>&1 | tee "$DFU_LOG"
+"$DFU_BIN" -d 0483:df11,0483:df11 "${DFU_SELECT[@]}" -a 0 -s 0x08000000:force:leave -D "$selected_file" 2>&1 | tee "$DFU_LOG"
 RESULT=${PIPESTATUS[0]}
 
 # A successful flash is indicated by "File downloaded successfully" in the dfu-util output.
