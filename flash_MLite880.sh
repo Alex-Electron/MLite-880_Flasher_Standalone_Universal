@@ -200,11 +200,14 @@ fi
 echo -e "${GREEN}[OK] DFU device detected and ready.${NC}"
 echo ""
 
-# Find all .bin files
+# Find all .bin files, newest first. Glob expansion is sorted ascending, so we
+# walk it in reverse: with the MLite880_vX.YY_YYYYMMDD naming the highest version
+# ends up as option [1].
 bin_files=("$DIR"/*.bin)
 valid_files=()
 count=0
-for file in "${bin_files[@]}"; do
+for (( idx=${#bin_files[@]}-1 ; idx>=0 ; idx-- )); do
+    file="${bin_files[idx]}"
     if [ -f "$file" ]; then
         valid_files+=("$file")
         count=$((count+1))
@@ -232,7 +235,8 @@ done
 echo "---------------------------------------------------"
 echo ""
 
-read -p "Select a firmware to flash (1-$count): " choice
+read -p "Select a firmware to flash (1-$count) [Enter = 1, newest]: " choice
+choice="${choice:-1}"
 if ! [[ "$choice" =~ ^[0-9]+$ ]] || [ "$choice" -lt 1 ] || [ "$choice" -gt "$count" ]; then
     echo -e "${RED}[ERROR] Invalid selection!${NC}"
     exit 1

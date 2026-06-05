@@ -185,10 +185,12 @@ goto check_device
 :: ----- Firmware selection -----
 :select_firmware
 set "count=0"
-for %%f in ("%SCRIPT_DIR%*.bin") do (
+:: dir /o-n lists names in descending order, so the newest firmware (highest
+:: version) appears first and becomes option [1].
+for /f "delims=" %%f in ('dir /b /a-d /o-n "%SCRIPT_DIR%*.bin" 2^>nul') do (
     set /a count+=1
     set "file[!count!]=%%~nxf"
-    set "path[!count!]=%%f"
+    set "path[!count!]=%SCRIPT_DIR%%%f"
 )
 
 if %count%==0 (
@@ -205,8 +207,8 @@ for /L %%i in (1, 1, %count%) do (
 echo ---------------------------------------------------
 echo.
 
-set /p "choice=Select firmware (1-%count%): "
-if "%choice%"=="" goto invalid
+set /p "choice=Select firmware (1-%count%) [Enter = 1, newest]: "
+if "%choice%"=="" set "choice=1"
 if %choice% LSS 1 goto invalid
 if %choice% GTR %count% goto invalid
 
