@@ -256,7 +256,11 @@ echo -e "${YELLOW}===================================================${NC}"
 # We need the captured output to detect the real success even when dfu-util returns
 # a non-zero exit code due to the device rebooting right after `:leave`.
 DFU_LOG="$(mktemp 2>/dev/null || echo "/tmp/dfu_log.$$")"
-"$DFU_BIN" -a 0 -s 0x08000000:force:leave -D "$selected_file" 2>&1 | tee "$DFU_LOG"
+# -d 0483:df11,0483:df11 targets only our STM32 (already in DFU mode). Without it dfu-util
+# aborts with "More than one DFU capable device" when another DFU-capable device (e.g. a
+# laptop webcam) shares the USB bus. BOTH VID:PID pairs are required: a single pair filters
+# only run-time devices, not ones already in DFU mode (verified against dfu-util 0.11).
+"$DFU_BIN" -d 0483:df11,0483:df11 -a 0 -s 0x08000000:force:leave -D "$selected_file" 2>&1 | tee "$DFU_LOG"
 RESULT=${PIPESTATUS[0]}
 
 # A successful flash is indicated by "File downloaded successfully" in the dfu-util output.

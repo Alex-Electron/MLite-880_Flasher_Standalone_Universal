@@ -230,7 +230,11 @@ echo.
 :: We DO NOT pipe or tee this output, because PowerShell/cmd pipes strip the 
 :: carriage return (\r) characters that dfu-util uses to draw its live progress bar,
 :: causing it to spam hundreds of new lines instead of updating a single line.
-"%DFU_EXE%" -a 0 -s 0x08000000:force:leave -D "%FIRMWARE_PATH%"
+:: -d <vid:pid>,<vid:pid> targets only our STM32 (already in DFU mode). Without it dfu-util
+:: aborts with "More than one DFU capable device" when another DFU-capable device (e.g. a
+:: webcam) shares the USB bus. BOTH pairs are required: a single pair filters only run-time
+:: devices, not ones already in DFU mode.
+"%DFU_EXE%" -d %STM_VID%:%STM_PID%,%STM_VID%:%STM_PID% -a 0 -s 0x08000000:force:leave -D "%FIRMWARE_PATH%"
 set "DFU_EXIT=%ERRORLEVEL%"
 
 :: dfu-util's exit code is unreliable: after `:leave` the device resets and detaches
