@@ -191,7 +191,12 @@ goto check_device
 :: the last field on each line, so we take everything after "serial=" and strip the quotes.
 set "DFU_SELECT="
 set "devcount=0"
-for /f "tokens=*" %%L in ('"%DFU_EXE%" -l 2^>nul ^| findstr /C:"Found DFU: [%STM_VID%:%STM_PID%]"') do (
+:: Write the matching "Found DFU" lines to a temp file with a PLAIN command (pipe +
+:: redirect), then read the file with for /f. Putting the dfu-util ^| findstr pipe
+:: directly inside for /f needs fragile escaping and failed on Windows, so we avoid it.
+set "DFU_LIST=%TEMP%\mlite_dfu_%RANDOM%.txt"
+"%DFU_EXE%" -l 2>nul | findstr /C:"Found DFU: [%STM_VID%:%STM_PID%]" > "%DFU_LIST%"
+for /f "usebackq tokens=* delims=" %%L in ("%DFU_LIST%") do (
     set "line=%%L"
     set "ser=!line:*serial=!"
     set "ser=!ser:"=!"
@@ -205,12 +210,16 @@ for /f "tokens=*" %%L in ('"%DFU_EXE%" -l 2^>nul ^| findstr /C:"Found DFU: [%STM
         set "devpath[!devcount!]=!pth!"
     )
 )
+del "%DFU_LIST%" 2>nul
 
-:: Friendly USB product name (best-effort, one PowerShell call). It is the same for
-:: every Malachite unit, so we look it up once and use it as the label. Falls back to
-:: a generic name if PowerShell / Get-PnpDevice is unavailable or returns nothing.
+:: Friendly USB product name (best-effort). Run PowerShell as a PLAIN command into a temp
+:: file - the | and & inside the quoted -Command are safe there (no for /f escaping needed).
+:: Falls back to a generic name if PowerShell / Get-PnpDevice is missing or returns nothing.
 set "DEVNAME=STM32 BOOTLOADER"
-for /f "usebackq delims=" %%n in (`powershell -NoProfile -Command "(Get-PnpDevice -PresentOnly ^| Where-Object { $_.InstanceId -like '*VID_%STM_VID%^&PID_%STM_PID%*' } ^| Select-Object -First 1 -ExpandProperty FriendlyName)" 2^>nul`) do set "DEVNAME=%%n"
+set "DN_FILE=%TEMP%\mlite_dn_%RANDOM%.txt"
+powershell -NoProfile -Command "(Get-PnpDevice -PresentOnly | Where-Object { $_.InstanceId -like '*VID_%STM_VID%&PID_%STM_PID%*' } | Select-Object -First 1 -ExpandProperty FriendlyName)" > "%DN_FILE%" 2>nul
+set /p DEVNAME=<"%DN_FILE%"
+del "%DN_FILE%" 2>nul
 :: strip shell metacharacters from the name so it cannot break the echo lines below
 set "DEVNAME=%DEVNAME:&= %"
 set "DEVNAME=%DEVNAME:|= %"
