@@ -1,4 +1,6 @@
-# Malachite DSP (MLite-880) Universal Flasher v2.4.0
+# Malachite DSP (MLite-880) Universal Flasher v2.4.1
+
+**🌐 Language:** English · [Русский (Russian) →](README_RU.md)
 
 This is a standalone firmware flashing toolkit for the Malachite DSP (MLite-880) receiver.
 Supports Windows, macOS, and Linux.
@@ -9,6 +11,23 @@ GitHub: https://github.com/Alex-Electron
 Email: EU1L@mail.ru
 
 > For per-version firmware changes (compiled from the author's posts in the official Telegram chat), see [FIRMWARE_CHANGELOG.md](FIRMWARE_CHANGELOG.md). Firmware author: **RX9CIM (Георгий)**.
+
+## 📥 New to GitHub? Download the Toolkit First
+
+You don't need a GitHub account or any knowledge of Git. The whole toolkit is one folder of files, and you grab it as a single ZIP.
+
+1. Open the project page: **https://github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal**
+2. Click the green **`< > Code`** button near the top of the file list.
+3. Pick **Download ZIP** from the menu that drops down.
+4. Find the `...-main.zip` file you just downloaded and unpack it:
+   - **Windows** — right-click the ZIP, choose *Extract All*.
+   - **macOS** — double-click the ZIP.
+   - **Linux** — right-click, choose *Extract Here*, or run `unzip <file>.zip` in a terminal.
+5. Open the unpacked folder. The firmware `.bin` files, the flasher scripts, and the Windows drivers are all sitting inside it.
+
+Need an older or a specific version? Open the [Releases](https://github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal/releases) page, click a release, and download **Source code (zip)** under *Assets*.
+
+Once the folder is on your computer, follow the flashing steps below.
 
 ## 🚀 How to Flash Firmware
 

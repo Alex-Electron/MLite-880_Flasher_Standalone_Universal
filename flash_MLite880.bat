@@ -3,7 +3,7 @@ setlocal EnableDelayedExpansion EnableExtensions
 title Flashing Malachite DSP (MLite-880)
 
 :: ===================================================
-::  Malachite DSP Firmware Flasher v2.4.0
+::  Malachite DSP Firmware Flasher v2.4.1
 ::  Created by: Alexander Lavrinovich
 ::  GitHub: https://github.com/Alex-Electron
 ::  Email: EU1L@mail.ru
@@ -17,7 +17,7 @@ set "STM_VID=0483"
 set "STM_PID=df11"
 
 echo ===================================================
-echo             Malachite DSP Flasher v2.4.0
+echo             Malachite DSP Flasher v2.4.1
 echo.
 echo   Developed by: Alexander Lavrinovich
 echo   GitHub:       https://github.com/Alex-Electron

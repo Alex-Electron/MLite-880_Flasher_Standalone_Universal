@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.1] - 2026-06-05
+
+### Added
+- **Russian documentation** — full Russian translation of the README in `README_RU.md`, linked from a language switcher at the top of the English `README.md`.
+- **"New to GitHub?" download guide** in `README.md` — a step-by-step walkthrough for first-time users: how to grab the toolkit as a ZIP from the green `Code` button (or the Releases page) and unpack it on Windows, macOS, or Linux.
+
+### Changed
+- Bumped script version to **2.4.1** in `flash_MLite880.sh`, `flash_MLite880.bat`, and `README.md`.
+
 ## [2.4.0] - 2026-06-02
 
 ### Added
