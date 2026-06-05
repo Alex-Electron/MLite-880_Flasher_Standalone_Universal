@@ -1,6 +1,7 @@
-# Универсальный прошивальщик Malachite DSP (MLite-880) v2.4.2
+# Универсальный прошивальщик Malachite DSP (MLite-880) v2.4.3
 
 **🌐 Язык:** [← English](README.md) · Русский
+**📋 Список изменений:** [CHANGELOG_RU.md](CHANGELOG_RU.md) (история версий прошивальщика)
 
 Автономный набор инструментов для прошивки приёмника Malachite DSP (MLite-880).
 Работает на Windows, macOS и Linux.

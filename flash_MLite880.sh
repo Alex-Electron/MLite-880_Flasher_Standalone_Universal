@@ -2,7 +2,7 @@
 
 # ===================================================
 #  Malachite DSP Firmware Flasher for macOS / Linux
-#  v2.4.2 - Universal Stable Edition
+#  v2.4.3 - Universal Stable Edition
 #  Created by: Alexander Lavrinovich
 #  GitHub: https://github.com/Alex-Electron
 #  Email: EU1L@mail.ru
@@ -12,12 +12,12 @@
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
+BANNER='\033[1;92m'
 NC='\033[0m'
 
-echo -e "${BLUE}===================================================${NC}"
-echo -e "${BLUE}            Malachite DSP Flasher v2.4.2           ${NC}"
-echo -e "${BLUE}===================================================${NC}"
+echo -e "${BANNER}===================================================${NC}"
+echo -e "${BANNER}            Malachite DSP Flasher v2.4.3           ${NC}"
+echo -e "${BANNER}===================================================${NC}"
 echo ""
 
 DIR="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -210,27 +210,39 @@ echo ""
 # of the same chip UID — only the serial's last 4 digits appear on the screen, so we
 # show those as a sanity-check.
 
-# Capture the OS USB inventory once (macOS system_profiler is slow) to map serial->name.
+# Capture the OS USB inventory once (macOS system_profiler is slow); used for the name.
 _usb_inv=""
 case "$OSTYPE" in
     darwin*) _usb_inv="$(system_profiler SPUSBDataType 2>/dev/null)" ;;
 esac
-_dev_name_for_serial() {   # $1 = serial -> prints the product name, or nothing
+
+# Resolve a DFU device's serial + product name. dfu-util -l sometimes reports them as
+# "UNKNOWN" (e.g. a device behind VM USB passthrough, where dfu-util's libusb cannot read
+# the string descriptors) even though the kernel cached them at enumeration. So on Linux we
+# read both straight from sysfs by USB path; on macOS we key system_profiler on the serial.
+# Sets _pick_serial / _pick_name.  $1 = USB path (e.g. 1-2.1)   $2 = dfu-util's serial.
+_pick_serial=""; _pick_name=""
+_resolve_dev() {
+    _pick_serial=""; _pick_name=""
     case "$OSTYPE" in
-        darwin*)
-            printf '%s\n' "$_usb_inv" | awk -v want="$1" '
-                /:[[:space:]]*$/ { nm=$0; sub(/^[[:space:]]+/,"",nm); sub(/:[[:space:]]*$/,"",nm) }
-                /Serial Number:/ { s=$0; sub(/.*Serial Number:[[:space:]]*/,"",s); if (s==want) { print nm; exit } }
-            ' ;;
         linux*)
-            for _d in /sys/bus/usb/devices/*; do
-                [ -f "$_d/idVendor" ] && [ -f "$_d/idProduct" ] || continue
-                [ "$(cat "$_d/idVendor" 2>/dev/null)" = "0483" ] || continue
-                [ "$(cat "$_d/idProduct" 2>/dev/null)" = "df11" ] || continue
-                [ "$(cat "$_d/serial" 2>/dev/null)" = "$1" ] || continue
-                cat "$_d/product" 2>/dev/null; return
-            done ;;
+            if [ -d "/sys/bus/usb/devices/$1" ]; then
+                _pick_serial="$(cat "/sys/bus/usb/devices/$1/serial" 2>/dev/null)"
+                _pick_name="$(cat "/sys/bus/usb/devices/$1/product" 2>/dev/null)"
+            fi ;;
+        darwin*)
+            if [ -n "$2" ] && [ "$2" != "UNKNOWN" ]; then
+                _pick_serial="$2"
+                _pick_name="$(printf '%s\n' "$_usb_inv" | awk -v want="$2" '
+                    /:[[:space:]]*$/ { nm=$0; sub(/^[[:space:]]+/,"",nm); sub(/:[[:space:]]*$/,"",nm) }
+                    /Serial Number:/ { s=$0; sub(/.*Serial Number:[[:space:]]*/,"",s); if (s==want) { print nm; exit } }')"
+            fi ;;
     esac
+    # fall back to dfu-util's own serial if the OS layer gave nothing usable
+    if [ -z "$_pick_serial" ] || [ "$_pick_serial" = "UNKNOWN" ]; then
+        if [ -n "$2" ] && [ "$2" != "UNKNOWN" ]; then _pick_serial="$2"; else _pick_serial=""; fi
+    fi
+    [ -n "$_pick_name" ] || _pick_name="STM32 BOOTLOADER"
 }
 
 DFU_SELECT=()                       # extra dfu-util args to target the chosen device
@@ -242,14 +254,14 @@ while IFS= read -r _line; do
         *"Found DFU: [0483:df11]"*)
             _ser="${_line##*serial=\"}"; _ser="${_ser%%\"*}"
             _pth="${_line##*path=\"}";   _pth="${_pth%%\"*}"
+            # dedupe by USB path (reliable even when the serial reads as UNKNOWN)
             _dup=0
-            for _s in "${sel_serials[@]}"; do [ "$_s" = "$_ser" ] && _dup=1 && break; done
+            for _p in "${sel_paths[@]}"; do [ "$_p" = "$_pth" ] && _dup=1 && break; done
             if [ "$_dup" -eq 0 ]; then
-                _nm="$(_dev_name_for_serial "$_ser")"
-                [ -n "$_nm" ] || _nm="STM32 BOOTLOADER"
-                sel_serials+=("$_ser")
+                _resolve_dev "$_pth" "$_ser"
+                sel_serials+=("$_pick_serial")
                 sel_paths+=("$_pth")
-                sel_names+=("$_nm")
+                sel_names+=("$_pick_name")
             fi
             ;;
     esac
@@ -341,7 +353,7 @@ echo ""
 read -p "Press Enter when ready to flash..."
 
 echo -e "\n${YELLOW}===================================================${NC}"
-echo -e "${YELLOW}FLASHING... (Please wait 5-15 seconds)${NC}"
+echo -e "${YELLOW}FLASHING... (this takes about 3 minutes for 2 MB)${NC}"
 echo -e "${YELLOW}DO NOT DISCONNECT!${NC}"
 echo -e "${YELLOW}===================================================${NC}"
 
