@@ -184,6 +184,62 @@ goto check_device
 
 :: ----- Firmware selection -----
 :select_firmware
+:: --- DFU device selection ---
+:: dfu-util -l prints one "Found DFU: [VID:PID] ... serial=..." line per alt setting.
+:: Collect the STM32 serials (deduped). If more than one STM32 is in DFU mode at once
+:: (rare), let the user pick which to flash and target it with -S <serial>. The serial is
+:: the last field on each line, so we take everything after "serial=" and strip the quotes.
+set "DFU_SELECT="
+set "devcount=0"
+for /f "tokens=*" %%L in ('"%DFU_EXE%" -l 2^>nul ^| findstr /C:"Found DFU: [%STM_VID%:%STM_PID%]"') do (
+    set "line=%%L"
+    set "ser=!line:*serial=!"
+    set "ser=!ser:"=!"
+    if not defined seen_!ser! (
+        set "seen_!ser!=1"
+        set /a devcount+=1
+        set "devserial[!devcount!]=!ser!"
+    )
+)
+
+:: Friendly USB product name (best-effort, one PowerShell call). It is the same for
+:: every Malachite unit, so we look it up once and use it as the label. Falls back to
+:: a generic name if PowerShell / Get-PnpDevice is unavailable or returns nothing.
+set "DEVNAME=STM32 BOOTLOADER"
+for /f "usebackq delims=" %%n in (`powershell -NoProfile -Command "(Get-PnpDevice -PresentOnly ^| Where-Object { $_.InstanceId -like '*VID_%STM_VID%^&PID_%STM_PID%*' } ^| Select-Object -First 1 -ExpandProperty FriendlyName)" 2^>nul`) do set "DEVNAME=%%n"
+
+if %devcount% GTR 1 goto pick_multi
+if %devcount% EQU 1 goto pick_single
+goto fw_select
+
+:pick_single
+call set "chosen_serial=%%devserial[1]%%"
+echo [OK] Target: %DEVNAME%   serial %chosen_serial%
+echo      Sanity check: the last 4 digits of that serial should appear in the ID shown
+echo      on your receiver's screen while it is in DFU mode.
+echo.
+goto fw_select
+
+:pick_multi
+echo More than one STM32 DFU device is connected:
+echo ---------------------------------------------------
+for /L %%i in (1,1,%devcount%) do call echo   [%%i] %DEVNAME%   serial=%%devserial[%%i]%%
+echo ---------------------------------------------------
+echo The last 4 digits of a serial appear in the ID on that receiver's screen (DFU mode).
+echo You can also unplug one or check Device Manager.
+echo.
+set /p "dchoice=Select the device to flash (1-%devcount%): "
+if "%dchoice%"=="" goto invalid
+if %dchoice% LSS 1 goto invalid
+if %dchoice% GTR %devcount% goto invalid
+call set "chosen_serial=%%devserial[%dchoice%]%%"
+set "DFU_SELECT=-S %chosen_serial%"
+echo.
+echo Target: %DEVNAME%   serial %chosen_serial%
+echo.
+goto fw_select
+
+:fw_select
 set "count=0"
 :: Sort newest-first by the YYYYMMDD date embedded at the end of each filename
 :: (the last 8 chars before .bin), so the newest stays option [1] even when the
@@ -245,7 +301,7 @@ echo.
 :: comma as an argument separator.
 ::
 :: Run dfu-util directly (no pipe or redirect) so the user sees its live progress bar.
-"%DFU_EXE%" -d "%STM_VID%:%STM_PID%,%STM_VID%:%STM_PID%" -a 0 -s 0x08000000:force:leave -D "%FIRMWARE_PATH%"
+"%DFU_EXE%" -d "%STM_VID%:%STM_PID%,%STM_VID%:%STM_PID%" %DFU_SELECT% -a 0 -s 0x08000000:force:leave -D "%FIRMWARE_PATH%"
 set "DFU_EXIT=%ERRORLEVEL%"
 
 :: Judge success by the exit code. After a good flash dfu-util sends `:leave`, the device
