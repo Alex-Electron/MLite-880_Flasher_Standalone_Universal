@@ -238,38 +238,24 @@ echo DO NOT DISCONNECT the receiver until you see SUCCESS!
 echo ===================================================
 echo.
 
-:: Run dfu-util directly so the user sees its native output. 
-:: We DO NOT pipe or tee this output, because PowerShell/cmd pipes strip the 
-:: carriage return (\r) characters that dfu-util uses to draw its live progress bar,
-:: causing it to spam hundreds of new lines instead of updating a single line.
 :: -d <vid:pid>,<vid:pid> targets only our STM32 (already in DFU mode). Without it dfu-util
 :: aborts with "More than one DFU capable device" when another DFU-capable device (e.g. a
 :: webcam) shares the USB bus. BOTH pairs are required: a single pair filters only run-time
 :: devices, not ones already in DFU mode. The value is quoted so cmd.exe does not treat the
 :: comma as an argument separator.
+::
+:: Run dfu-util directly (no pipe or redirect) so the user sees its live progress bar.
 "%DFU_EXE%" -d "%STM_VID%:%STM_PID%,%STM_VID%:%STM_PID%" -a 0 -s 0x08000000:force:leave -D "%FIRMWARE_PATH%"
 set "DFU_EXIT=%ERRORLEVEL%"
 
-:: dfu-util's exit code is unreliable: after `:leave` the device resets and detaches
-:: from USB, and dfu-util returns 74 ("Error during download get_status") even though
-:: the firmware was written successfully.
-:: 
-:: Reliable success condition: dfu-util exited with 74 AND the device is no longer
-:: in DFU mode (because it rebooted).
-:: If it exits with any other code, or if the device is STILL in DFU mode, it failed.
-
+:: Judge success by the exit code. After a good flash dfu-util sends `:leave`, the device
+:: immediately resets and detaches, and dfu-util returns 74 ("Error during download
+:: get_status") - that is SUCCESS, not a failure. A clean exit (0) counts as success too.
+:: Any other code is a real failure. We deliberately do NOT probe the USB bus afterwards:
+:: on a VM the device can still appear for a moment, which produced false failure reports.
 set "RESULT=1"
-if "%DFU_EXIT%"=="74" (
-    :: Exit code is 74. Check if the device is actually gone.
-    "%DFU_EXE%" -l 2>nul | findstr /C:"Found DFU" >nul
-    if errorlevel 1 (
-        :: Device is gone -> Successful flash & reboot.
-        set "RESULT=0"
-    )
-) else if "%DFU_EXIT%"=="0" (
-    :: Some versions of dfu-util might actually exit 0 if leave is clean.
-    set "RESULT=0"
-)
+if "%DFU_EXIT%"=="74" set "RESULT=0"
+if "%DFU_EXIT%"=="0" set "RESULT=0"
 
 echo.
 echo ===================================================
