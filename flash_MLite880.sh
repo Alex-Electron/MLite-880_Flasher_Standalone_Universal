@@ -263,12 +263,13 @@ if [ "$_devn" -gt 1 ]; then
     echo "---------------------------------------------------"
     _i=1
     for _ser in "${sel_serials[@]}"; do
-        echo -e "  [$_i] ${sel_names[$_i-1]}   serial=${YELLOW}${_ser:-n/a}${NC} (ends in ${YELLOW}${_ser: -4}${NC})   USB port ${sel_paths[$_i-1]:-n/a}"
+        echo -e "  [$_i] ${sel_names[$_i-1]}   serial ${YELLOW}${_ser:-n/a}${NC}   USB port ${sel_paths[$_i-1]:-n/a}"
+        echo -e "        on-screen ID:  ${YELLOW}XXXX-XXXX-XXXX-${_ser: -4}-XXXX-XXXX${NC}"
         _i=$((_i+1))
     done
     echo "---------------------------------------------------"
-    echo -e "${YELLOW}Which is which?${NC} A serial's last 4 digits show up as the 4th group of that"
-    echo -e "      receiver's on-screen ID (...-XXXX-...), in the middle, not at the end. Or unplug one / match the port."
+    echo -e "${YELLOW}Which is which?${NC} On each receiver's screen, check that the 4th group of its ID"
+    echo -e "      matches the one shown above. You can also unplug one or match the USB port."
     echo ""
     read -p "Select the device to flash (1-$_devn): " _dchoice
     if ! [[ "$_dchoice" =~ ^[0-9]+$ ]] || [ "$_dchoice" -lt 1 ] || [ "$_dchoice" -gt "$_devn" ]; then
@@ -276,12 +277,13 @@ if [ "$_devn" -gt 1 ]; then
         exit 1
     fi
     DFU_SELECT=(-S "${sel_serials[$_dchoice-1]}")
-    echo -e "${YELLOW}Target: ${sel_names[$_dchoice-1]}  serial ${sel_serials[$_dchoice-1]} (ends in ${sel_serials[$_dchoice-1]: -4})${NC}"
+    echo -e "${YELLOW}Target: ${sel_names[$_dchoice-1]}  serial ${sel_serials[$_dchoice-1]}  (screen 4th group ${sel_serials[$_dchoice-1]: -4})${NC}"
     echo ""
 elif [ "$_devn" -eq 1 ] && [ -n "${sel_serials[0]}" ]; then
     echo -e "${GREEN}[OK] Target: ${sel_names[0]}  serial ${sel_serials[0]}${NC}"
-    echo -e "     Sanity check: the serial's last 4 digits ${YELLOW}${sel_serials[0]: -4}${NC} show up on your receiver's"
-    echo -e "     screen as the 4th group of its ID (...-${YELLOW}${sel_serials[0]: -4}${NC}-...), in the middle, not at the end."
+    echo -e "     On the receiver's screen (in DFU) you'll see an ID like this:"
+    echo -e "         ${YELLOW}XXXX-XXXX-XXXX-${sel_serials[0]: -4}-XXXX-XXXX${NC}"
+    echo -e "     Check that the 4th group reads ${YELLOW}${sel_serials[0]: -4}${NC} (the X groups differ per unit)."
     echo ""
 fi
 

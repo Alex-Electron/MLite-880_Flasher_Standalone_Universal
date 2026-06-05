@@ -198,9 +198,12 @@ set "DFU_LIST=%TEMP%\mlite_dfu_%RANDOM%.txt"
 "%DFU_EXE%" -l 2>nul | findstr /C:"Found DFU: [%STM_VID%:%STM_PID%]" > "%DFU_LIST%"
 for /f "usebackq tokens=* delims=" %%L in ("%DFU_LIST%") do (
     set "line=%%L"
+    :: !line:*serial=! removes up to "serial" but leaves the '=', so drop it with :~1
     set "ser=!line:*serial=!"
+    set "ser=!ser:~1!"
     set "ser=!ser:"=!"
     set "pth=!line:*path=!"
+    set "pth=!pth:~1!"
     for /f "tokens=1 delims=," %%p in ("!pth!") do set "pth=%%p"
     set "pth=!pth:"=!"
     if not defined seen_!ser! (
@@ -232,19 +235,21 @@ goto fw_select
 
 :pick_single
 call set "chosen_serial=%%devserial[1]%%"
+set "last4=%chosen_serial:~-4%"
 echo [OK] Target: %DEVNAME%   serial %chosen_serial%
-echo      Sanity check: the serial's last 4 digits also show on the receiver's screen -
-echo      as the 4th group of its ID, in the middle, not at the end.
+echo      On the receiver's screen (in DFU) you'll see an ID like this:
+echo          XXXX-XXXX-XXXX-%last4%-XXXX-XXXX
+echo      Check that the 4th group reads %last4% (the X groups differ per unit).
 echo.
 goto fw_select
 
 :pick_multi
 echo More than one STM32 DFU device is connected:
 echo ---------------------------------------------------
-for /L %%i in (1,1,%devcount%) do call echo   [%%i] %DEVNAME%   serial=%%devserial[%%i]%%   USB port %%devpath[%%i]%%
+for /L %%i in (1,1,%devcount%) do call :show_dev %%i
 echo ---------------------------------------------------
-echo A serial's last 4 digits show up as the 4th group of that receiver's on-screen ID -
-echo in the middle, not at the end. You can also unplug one or check Device Manager.
+echo On each receiver's screen, check that the 4th group of its ID matches the one
+echo shown above. You can also unplug one or check Device Manager.
 echo.
 set /p "dchoice=Select the device to flash (1-%devcount%): "
 if "%dchoice%"=="" goto invalid
@@ -351,3 +356,12 @@ exit /b %RESULT%
 echo [ERROR] Invalid selection.
 pause
 exit /b 1
+
+:show_dev
+:: print one device line + its expected on-screen ID template (called per device)
+call set "_s=%%devserial[%1]%%"
+call set "_p=%%devpath[%1]%%"
+set "_l4=!_s:~-4!"
+echo   [%1] %DEVNAME%   serial !_s!   USB port !_p!
+echo        on-screen ID: XXXX-XXXX-XXXX-!_l4!-XXXX-XXXX
+goto :eof
