@@ -185,13 +185,23 @@ goto check_device
 :: ----- Firmware selection -----
 :select_firmware
 set "count=0"
-:: dir /o-n lists names in descending order, so the newest firmware (highest
-:: version) appears first and becomes option [1].
-for /f "delims=" %%f in ('dir /b /a-d /o-n "%SCRIPT_DIR%*.bin" 2^>nul') do (
-    set /a count+=1
-    set "file[!count!]=%%~nxf"
-    set "path[!count!]=%SCRIPT_DIR%%%f"
+:: Sort newest-first by the YYYYMMDD date embedded at the end of each filename
+:: (the last 8 chars before .bin), so the newest stays option [1] even when the
+:: version width changes (v1.100, v10.xx). We tag each file with its date, sort
+:: descending, then read the filenames back. (dir /o-n would sort by name and
+:: mis-rank e.g. v10 below v2.)
+set "FWLIST=%TEMP%\mlite_fw_%RANDOM%.txt"
+type nul > "%FWLIST%"
+for /f "delims=" %%f in ('dir /b /a-d "%SCRIPT_DIR%*.bin" 2^>nul') do (
+    set "nm=%%~nf"
+    >> "%FWLIST%" echo !nm:~-8! %%f
 )
+for /f "tokens=1,* delims= " %%a in ('sort /r "%FWLIST%" 2^>nul') do (
+    set /a count+=1
+    set "file[!count!]=%%b"
+    set "path[!count!]=%SCRIPT_DIR%%%b"
+)
+del "%FWLIST%" 2>nul
 
 if %count%==0 (
     echo [ERROR] No .bin files found in script directory.

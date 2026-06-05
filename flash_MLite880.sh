@@ -200,19 +200,21 @@ fi
 echo -e "${GREEN}[OK] DFU device detected and ready.${NC}"
 echo ""
 
-# Find all .bin files, newest first. Glob expansion is sorted ascending, so we
-# walk it in reverse: with the MLite880_vX.YY_YYYYMMDD naming the highest version
-# ends up as option [1].
-bin_files=("$DIR"/*.bin)
+# Build the firmware list newest-first. Sort by the YYYYMMDD date embedded at the
+# end of each filename (MLite880_vX.YY_YYYYMMDD.bin) rather than by raw name, so the
+# newest stays option [1] even when the version-number width changes (e.g. v1.100 or
+# v10.xx) — an 8-digit date always sorts both lexically and chronologically.
 valid_files=()
 count=0
-for (( idx=${#bin_files[@]}-1 ; idx>=0 ; idx-- )); do
-    file="${bin_files[idx]}"
-    if [ -f "$file" ]; then
-        valid_files+=("$file")
-        count=$((count+1))
-    fi
-done
+while IFS= read -r file; do
+    [ -n "$file" ] && [ -f "$file" ] && { valid_files+=("$file"); count=$((count+1)); }
+done < <(
+    for f in "$DIR"/*.bin; do
+        [ -e "$f" ] || continue
+        d=$(basename "$f" | grep -oE '[0-9]{8}' | tail -1)
+        printf '%s\t%s\n' "${d:-00000000}" "$f"
+    done | sort -rn | cut -f2-
+)
 
 if [ "$count" -eq 0 ]; then
     echo -e "${RED}[ERROR] No .bin firmware files found!${NC}"
