@@ -195,10 +195,14 @@ for /f "tokens=*" %%L in ('"%DFU_EXE%" -l 2^>nul ^| findstr /C:"Found DFU: [%STM
     set "line=%%L"
     set "ser=!line:*serial=!"
     set "ser=!ser:"=!"
+    set "pth=!line:*path=!"
+    for /f "tokens=1 delims=," %%p in ("!pth!") do set "pth=%%p"
+    set "pth=!pth:"=!"
     if not defined seen_!ser! (
         set "seen_!ser!=1"
         set /a devcount+=1
         set "devserial[!devcount!]=!ser!"
+        set "devpath[!devcount!]=!pth!"
     )
 )
 
@@ -207,6 +211,11 @@ for /f "tokens=*" %%L in ('"%DFU_EXE%" -l 2^>nul ^| findstr /C:"Found DFU: [%STM
 :: a generic name if PowerShell / Get-PnpDevice is unavailable or returns nothing.
 set "DEVNAME=STM32 BOOTLOADER"
 for /f "usebackq delims=" %%n in (`powershell -NoProfile -Command "(Get-PnpDevice -PresentOnly ^| Where-Object { $_.InstanceId -like '*VID_%STM_VID%^&PID_%STM_PID%*' } ^| Select-Object -First 1 -ExpandProperty FriendlyName)" 2^>nul`) do set "DEVNAME=%%n"
+:: strip shell metacharacters from the name so it cannot break the echo lines below
+set "DEVNAME=%DEVNAME:&= %"
+set "DEVNAME=%DEVNAME:|= %"
+set "DEVNAME=%DEVNAME:<= %"
+set "DEVNAME=%DEVNAME:>= %"
 
 if %devcount% GTR 1 goto pick_multi
 if %devcount% EQU 1 goto pick_single
@@ -215,18 +224,18 @@ goto fw_select
 :pick_single
 call set "chosen_serial=%%devserial[1]%%"
 echo [OK] Target: %DEVNAME%   serial %chosen_serial%
-echo      Sanity check: the last 4 digits of that serial should appear in the ID shown
-echo      on your receiver's screen while it is in DFU mode.
+echo      Sanity check: the serial's last 4 digits also show on the receiver's screen -
+echo      as the 4th group of its ID, in the middle, not at the end.
 echo.
 goto fw_select
 
 :pick_multi
 echo More than one STM32 DFU device is connected:
 echo ---------------------------------------------------
-for /L %%i in (1,1,%devcount%) do call echo   [%%i] %DEVNAME%   serial=%%devserial[%%i]%%
+for /L %%i in (1,1,%devcount%) do call echo   [%%i] %DEVNAME%   serial=%%devserial[%%i]%%   USB port %%devpath[%%i]%%
 echo ---------------------------------------------------
-echo The last 4 digits of a serial appear in the ID on that receiver's screen (DFU mode).
-echo You can also unplug one or check Device Manager.
+echo A serial's last 4 digits show up as the 4th group of that receiver's on-screen ID -
+echo in the middle, not at the end. You can also unplug one or check Device Manager.
 echo.
 set /p "dchoice=Select the device to flash (1-%devcount%): "
 if "%dchoice%"=="" goto invalid

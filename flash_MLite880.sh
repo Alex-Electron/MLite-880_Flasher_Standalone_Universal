@@ -267,8 +267,8 @@ if [ "$_devn" -gt 1 ]; then
         _i=$((_i+1))
     done
     echo "---------------------------------------------------"
-    echo -e "${YELLOW}Which is which?${NC} The last 4 digits of the serial appear in the ID shown on"
-    echo -e "      that receiver's screen (in DFU mode). You can also unplug one or match the USB port."
+    echo -e "${YELLOW}Which is which?${NC} A serial's last 4 digits show up as the 4th group of that"
+    echo -e "      receiver's on-screen ID (...-XXXX-...), in the middle, not at the end. Or unplug one / match the port."
     echo ""
     read -p "Select the device to flash (1-$_devn): " _dchoice
     if ! [[ "$_dchoice" =~ ^[0-9]+$ ]] || [ "$_dchoice" -lt 1 ] || [ "$_dchoice" -gt "$_devn" ]; then
@@ -280,8 +280,8 @@ if [ "$_devn" -gt 1 ]; then
     echo ""
 elif [ "$_devn" -eq 1 ] && [ -n "${sel_serials[0]}" ]; then
     echo -e "${GREEN}[OK] Target: ${sel_names[0]}  serial ${sel_serials[0]}${NC}"
-    echo -e "     Sanity check: the last 4 digits ${YELLOW}${sel_serials[0]: -4}${NC} should appear in the ID"
-    echo -e "     shown on your receiver's screen while it is in DFU mode."
+    echo -e "     Sanity check: the serial's last 4 digits ${YELLOW}${sel_serials[0]: -4}${NC} show up on your receiver's"
+    echo -e "     screen as the 4th group of its ID (...-${YELLOW}${sel_serials[0]: -4}${NC}-...), in the middle, not at the end."
     echo ""
 fi
 
