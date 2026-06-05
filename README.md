@@ -1,4 +1,4 @@
-# Malachite DSP (MLite-880) Universal Flasher v2.4.1
+# Malachite DSP (MLite-880) Universal Flasher v2.4.2
 
 **🌐 Language:** English · [Русский (Russian) →](README_RU.md)
 

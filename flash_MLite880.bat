@@ -3,7 +3,7 @@ setlocal EnableDelayedExpansion EnableExtensions
 title Flashing Malachite DSP (MLite-880)
 
 :: ===================================================
-::  Malachite DSP Firmware Flasher v2.4.1
+::  Malachite DSP Firmware Flasher v2.4.2
 ::  Created by: Alexander Lavrinovich
 ::  GitHub: https://github.com/Alex-Electron
 ::  Email: EU1L@mail.ru
@@ -17,7 +17,7 @@ set "STM_VID=0483"
 set "STM_PID=df11"
 
 echo ===================================================
-echo             Malachite DSP Flasher v2.4.1
+echo             Malachite DSP Flasher v2.4.2
 echo.
 echo   Developed by: Alexander Lavrinovich
 echo   GitHub:       https://github.com/Alex-Electron
@@ -185,11 +185,23 @@ goto check_device
 :: ----- Firmware selection -----
 :select_firmware
 set "count=0"
-for %%f in ("%SCRIPT_DIR%*.bin") do (
-    set /a count+=1
-    set "file[!count!]=%%~nxf"
-    set "path[!count!]=%%f"
+:: Sort newest-first by the YYYYMMDD date embedded at the end of each filename
+:: (the last 8 chars before .bin), so the newest stays option [1] even when the
+:: version width changes (v1.100, v10.xx). We tag each file with its date, sort
+:: descending, then read the filenames back. (dir /o-n would sort by name and
+:: mis-rank e.g. v10 below v2.)
+set "FWLIST=%TEMP%\mlite_fw_%RANDOM%.txt"
+type nul > "%FWLIST%"
+for /f "delims=" %%f in ('dir /b /a-d "%SCRIPT_DIR%*.bin" 2^>nul') do (
+    set "nm=%%~nf"
+    >> "%FWLIST%" echo !nm:~-8! %%f
 )
+for /f "tokens=1,* delims= " %%a in ('sort /r "%FWLIST%" 2^>nul') do (
+    set /a count+=1
+    set "file[!count!]=%%b"
+    set "path[!count!]=%SCRIPT_DIR%%%b"
+)
+del "%FWLIST%" 2>nul
 
 if %count%==0 (
     echo [ERROR] No .bin files found in script directory.
@@ -205,8 +217,8 @@ for /L %%i in (1, 1, %count%) do (
 echo ---------------------------------------------------
 echo.
 
-set /p "choice=Select firmware (1-%count%): "
-if "%choice%"=="" goto invalid
+set /p "choice=Select firmware (1-%count%) [Enter = 1, newest]: "
+if "%choice%"=="" set "choice=1"
 if %choice% LSS 1 goto invalid
 if %choice% GTR %count% goto invalid
 
@@ -226,33 +238,24 @@ echo DO NOT DISCONNECT the receiver until you see SUCCESS!
 echo ===================================================
 echo.
 
-:: Run dfu-util directly so the user sees its native output. 
-:: We DO NOT pipe or tee this output, because PowerShell/cmd pipes strip the 
-:: carriage return (\r) characters that dfu-util uses to draw its live progress bar,
-:: causing it to spam hundreds of new lines instead of updating a single line.
-"%DFU_EXE%" -a 0 -s 0x08000000:force:leave -D "%FIRMWARE_PATH%"
+:: -d <vid:pid>,<vid:pid> targets only our STM32 (already in DFU mode). Without it dfu-util
+:: aborts with "More than one DFU capable device" when another DFU-capable device (e.g. a
+:: webcam) shares the USB bus. BOTH pairs are required: a single pair filters only run-time
+:: devices, not ones already in DFU mode. The value is quoted so cmd.exe does not treat the
+:: comma as an argument separator.
+::
+:: Run dfu-util directly (no pipe or redirect) so the user sees its live progress bar.
+"%DFU_EXE%" -d "%STM_VID%:%STM_PID%,%STM_VID%:%STM_PID%" -a 0 -s 0x08000000:force:leave -D "%FIRMWARE_PATH%"
 set "DFU_EXIT=%ERRORLEVEL%"
 
-:: dfu-util's exit code is unreliable: after `:leave` the device resets and detaches
-:: from USB, and dfu-util returns 74 ("Error during download get_status") even though
-:: the firmware was written successfully.
-:: 
-:: Reliable success condition: dfu-util exited with 74 AND the device is no longer
-:: in DFU mode (because it rebooted).
-:: If it exits with any other code, or if the device is STILL in DFU mode, it failed.
-
+:: Judge success by the exit code. After a good flash dfu-util sends `:leave`, the device
+:: immediately resets and detaches, and dfu-util returns 74 ("Error during download
+:: get_status") - that is SUCCESS, not a failure. A clean exit (0) counts as success too.
+:: Any other code is a real failure. We deliberately do NOT probe the USB bus afterwards:
+:: on a VM the device can still appear for a moment, which produced false failure reports.
 set "RESULT=1"
-if "%DFU_EXIT%"=="74" (
-    :: Exit code is 74. Check if the device is actually gone.
-    "%DFU_EXE%" -l 2>nul | findstr /C:"Found DFU" >nul
-    if errorlevel 1 (
-        :: Device is gone -> Successful flash & reboot.
-        set "RESULT=0"
-    )
-) else if "%DFU_EXIT%"=="0" (
-    :: Some versions of dfu-util might actually exit 0 if leave is clean.
-    set "RESULT=0"
-)
+if "%DFU_EXIT%"=="74" set "RESULT=0"
+if "%DFU_EXIT%"=="0" set "RESULT=0"
 
 echo.
 echo ===================================================

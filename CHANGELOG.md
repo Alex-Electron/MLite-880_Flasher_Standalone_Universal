@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.2] - 2026-06-05
+
+### Fixed
+- **Multiple DFU devices no longer block flashing** (issue #1) — the flasher now targets the STM32 explicitly via `dfu-util -d 0483:df11,0483:df11`, so a second DFU-capable device on the USB bus (e.g. a laptop webcam in DFU run-time mode) no longer makes dfu-util abort with *"More than one DFU capable device found"*. Both VID:PID pairs are required because a single pair only filters run-time devices, not ones already in DFU mode (verified on real hardware against dfu-util 0.11). On Windows the value is quoted so `cmd.exe` keeps the comma.
+- **Windows: false "Flashing failed" report** — `flash_MLite880.bat` judged success by probing the USB bus after the flash, which is racy (on a VM the device can still appear for a moment right after `:leave`). It now treats dfu-util's exit code 74 (the expected post-`:leave` `get_status` error) or 0 as success, matching the firmware that was actually written. The live progress bar is preserved.
+
+### Changed
+- **Firmware menu now lists the newest version first and selects it by default** — pressing Enter flashes the latest firmware. Ordering is by the `YYYYMMDD` date embedded in each filename, so it stays correct even as the version numbering grows (e.g. v1.100 or v10.x).
+- Bumped script version to **2.4.2** in `flash_MLite880.sh`, `flash_MLite880.bat`, `README.md`, and `README_RU.md`.
+
 ## [2.4.1] - 2026-06-05
 
 ### Added

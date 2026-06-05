@@ -2,7 +2,7 @@
 
 # ===================================================
 #  Malachite DSP Firmware Flasher for macOS / Linux
-#  v2.4.1 - Universal Stable Edition
+#  v2.4.2 - Universal Stable Edition
 #  Created by: Alexander Lavrinovich
 #  GitHub: https://github.com/Alex-Electron
 #  Email: EU1L@mail.ru
@@ -16,7 +16,7 @@ BLUE='\033[0;34m'
 NC='\033[0m'
 
 echo -e "${BLUE}===================================================${NC}"
-echo -e "${BLUE}            Malachite DSP Flasher v2.4.1           ${NC}"
+echo -e "${BLUE}            Malachite DSP Flasher v2.4.2           ${NC}"
 echo -e "${BLUE}===================================================${NC}"
 echo ""
 
@@ -200,16 +200,21 @@ fi
 echo -e "${GREEN}[OK] DFU device detected and ready.${NC}"
 echo ""
 
-# Find all .bin files
-bin_files=("$DIR"/*.bin)
+# Build the firmware list newest-first. Sort by the YYYYMMDD date embedded at the
+# end of each filename (MLite880_vX.YY_YYYYMMDD.bin) rather than by raw name, so the
+# newest stays option [1] even when the version-number width changes (e.g. v1.100 or
+# v10.xx) — an 8-digit date always sorts both lexically and chronologically.
 valid_files=()
 count=0
-for file in "${bin_files[@]}"; do
-    if [ -f "$file" ]; then
-        valid_files+=("$file")
-        count=$((count+1))
-    fi
-done
+while IFS= read -r file; do
+    [ -n "$file" ] && [ -f "$file" ] && { valid_files+=("$file"); count=$((count+1)); }
+done < <(
+    for f in "$DIR"/*.bin; do
+        [ -e "$f" ] || continue
+        d=$(basename "$f" | grep -oE '[0-9]{8}' | tail -1)
+        printf '%s\t%s\n' "${d:-00000000}" "$f"
+    done | sort -rn | cut -f2-
+)
 
 if [ "$count" -eq 0 ]; then
     echo -e "${RED}[ERROR] No .bin firmware files found!${NC}"
@@ -232,7 +237,8 @@ done
 echo "---------------------------------------------------"
 echo ""
 
-read -p "Select a firmware to flash (1-$count): " choice
+read -p "Select a firmware to flash (1-$count) [Enter = 1, newest]: " choice
+choice="${choice:-1}"
 if ! [[ "$choice" =~ ^[0-9]+$ ]] || [ "$choice" -lt 1 ] || [ "$choice" -gt "$count" ]; then
     echo -e "${RED}[ERROR] Invalid selection!${NC}"
     exit 1
@@ -256,7 +262,11 @@ echo -e "${YELLOW}===================================================${NC}"
 # We need the captured output to detect the real success even when dfu-util returns
 # a non-zero exit code due to the device rebooting right after `:leave`.
 DFU_LOG="$(mktemp 2>/dev/null || echo "/tmp/dfu_log.$$")"
-"$DFU_BIN" -a 0 -s 0x08000000:force:leave -D "$selected_file" 2>&1 | tee "$DFU_LOG"
+# -d 0483:df11,0483:df11 targets only our STM32 (already in DFU mode). Without it dfu-util
+# aborts with "More than one DFU capable device" when another DFU-capable device (e.g. a
+# laptop webcam) shares the USB bus. BOTH VID:PID pairs are required: a single pair filters
+# only run-time devices, not ones already in DFU mode (verified against dfu-util 0.11).
+"$DFU_BIN" -d 0483:df11,0483:df11 -a 0 -s 0x08000000:force:leave -D "$selected_file" 2>&1 | tee "$DFU_LOG"
 RESULT=${PIPESTATUS[0]}
 
 # A successful flash is indicated by "File downloaded successfully" in the dfu-util output.
