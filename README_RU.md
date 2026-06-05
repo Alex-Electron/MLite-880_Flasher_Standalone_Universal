@@ -1,4 +1,4 @@
-# Универсальный прошивальщик Malachite DSP (MLite-880) v2.4.1
+# Универсальный прошивальщик Malachite DSP (MLite-880) v2.4.2
 
 **🌐 Язык:** [← English](README.md) · Русский
 
