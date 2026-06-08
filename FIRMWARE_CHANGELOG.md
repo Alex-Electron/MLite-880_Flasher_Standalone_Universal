@@ -23,8 +23,29 @@ Firmware files the author actually attached to the chat:
 | 1.54 | `MLite880_1_54_250526.zip` | 2026-05-25 08:55 |
 | 1.55 | `MLite880_1_55_270526.zip` | 2026-05-27 08:39 (re-upload) |
 | 1.56 | `MLite880_1_56_020626.zip` | 2026-06-02 12:00 |
+| 1.57 | `MLite880_1_57_080626.zip` | 2026-06-08 12:44 |
 
 Firmware 1.40 and 1.50 were never posted to the chat nor to «Прошивки» — the author calls both "interim" releases (1.40 was a factory-only build for new hardware, 1.50 leaked through the manufacturer and was effectively rolled into 1.51).
+
+---
+
+## [1.57] — 2026-06-08
+
+### English
+
+Author's release post: 2026-06-08.
+
+The author did not publish a detailed changelog for this build. His summary:
+- Bug fixes.
+- Performance improvements.
+
+### Русский
+
+Релизное сообщение автора: 2026-06-08.
+
+Подробный список изменений автор не публиковал. Его краткое резюме:
+- Исправлены баги.
+- Улучшена производительность.
 
 ---
 
