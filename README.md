@@ -1,4 +1,4 @@
-# Malachite DSP (MLite-880) Universal Flasher v2.5.0
+# Malachite DSP (MLite-880) Universal Flasher v2.6.0
 
 **🌐 Language:** English · [Русский (Russian) →](README_RU.md)
 **📋 Changelog:** [CHANGELOG.md](CHANGELOG.md) (flasher version history)
@@ -32,7 +32,7 @@ Once the folder is on your computer, follow the flashing steps below.
 
 ## 🚀 How to Flash Firmware
 
-1. All current firmware `.bin` files (as of June 8, 2026) are already included in this folder. If new versions are released in the future, simply drop the new `.bin` files into this directory, and the flasher will automatically detect them.
+1. All current firmware `.bin` files (as of June 11, 2026) are already included in this folder. If new versions are released in the future, simply drop the new `.bin` files into this directory, and the flasher will automatically detect them.
 2. Connect your receiver to your computer via USB.
 3. Put the receiver into **DFU mode**: Press and hold the **1** button, turn on the radio, wait for 3 seconds, then release the **1** button. The radio will now be in DFU mode.
 4. Run the flasher:

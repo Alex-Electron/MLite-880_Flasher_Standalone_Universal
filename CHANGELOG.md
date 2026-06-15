@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.0] - 2026-06-11
+
+### Added
+- Added new firmware: **MLite880_v1.58_20260611.bin**.
+
+### Changed
+- Bumped script version to **2.6.0** in `flash_MLite880.sh`, `flash_MLite880.bat`, `README.md`, and `README_RU.md`.
+
 ## [2.5.0] - 2026-06-08
 
 ### Added

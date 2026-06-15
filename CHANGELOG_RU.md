@@ -5,6 +5,14 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 проект придерживается [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.0] - 2026-06-11
+
+### Добавлено
+- Добавлена новая прошивка: **MLite880_v1.58_20260611.bin**.
+
+### Изменено
+- Версия скрипта поднята до **2.6.0** в `flash_MLite880.sh`, `flash_MLite880.bat`, `README.md` и `README_RU.md`.
+
 ## [2.5.0] - 2026-06-08
 
 ### Добавлено
