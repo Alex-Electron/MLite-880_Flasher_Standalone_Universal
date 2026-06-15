@@ -34,15 +34,24 @@ Firmware 1.40 and 1.50 were never posted to the chat nor to «Прошивки»
 
 ### English
 
-Released: 2026-06-11 (build `MLite880_1_58_110626`).
+Released: 2026-06-11 (build `MLite880_1_58_110626`). Author's release notes (posted in the «Прошивки» topic, 2026-06-15):
 
-The author did not publish a detailed changelog for this build; notes will be added here if/when they are posted.
+- Fixed an **OIRT** bug.
+- Minor preset fixes.
+- Added an **activity (sleep) timer** under **Menu 1** — once the set time elapses the receiver switches off, dropping its power draw to the lowest possible level.
+- **Battery voltage** is now shown in the **About** menu.
 
 ### Русский
 
-Дата выпуска: 2026-06-11 (сборка `MLite880_1_58_110626`).
+Дата выпуска: 2026-06-11 (сборка `MLite880_1_58_110626`). Заметки автора (тема «Прошивки», 2026-06-15):
 
-Подробный список изменений для этой сборки автор не публиковал; заметки будут добавлены сюда, если/когда появятся.
+- Исправлен баг с **ОИРТ**.
+- Мелкие правки по пресетам.
+- В **меню 1** добавлен **таймер активности** — по истечении заданного времени приёмник выключится, его потребление снизится до минимально возможного.
+- В меню **About** добавлено отображение **напряжения батареи**.
+
+Цитата автора:
+> Поправлен баг с oirt, еще кое чего с пресетами по мелочи. Добавлен таймер активности в меню 1 — по истечении заданного времени приемник выключится — его потребление будет снижено до минимально возможного. В меню about добавлено напряжение батареи.
 
 ---
 
