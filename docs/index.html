@@ -294,7 +294,11 @@
     $('btnConnect').disabled = true;
     $('btnFlash').disabled = true;
     log(dict[lang].log_browser_err, 'err');
-    await uiAlert(dict[lang].browser_msg, dict[lang].browser_title);
+    // Always show both languages — an unsupported browser may be set to either,
+    // and this message must be understood by everyone.
+    const title = dict.en.browser_title + ' / ' + dict.ru.browser_title;
+    const msg = dict.en.browser_msg + '\n\n──────────\n\n' + dict.ru.browser_msg;
+    await uiAlert(msg, title);
     return false;
   }
 
