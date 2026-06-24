@@ -93,7 +93,7 @@
 <div class="wrap">
   <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
     <div>
-      <h1>MLite-880 WEB FLASHER <span id="appVer" class="ver" style="font-size:13px;color:var(--green-dim);letter-spacing:1px;text-shadow:0 0 4px rgba(0,255,65,.35)">v0.1.2</span> <span class="cur">_</span></h1>
+      <h1>MLite-880 WEB FLASHER <span id="appVer" class="ver" style="font-size:13px;color:var(--green-dim);letter-spacing:1px;text-shadow:0 0 4px rgba(0,255,65,.35)">v0.1.3</span> <span class="cur">_</span></h1>
       <div class="sub" data-i18n="sub">WebUSB · STM32 DFU · <a href="https://github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;text-shadow:0 0 4px rgba(0,255,65,.45)">github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal ↗</a></div>
     </div>
     <button id="langBtn" style="padding:6px 12px">BY</button>
@@ -149,7 +149,7 @@
 
   // DOM helper must be defined before any top-level usage (TDZ guard)
   const $ = id => document.getElementById(id);
-  const APP_VERSION = '0.1.2';
+  const APP_VERSION = '0.1.3';
 
   const dict = {
     en: {
@@ -233,13 +233,57 @@
       lbl_verf: "Праверка...",
       lbl_done: "Гатова!",
       lbl_err: "Памылка!"
+    },
+    uk: {
+      sub: 'WebUSB · STM32 DFU · <a href="https://github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;text-shadow:0 0 4px rgba(0,255,65,.45)">github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal ↗</a>',
+      conn_title: "З'єднання (режим DFU)",
+      btn_connect: "[ CONNECT RECEIVER ]",
+      btn_disconnect: "[ DISCONNECT ]",
+      conn_hint: "1. Натисніть і утримуйте кнопку '1' на приймачі. 2. Увімкніть живлення. 3. Через 3 секунди відпустіть кнопку '1'. 4. Натисніть CONNECT.",
+      flash_title: "Прошивка",
+      fw_label: "Версія прошивки (з GitHub)",
+      fw_loading: "Завантаження списку...",
+      fw_empty: "Не знайдено файлів .bin",
+      fw_err: "Помилка завантаження",
+      btn_flash: "[ ⟳ FLASH FIRMWARE ]",
+      log_title: "Лог",
+      log_fetch_start: "Запит списку прошивок з API GitHub...",
+      log_fetch_ok: "Знайдено {n} файлів прошивки.",
+      log_fetch_err: "Помилка завантаження списку: ",
+      log_conn_ok: "З'єднано з STM32 BOOTLOADER",
+      log_conn_err: "Помилка з'єднання: ",
+      log_disc: "Відключено.",
+      log_flash_dl: "Завантаження прошивки з GitHub...",
+      log_dl_ok: "Завантажено: {n} байтів",
+      log_integrity: "Перевірка цілісності (git-blob-sha1 проти GitHub)...",
+      log_integrity_ok: "Цілісність в порядку ✓ sha збігається з GitHub ({sha})",
+      log_integrity_err: "НЕСПІВПАДІННЯ ЦІЛІСНОСТІ — завантаження пошкоджено, прошивка заблокована. очікувалось {exp}, отримано {got}",
+      alert_integrity_err: "Перевірка цілісності файлу не вдалася!\nЗавантажений файл не збігається з хешем блобу на GitHub.\nЗапис прошивки скасовано з міркувань безпеки — будь ласка, спробуйте знову.",
+      log_erase: "Стирання та запис пам'яті (0x08000000)...",
+      log_verify: "Запис завершено. Перевірка...",
+      log_reboot: "Перезавантаження приймача...",
+      log_success: "ПРОШИВКУ ЗАВЕРШЕНО УСПІШНО!",
+      log_flash_err: "Помилка при прошивці: ",
+      alert_success: "Запис прошивки завершено успішно!\nПриймач повинен перезавантажитися автоматично.",
+      confirm_flash: "Ви впевнені, що хочете записати прошивку:\n{name}?",
+      browser_title: "БРАУЗЕР НЕ ПІДТРИМУЄТЬСЯ",
+      browser_msg: "Цьому прошивальнику потрібен WebUSB, який не підтримує ваш браузер.\n\nБудь ласка, відкрийте цю сторінку в одному з наступних браузерів:\n\n  • Google Chrome\n  • Microsoft Edge\n  • Opera\n  • Brave\n\n(на комп'ютері, або Chrome/Edge на Android з OTG-кабелем)",
+      log_browser_err: "WebUSB недоступний у цьому браузері — запис прошивки відключено.",
+      lbl_dl: "Завантаження...",
+      lbl_flash: "Запис прошивки...",
+      lbl_verf: "Перевірка...",
+      lbl_done: "Готово!",
+      lbl_err: "Помилка!"
     }
   };
 
   let lang = 'en';
+  const langs = ['en', 'be', 'uk'];
+  const nextBtnLabel = { 'en': 'BY', 'be': 'UA', 'uk': 'EN' };
+  
   function setLang(l) {
     lang = l;
-    $('langBtn').textContent = (l === 'en' ? 'BY' : 'EN');
+    $('langBtn').textContent = nextBtnLabel[l];
     document.querySelectorAll('[data-i18n]').forEach(el => {
       const k = el.getAttribute('data-i18n');
       if(dict[l][k]) el.innerHTML = dict[l][k];
@@ -253,7 +297,7 @@
     }
   }
   
-  $('langBtn').onclick = function() { setLang(lang === 'en' ? 'be' : 'en'); };
+  $('langBtn').onclick = function() { setLang(langs[(langs.indexOf(lang) + 1) % langs.length]); };
 
   const logEl = $('log');
   function log(msg, cls='') {
