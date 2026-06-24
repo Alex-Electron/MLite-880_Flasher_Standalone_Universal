@@ -93,7 +93,7 @@
 <div class="wrap">
   <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
     <div>
-      <h1>MLite-880 WEB FLASHER <span class="cur">_</span></h1>
+      <h1>MLite-880 WEB FLASHER <span id="appVer" class="ver" style="font-size:13px;color:var(--green-dim);letter-spacing:1px;text-shadow:0 0 4px rgba(0,255,65,.35)">v0.1.1</span> <span class="cur">_</span></h1>
       <div class="sub" data-i18n="sub">WebUSB · STM32 DFU · <a href="https://github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;text-shadow:0 0 4px rgba(0,255,65,.45)">github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal ↗</a></div>
     </div>
     <button id="langBtn" style="padding:6px 12px">BEL</button>
@@ -149,6 +149,7 @@
 
   // DOM helper must be defined before any top-level usage (TDZ guard)
   const $ = id => document.getElementById(id);
+  const APP_VERSION = '0.1.1';
 
   const dict = {
     en: {
@@ -194,44 +195,44 @@
     },
     be: {
       sub: 'WebUSB · STM32 DFU · <a href="https://github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;text-shadow:0 0 4px rgba(0,255,65,.45)">github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal ↗</a>',
-      conn_title: 'Злучэнне (DFU Mode)',
-      btn_connect: '[ CONNECT RECEIVER ]',
-      btn_disconnect: '[ DISCONNECT ]',
-      conn_hint: "1. Заціснi '1' на прыёмніку. 2. Уключы сілкаванне. 3. Пачакай 3 сек і адпусцi '1'. 4. Націсні CONNECT.",
-      flash_title: 'Прашыўка',
-      fw_label: 'Версія прашыўкі (з GitHub)',
-      fw_loading: 'Загрузка спіса...',
-      fw_empty: 'Няма файлаў .bin',
-      fw_err: 'Памылка загрузкі',
-      btn_flash: '[ ⟳ FLASH FIRMWARE ]',
-      log_title: 'Лог',
-      log_fetch_start: 'Запытваю спіс прашывак з GitHub API...',
-      log_fetch_ok: 'Знойдзена {n} прашывак.',
-      log_fetch_err: 'Памылка загрузкі спіса: ',
-      log_conn_ok: 'Падключана да STM32 BOOTLOADER',
-      log_conn_err: 'Памылка падключэння: ',
-      log_disc: 'Адключана.',
-      log_flash_dl: 'Спампоўваю прашыўку з GitHub...',
-      log_dl_ok: 'Спампавана: {n} байт',
-      log_integrity: 'Праверка цэласнасці (git-blob-sha1 vs GitHub)...',
-      log_integrity_ok: 'Цэласнасць OK ✓ sha супадае з GitHub ({sha})',
-      log_integrity_err: 'НЕСУПАДЗЕННЕ ЦЭЛАСНАСЦІ — файл спампаваны з памылкай, прашыўка заблакіравана. чакалася {exp}, атрымана {got}',
-      alert_integrity_err: 'Праверка цэласнасці файла не пройдзена!\nСпампаваны файл не супадае з git-blob-хэшам GitHub.\nПрашыўка адменена ў мэтах бяспекі — паўтарыце спробу.',
-      log_erase: 'Ачыстка і запіс памяці (0x08000000)...',
-      log_verify: 'Запіс завершаны. Запуск праверкі (Verify)...',
-      log_reboot: 'Перазагрузка прыёмніка...',
-      log_success: 'ПРАШЫЎКА ПАСПЯХОВА ЗАВЕРШАНА!',
-      log_flash_err: 'Памылка прашыўкі: ',
-      alert_success: 'Прашыўка паспяхова завершана!\nПрыёмнік павінен перазагрузіцца.',
-      confirm_flash: 'Вы ўпэўнены, што хочаце прашыць:\n{name}?',
-      browser_title: 'БРАЎЗЕР НЕ ПАДТРЫМЛІВАЕЦЦА',
-      browser_msg: 'Гэтаму прашывальшчыку патрэбны WebUSB, а ваш браўзер яго не падтрымлівае.\n\nАдкрыйце гэту старонку ў адным з браўзераў:\n\n  • Google Chrome\n  • Microsoft Edge\n  • Opera\n  • Brave\n\n(на камп\'ютары, альбо Chrome/Edge на Android з OTG-кабелем)',
-      log_browser_err: 'WebUSB недаступны ў гэтым браўзеры — прашыўка адключана.',
-      lbl_dl: 'Спампоўванне...',
-      lbl_flash: 'Прашыўка...',
-      lbl_verf: 'Верыфікацыя...',
-      lbl_done: 'Гатова!',
-      lbl_err: 'Памылка!'
+      conn_title: "Злучэнне (рэжым DFU)",
+      btn_connect: "[ CONNECT RECEIVER ]",
+      btn_disconnect: "[ DISCONNECT ]",
+      conn_hint: "1. Націсніце і ўтрымлівайце кнопку '1' на прыёмніку. 2. Уключыце сілкаванне. 3. Праз 3 секунды адпусціце кнопку '1'. 4. Націсніце CONNECT.",
+      flash_title: "Прашыўка",
+      fw_label: "Версія прашыўкі (з GitHub)",
+      fw_loading: "Загрузка спіса...",
+      fw_empty: "Не знойдзена файлаў .bin",
+      fw_err: "Памылка загрузкі",
+      btn_flash: "[ ⟳ FLASH FIRMWARE ]",
+      log_title: "Лог",
+      log_fetch_start: "Запыт на спіс прашыўкі з API GitHub...",
+      log_fetch_ok: "Знойдзена {n} файлаў прашыўкі.",
+      log_fetch_err: "Памылка загрузкі спіса: ",
+      log_conn_ok: "Злучана са загрузчыкам STM32",
+      log_conn_err: "Памылка злучэння: ",
+      log_disc: "Адключана.",
+      log_flash_dl: "Спампоўка прашыўкі з GitHub...",
+      log_dl_ok: "Спампавана: {n} байтаў",
+      log_integrity: "Праверка цэласнасці (git-blob-sha1 супраць GitHub)...",
+      log_integrity_ok: "Цэласнасць у парадку ✓ sha супадае з GitHub ({sha})",
+      log_integrity_err: "НЕСУПРАЎДНАСЦЬ ЦЭЛАСНАСЦІ — спампоўка пашкоджаная, прашыўка заблакаваная. чакалася {exp}, атрымана {got}",
+      alert_integrity_err: "Праверка цэласнасці файла не ўдалася!\nСпампаваны файл не супадае з хэшам блоба на GitHub.\nЗапіс прашыўкі адменены з меркаванняў бяспекі — калі ласка, паспрабуйце зноў.",
+      log_erase: "Сціранне і запіс памяці (0x08000000)...",
+      log_verify: "Запіс завершаны. Праверка...",
+      log_reboot: "Перазагрузка прыёмніка...",
+      log_success: "ПРАШЫЎКА ПРАЙШЛА ПАСПЯХОВА!",
+      log_flash_err: "Памылка пры прашыўцы: ",
+      alert_success: "Запіс прашыўкі завершаны паспяхова!\nПрыёмнік павінен перазагрузіцца аўтаматычна.",
+      confirm_flash: "Ці ўпэўнены вы, што хочаце запісаць прашыўку:\n{name}?",
+      browser_title: "БРАЎЗЕР НЕ ПАДТРЫМЛІВАЕЦЦА",
+      browser_msg: "Гэтаму прашывальшчыку патрэбны WebUSB, які не падтрымлівае ваш браўзер.\n\nКалі ласка, адкрыйце гэту старонку ў адным з наступных браўзераў:\n\n  • Google Chrome\n  • Microsoft Edge\n  • Opera\n  • Brave\n\n(на камп'ютары, або Chrome/Edge на Android з OTG-кабелем)",
+      log_browser_err: "WebUSB недаступны ў гэтым браўзеры — запіс прашыўкі адключаны.",
+      lbl_dl: "Спампоўка...",
+      lbl_flash: "Запіс прашыўкі...",
+      lbl_verf: "Праверка...",
+      lbl_done: "Гатова!",
+      lbl_err: "Памылка!"
     }
   };
 
@@ -521,6 +522,8 @@
 
   // Init
   setLang('en');
+  $('appVer').textContent = 'v' + APP_VERSION;
+  log('MLite-880 Web Flasher v' + APP_VERSION);
   checkBrowserSupport();
   loadFirmwareList();
 </script>
