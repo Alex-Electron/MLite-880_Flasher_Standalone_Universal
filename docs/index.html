@@ -93,7 +93,7 @@
 <div class="wrap">
   <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
     <div>
-      <h1>MLite-880 WEB FLASHER <span id="appVer" class="ver" style="font-size:13px;color:var(--green-dim);letter-spacing:1px;text-shadow:0 0 4px rgba(0,255,65,.35)">v0.1.7</span> <span class="cur">_</span></h1>
+      <h1>MLite-880 WEB FLASHER <span id="appVer" class="ver" style="font-size:13px;color:var(--green-dim);letter-spacing:1px;text-shadow:0 0 4px rgba(0,255,65,.35)">v0.1.8</span> <span class="cur">_</span></h1>
       <div class="sub" data-i18n="sub">WebUSB · STM32 DFU · <a href="https://github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;text-shadow:0 0 4px rgba(0,255,65,.45)">github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal ↗</a></div>
       <div class="sub" data-i18n="author" style="margin-top:-10px;">Author: Alexander Lavrinovich & AI agents</div>
     </div>
@@ -150,7 +150,7 @@
 
   // DOM helper must be defined before any top-level usage (TDZ guard)
   const $ = id => document.getElementById(id);
-  const APP_VERSION = '0.1.7';
+  const APP_VERSION = '0.1.8';
 
   const dict = {
     en: {
@@ -194,6 +194,48 @@
       lbl_verf: 'Verifying...',
       lbl_done: 'Done!',
       lbl_err: 'Error!'
+    },
+    de: {
+      author: 'Autor: Alexander Lavrinovich & KI-Agenten',
+      sub: 'WebUSB · STM32 DFU · <a href="https://github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;text-shadow:0 0 4px rgba(0,255,65,.45)">github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal ↗</a>',
+      conn_title: 'Verbindung (DFU-Modus)',
+      btn_connect: '[ EMPFÄNGER VERBINDEN ]',
+      btn_disconnect: '[ TRENNEN ]',
+      conn_hint: "1. '1' am Empfänger gedrückt halten. 2. Strom einschalten. 3. 3 Sek. warten und '1' loslassen. 4. CONNECT klicken.",
+      flash_title: 'Firmware',
+      fw_label: 'Firmware-Version (von GitHub)',
+      fw_loading: 'Liste wird geladen...',
+      fw_empty: 'Keine .bin-Dateien gefunden',
+      fw_err: 'Ladefehler',
+      btn_flash: '[ ⟳ FIRMWARE FLASHEN ]',
+      log_title: 'Protokoll',
+      log_fetch_start: 'Fordere Firmware-Liste von GitHub-API an...',
+      log_fetch_ok: '{n} Firmwares gefunden.',
+      log_fetch_err: 'Fehler beim Laden der Liste: ',
+      log_conn_ok: 'Mit STM32 BOOTLOADER verbunden',
+      log_conn_err: 'Verbindungsfehler: ',
+      log_disc: 'Getrennt.',
+      log_flash_dl: 'Lade Firmware von GitHub herunter...',
+      log_dl_ok: 'Heruntergeladen: {n} Bytes',
+      log_integrity: 'Überprüfe Integrität (git-blob-sha1 vs GitHub)...',
+      log_integrity_ok: 'Integrität OK ✓ sha stimmt mit GitHub überein ({sha})',
+      log_integrity_err: 'INTEGRITÄTSFEHLER — Download beschädigt, Flashen blockiert. Erwartet {exp}, erhalten {got}',
+      alert_integrity_err: 'Dateiintegritätsprüfung fehlgeschlagen!\nDie heruntergeladene Datei stimmt nicht mit dem GitHub-Blob-Hash überein.\nFlashen aus Sicherheitsgründen abgebrochen — bitte erneut versuchen.',
+      log_erase: 'Speicher löschen und schreiben (0x08000000)...',
+      log_verify: 'Schreiben abgeschlossen. Überprüfung...',
+      log_reboot: 'Empfänger wird neu gestartet...',
+      log_success: 'FLASHEN ERFOLGREICH ABGESCHLOSSEN!',
+      log_flash_err: 'Fehler beim Flashen: ',
+      alert_success: 'Flashen erfolgreich abgeschlossen!\nDer Empfänger sollte automatisch neu starten.',
+      confirm_flash: 'Möchten Sie wirklich flashen:\n{name}?',
+      browser_title: 'BROWSER NICHT UNTERSTÜTZT',
+      browser_msg: 'Dieser Flasher benötigt WebUSB, was von Ihrem Browser nicht unterstützt wird.\n\nBitte öffnen Sie diese Seite in einem der folgenden Browser:\n\n  • Google Chrome\n  • Microsoft Edge\n  • Opera\n  • Brave\n\n(Desktop, oder Chrome/Edge auf Android mit einem OTG-Kabel)',
+      log_browser_err: 'WebUSB in diesem Browser nicht verfügbar — Flashen deaktiviert.',
+      lbl_dl: 'Herunterladen...',
+      lbl_flash: 'Flashen...',
+      lbl_verf: 'Überprüfen...',
+      lbl_done: 'Fertig!',
+      lbl_err: 'Fehler!'
     },
     be: {
       author: 'Аўтар: Аляксандр Лаўрыновіч і агенты штучнага інтэлекту',
@@ -324,8 +366,8 @@
   };
 
   let lang = 'en';
-  const langs = ['en', 'be', 'uk', 'ru'];
-  const nextBtnLabel = { 'en': 'BY', 'be': 'UA', 'uk': 'RU', 'ru': 'EN' };
+  const langs = ['en', 'de', 'be', 'uk', 'ru'];
+  const nextBtnLabel = { 'en': 'DE', 'de': 'BY', 'be': 'UA', 'uk': 'RU', 'ru': 'EN' };
   
   function setLang(l) {
     lang = l;
