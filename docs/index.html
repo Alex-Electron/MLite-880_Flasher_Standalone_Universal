@@ -93,7 +93,7 @@
 <div class="wrap">
   <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
     <div>
-      <h1>MLite-880 WEB FLASHER <span id="appVer" class="ver" style="font-size:13px;color:var(--green-dim);letter-spacing:1px;text-shadow:0 0 4px rgba(0,255,65,.35)">v0.1.6</span> <span class="cur">_</span></h1>
+      <h1>MLite-880 WEB FLASHER <span id="appVer" class="ver" style="font-size:13px;color:var(--green-dim);letter-spacing:1px;text-shadow:0 0 4px rgba(0,255,65,.35)">v0.1.7</span> <span class="cur">_</span></h1>
       <div class="sub" data-i18n="sub">WebUSB · STM32 DFU · <a href="https://github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;text-shadow:0 0 4px rgba(0,255,65,.45)">github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal ↗</a></div>
       <div class="sub" data-i18n="author" style="margin-top:-10px;">Author: Alexander Lavrinovich & AI agents</div>
     </div>
@@ -150,13 +150,11 @@
 
   // DOM helper must be defined before any top-level usage (TDZ guard)
   const $ = id => document.getElementById(id);
-  const APP_VERSION = '0.1.6';
+  const APP_VERSION = '0.1.7';
 
   const dict = {
     en: {
       author: 'Author: Alexander Lavrinovich & AI agents',
-      author: 'Аўтар: Аляксандр Лаўрыновіч і ШІ-агенты',
-      author: 'Автор: Олександр Лавринович та агенти штучного інтелекту',
       sub: 'WebUSB · STM32 DFU · <a href="https://github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;text-shadow:0 0 4px rgba(0,255,65,.45)">github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal ↗</a>',
       conn_title: 'Connection (DFU Mode)',
       btn_connect: '[ CONNECT RECEIVER ]',
@@ -198,6 +196,7 @@
       lbl_err: 'Error!'
     },
     be: {
+      author: 'Аўтар: Аляксандр Лаўрыновіч і агенты штучнага інтэлекту',
       sub: 'WebUSB · STM32 DFU · <a href="https://github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;text-shadow:0 0 4px rgba(0,255,65,.45)">github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal ↗</a>',
       conn_title: "Злучэнне (рэжым DFU)",
       btn_connect: "[ CONNECT RECEIVER ]",
@@ -239,6 +238,7 @@
       lbl_err: "Памылка!"
     },
     uk: {
+      author: 'Автор: Олександр Лавринович та агенти штучного інтелекту',
       sub: 'WebUSB · STM32 DFU · <a href="https://github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;text-shadow:0 0 4px rgba(0,255,65,.45)">github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal ↗</a>',
       conn_title: "З'єднання (режим DFU)",
       btn_connect: "[ CONNECT RECEIVER ]",
@@ -280,7 +280,7 @@
       lbl_err: "Помилка!"
     },
     ru: {
-      author: 'Автор: Александр Лавринович и ИИ-агенты',
+      author: 'Автор: Александр Лавринович и агенты искусственного интеллекта',
       sub: 'WebUSB · STM32 DFU · <a href="https://github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;text-shadow:0 0 4px rgba(0,255,65,.45)">github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal ↗</a>',
       conn_title: 'Соединение (DFU Mode)',
       btn_connect: '[ CONNECT RECEIVER ]',
