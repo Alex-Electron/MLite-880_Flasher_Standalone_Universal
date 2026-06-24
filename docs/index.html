@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MLite-880 Web Flasher</title>
+<!-- Include DFU libraries -->
+<script src="dfu.js"></script>
+<script src="dfuse.js"></script>
+<style>
+  :root{
+    --bg:#121a12; --green:#4dff79; --green-dim:#2b9640; --green-deep:#145c21;
+    --amber:#ffb000; --red:#ff3b3b; --cyan:#39d9ff;
+    --mono:ui-monospace,"Cascadia Code","Cascadia Mono",Consolas,"Courier New",monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{background:radial-gradient(ellipse at 50% -10%,#0d160d 0%,var(--bg) 60%,#020302 100%);
+    color:var(--green);font-family:var(--mono);font-size:14px;line-height:1.45;padding:18px;min-height:100%;
+    text-shadow:0 0 4px rgba(0,255,65,.45)}
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:9;
+    background:repeating-linear-gradient(to bottom,rgba(0,0,0,0) 0 2px,rgba(0,0,0,.18) 2px 3px)}
+  body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:9;
+    background:radial-gradient(ellipse at 50% 50%,transparent 60%,rgba(0,0,0,.45) 100%);animation:flick 5s infinite}
+  @keyframes flick{0%,97%{opacity:1}98%{opacity:.86}100%{opacity:1}}
+  @keyframes blink{50%{opacity:0}}
+  .wrap{max-width:1040px;margin:0 auto;position:relative;z-index:1}
+  h1{font-size:20px;letter-spacing:3px;margin:0 0 2px}
+  h1 .cur{animation:blink 1s step-end infinite}
+  .sub{color:var(--green-dim);font-size:12px;letter-spacing:1px;margin-bottom:14px}
+  .panel{border:1px solid var(--green-deep);background:rgba(20,35,20,.8);border-radius:6px;
+    padding:12px 14px;margin-bottom:14px;box-shadow:0 0 12px rgba(0,255,65,.07) inset}
+  .panel h2{font-size:11px;letter-spacing:2px;color:var(--green-dim);margin:0 0 10px;text-transform:uppercase}
+  details.panel>summary{font-size:11px;letter-spacing:2px;color:var(--green-dim);text-transform:uppercase;cursor:pointer;list-style:none;user-select:none;display:flex;align-items:center;justify-content:space-between}
+  details.panel>summary::-webkit-details-marker{display:none}
+  details.panel>summary::after{content:"\25C2";font-size:20px;line-height:1;margin-left:12px}
+  details.panel[open]>summary{margin-bottom:10px}
+  details.panel[open]>summary::after{content:"\25BE"}
+  .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+  button,select{font-family:var(--mono);font-size:13px;color:var(--green);background:#152615;
+    border:1px solid var(--green-deep);border-radius:4px;padding:8px 14px;cursor:pointer;letter-spacing:1px;
+    transition:.12s;text-shadow:0 0 4px rgba(0,255,65,.5)}
+  button:hover:not(:disabled){background:#0f2a12;border-color:var(--green);box-shadow:0 0 10px rgba(0,255,65,.35)}
+  button:disabled{opacity:.35;cursor:not-allowed}
+  input[type=number]{font-family:var(--mono);font-size:13px;color:var(--green);background:#152615;
+    border:1px solid var(--green-deep);border-radius:4px;padding:6px 8px;width:84px;text-shadow:0 0 4px rgba(0,255,65,.5)}
+  label.fld{color:var(--green-dim);font-size:11px;letter-spacing:1px;display:inline-flex;flex-direction:column;gap:3px}
+  #level{padding:6px 8px}   /* match input height */
+  button.danger{color:var(--amber);border-color:#5a3a00}
+  button.danger:hover:not(:disabled){background:#241700;border-color:var(--amber);box-shadow:0 0 10px rgba(255,176,0,.35)}
+  .led{width:11px;height:11px;border-radius:50%;background:#3a0000;box-shadow:0 0 8px #f00;display:inline-block}
+  .led.on{background:var(--green);box-shadow:0 0 10px var(--green)}
+  @keyframes hbpulse{0%{transform:scale(1)}45%{transform:scale(1.6);box-shadow:0 0 16px var(--green)}100%{transform:scale(1)}}
+  .led.beat{animation:hbpulse .5s ease}
+  .stat{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+  .big{font-size:22px;font-weight:700}
+  .label{color:var(--green-dim);font-size:11px;letter-spacing:1px}
+  .pill{border:1px solid var(--green-deep);border-radius:20px;padding:6px 12px;font-size:12px}
+  #fw.bad{color:#ff7b7b;border-color:rgba(255,80,80,.7);background:rgba(255,59,59,.22);font-weight:bold;text-shadow:0 0 6px rgba(255,59,59,.9)}  /* wrong/old firmware — same red as mismatched bytes */
+  #hex{font-size:17px;line-height:1.35;letter-spacing:1px;white-space:pre;overflow:auto;max-height:600px;
+    border:1px solid var(--green-deep);padding:12px;border-radius:4px;background:#020602}
+  .ha{color:var(--amber);font-weight:bold;text-shadow:0 0 6px rgba(255,176,0,.5)} /* row address */
+  .hc{color:var(--amber);font-weight:bold;text-shadow:0 0 6px rgba(255,176,0,.5)} /* column header - same as row addr */
+  .hz{color:#4f9e62}                                                              /* zero - readable */
+  .hn{color:#8dffa3;font-weight:bold;text-shadow:0 0 7px rgba(0,255,65,.75)}       /* nonzero - bright */
+  .hm{color:#ff7b7b;font-weight:bold;text-shadow:0 0 6px rgba(255,59,59,.9);background:rgba(255,59,59,.28);outline:1px solid rgba(255,80,80,.6);border-radius:2px}  /* mismatch */
+  #bar{height:14px;border:1px solid var(--green-deep);border-radius:3px;overflow:hidden;background:#050a05;margin-top:16px}
+  #barfill{height:100%;width:0;background:linear-gradient(90deg,var(--green-deep),var(--green));
+    box-shadow:0 0 10px var(--green);transition:width .15s}
+  #hiF{appearance:none;-webkit-appearance:none;width:14px;height:14px;margin:0;border:1px solid var(--green);border-radius:3px;background:rgba(0,255,65,.18);cursor:pointer;position:relative;flex:none}
+  #hiF:checked{background:var(--green);box-shadow:0 0 6px var(--green)}
+  #hiF:checked::after{content:'';position:absolute;left:4px;top:1px;width:3px;height:7px;border:solid #03130a;border-width:0 2px 2px 0;transform:rotate(45deg)}
+  #log{font-size:12px;height:210px;overflow:auto;border:1px solid var(--green-deep);background:#040804;
+    padding:8px;border-radius:4px;white-space:pre-wrap;word-break:break-word}
+  #log .t{color:#16401f}#log .ok{color:#5cff7a}#log .err{color:var(--red)}#log .warn{color:var(--amber)}
+  .hint{color:var(--green-dim);font-size:11px;margin-top:6px}
+  .modal-overlay{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;
+    background:rgba(2,4,2,.78);backdrop-filter:blur(2px)}
+  .modal-overlay[hidden]{display:none}
+  .modal-box{width:100%;max-width:460px;border:1px solid var(--green);border-radius:6px;padding:18px 20px;
+    background:rgba(8,18,8,.97);box-shadow:0 0 24px rgba(0,255,65,.25),0 0 0 1px rgba(0,255,65,.15) inset}
+  .modal-box.danger{border-color:var(--amber);box-shadow:0 0 24px rgba(255,176,0,.28),0 0 0 1px rgba(255,176,0,.15) inset}
+  .modal-title{font-size:11px;letter-spacing:2px;color:var(--green-dim);margin:0 0 12px;text-transform:uppercase}
+  .modal-box.danger .modal-title{color:var(--amber)}
+  .modal-msg{white-space:pre-wrap;font-size:13px;line-height:1.5;margin-bottom:14px}
+  .modal-input{font-family:var(--mono);font-size:14px;color:var(--green);background:#152615;width:100%;
+    border:1px solid var(--green-deep);border-radius:4px;padding:8px 10px;margin-bottom:14px;text-shadow:0 0 4px rgba(0,255,65,.5)}
+  .modal-input:focus{outline:none;border-color:var(--green);box-shadow:0 0 8px rgba(0,255,65,.3)}
+  .modal-btns{display:flex;gap:10px;justify-content:flex-end}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+    <div>
+      <h1>MLite-880 WEB FLASHER <span class="cur">_</span></h1>
+      <div class="sub" data-i18n="sub">WebUSB · STM32 DFU · <a href="https://github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;text-shadow:0 0 4px rgba(0,255,65,.45)">github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal ↗</a></div>
+    </div>
+    <button id="langBtn" style="padding:6px 12px">RU</button>
+  </div>
+
+  <div class="panel"><h2 data-i18n="conn_title">Connection (DFU Mode)</h2>
+    <div class="row">
+      <button id="btnConnect" data-i18n="btn_connect">[ CONNECT RECEIVER ]</button>
+      <button id="btnDisconnect" disabled data-i18n="btn_disconnect">[ DISCONNECT ]</button>
+      <span class="stat"><span id="led" class="led"></span><span id="connState" class="label">OFFLINE</span></span>
+    </div>
+    <div class="hint" data-i18n="conn_hint">1. Hold '1' on receiver. 2. Turn power on. 3. Wait 3 sec and release '1'. 4. Click CONNECT.</div>
+  </div>
+
+  <div class="panel"><h2 data-i18n="flash_title">Firmware</h2>
+    <div class="row" style="align-items:flex-end;">
+      <label class="fld"><span data-i18n="fw_label">Firmware version (from GitHub)</span>
+        <select id="fwSelect" style="min-width:250px;">
+          <option value="" data-i18n="fw_loading">Loading list...</option>
+        </select>
+      </label>
+      <button id="btnFlash" class="danger" disabled data-i18n="btn_flash">[ ⟳ FLASH FIRMWARE ]</button>
+    </div>
+    <div id="bar"><div id="barfill" style="width:0%"></div></div>
+    <div id="barlbl" class="hint" style="margin-top:4px;min-height:1.1em;color:var(--green)"></div>
+  </div>
+
+  <div class="panel"><h2 data-i18n="log_title">Log</h2><div id="log"></div></div>
+</div>
+
+<div id="modal" class="modal-overlay" hidden>
+  <div id="modalBox" class="modal-box" role="dialog" aria-modal="true">
+    <h2 id="modalTitle" class="modal-title">MLite-880</h2>
+    <div id="modalMsg" class="modal-msg"></div>
+    <input id="modalInput" class="modal-input" type="text" hidden>
+    <div class="modal-btns">
+      <button id="modalCancel" hidden>[ CANCEL ]</button>
+      <button id="modalOk">[ OK ]</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  window.onerror = function(msg, url, lineNo, columnNo, error) {
+    var str = 'Error: ' + msg + '\nURL: ' + url + '\nLine: ' + lineNo + '\nColumn: ' + columnNo;
+    if(error && error.stack) str += '\nStack: ' + error.stack;
+    alert(str);
+    return false;
+  };
+  window.addEventListener('unhandledrejection', function(event) {
+    alert('Unhandled Rejection: ' + (event.reason ? (event.reason.stack || event.reason) : event));
+  });
+
+  // DOM helper must be defined before any top-level usage (TDZ guard)
+  const $ = id => document.getElementById(id);
+
+  const dict = {
+    en: {
+      sub: 'WebUSB · STM32 DFU · <a href="https://github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;text-shadow:0 0 4px rgba(0,255,65,.45)">github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal ↗</a>',
+      conn_title: 'Connection (DFU Mode)',
+      btn_connect: '[ CONNECT RECEIVER ]',
+      btn_disconnect: '[ DISCONNECT ]',
+      conn_hint: "1. Hold '1' on receiver. 2. Turn power on. 3. Wait 3 sec and release '1'. 4. Click CONNECT.",
+      flash_title: 'Firmware',
+      fw_label: 'Firmware version (from GitHub)',
+      fw_loading: 'Loading list...',
+      fw_empty: 'No .bin files found',
+      fw_err: 'Load error',
+      btn_flash: '[ ⟳ FLASH FIRMWARE ]',
+      log_title: 'Log',
+      log_fetch_start: 'Requesting firmware list from GitHub API...',
+      log_fetch_ok: 'Found {n} firmwares.',
+      log_fetch_err: 'Error loading list: ',
+      log_conn_ok: 'Connected to STM32 BOOTLOADER',
+      log_conn_err: 'Connection error: ',
+      log_disc: 'Disconnected.',
+      log_flash_dl: 'Downloading firmware from GitHub...',
+      log_dl_ok: 'Downloaded: {n} bytes',
+      log_integrity: 'Verifying integrity (git-blob-sha1 vs GitHub)...',
+      log_integrity_ok: 'Integrity OK ✓ sha matches GitHub ({sha})',
+      log_integrity_err: 'INTEGRITY MISMATCH — download corrupted, flashing blocked. expected {exp}, got {got}',
+      alert_integrity_err: 'File integrity check failed!\nThe downloaded file does not match the GitHub blob hash.\nFlashing aborted for safety — please retry.',
+      log_erase: 'Erasing and writing memory (0x08000000)...',
+      log_verify: 'Write complete. Verification...',
+      log_reboot: 'Rebooting receiver...',
+      log_success: 'FLASHING SUCCESSFULLY COMPLETED!',
+      log_flash_err: 'Flashing error: ',
+      alert_success: 'Flashing completed successfully!\nReceiver should reboot automatically.',
+      confirm_flash: 'Are you sure you want to flash:\n{name}?',
+      lbl_dl: 'Downloading...',
+      lbl_flash: 'Flashing...',
+      lbl_verf: 'Verifying...',
+      lbl_done: 'Done!',
+      lbl_err: 'Error!'
+    },
+    ru: {
+      sub: 'WebUSB · STM32 DFU · <a href="https://github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;text-shadow:0 0 4px rgba(0,255,65,.45)">github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal ↗</a>',
+      conn_title: 'Соединение (DFU Mode)',
+      btn_connect: '[ CONNECT RECEIVER ]',
+      btn_disconnect: '[ DISCONNECT ]',
+      conn_hint: "1. Зажми '1' на приёмнике. 2. Включи питание. 3. Подожди 3 сек и отпусти '1'. 4. Нажми CONNECT.",
+      flash_title: 'Прошивка',
+      fw_label: 'Версия прошивки (с GitHub)',
+      fw_loading: 'Загрузка списка...',
+      fw_empty: 'Нет файлов .bin',
+      fw_err: 'Ошибка загрузки',
+      btn_flash: '[ ⟳ FLASH FIRMWARE ]',
+      log_title: 'Лог',
+      log_fetch_start: 'Запрашиваю список прошивок с GitHub API...',
+      log_fetch_ok: 'Найдено {n} прошивок.',
+      log_fetch_err: 'Ошибка загрузки списка: ',
+      log_conn_ok: 'Подключено к STM32 BOOTLOADER',
+      log_conn_err: 'Ошибка подключения: ',
+      log_disc: 'Отключено.',
+      log_flash_dl: 'Скачиваю прошивку с GitHub...',
+      log_dl_ok: 'Скачано: {n} байт',
+      log_integrity: 'Проверка целостности (git-blob-sha1 vs GitHub)...',
+      log_integrity_ok: 'Целостность OK ✓ sha совпадает с GitHub ({sha})',
+      log_integrity_err: 'НЕСОВПАДЕНИЕ ЦЕЛОСТНОСТИ — файл скачан с ошибкой, прошивка заблокирована. ожидалось {exp}, получено {got}',
+      alert_integrity_err: 'Проверка целостности файла не пройдена!\nСкачанный файл не совпадает с git-blob-хэшем GitHub.\nПрошивка отменена в целях безопасности — повторите попытку.',
+      log_erase: 'Очистка и запись памяти (0x08000000)...',
+      log_verify: 'Запись завершена. Запуск проверки (Verify)...',
+      log_reboot: 'Перезагрузка приёмника...',
+      log_success: 'ПРОШИВКА УСПЕШНО ЗАВЕРШЕНА!',
+      log_flash_err: 'Ошибка прошивки: ',
+      alert_success: 'Прошивка успешно завершена!\nПриёмник должен перезагрузиться.',
+      confirm_flash: 'Вы уверены, что хотите прошить:\n{name}?',
+      lbl_dl: 'Скачивание...',
+      lbl_flash: 'Прошивка...',
+      lbl_verf: 'Верификация...',
+      lbl_done: 'Готово!',
+      lbl_err: 'Ошибка!'
+    }
+  };
+
+  let lang = 'en';
+  function setLang(l) {
+    lang = l;
+    $('langBtn').textContent = (l === 'en' ? 'RU' : 'EN');
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const k = el.getAttribute('data-i18n');
+      if(dict[l][k]) el.innerHTML = dict[l][k];
+    });
+    // Update select placeholder if empty
+    const sel = $('fwSelect');
+    if(sel.options.length === 1 && sel.value === "") {
+       sel.options[0].textContent = dict[lang].fw_loading;
+       if(sel.options[0].getAttribute('data-state') === 'err') sel.options[0].textContent = dict[lang].fw_err;
+       if(sel.options[0].getAttribute('data-state') === 'empty') sel.options[0].textContent = dict[lang].fw_empty;
+    }
+  }
+  
+  $('langBtn').onclick = function() { setLang(lang === 'en' ? 'ru' : 'en'); };
+
+  const logEl = $('log');
+  function log(msg, cls='') {
+    const d = document.createElement('div');
+    if(cls) d.className = cls;
+    const time = new Date().toLocaleTimeString('ru-RU', {hour12:false});
+    d.textContent = `[${time}] ${msg}`;
+    logEl.appendChild(d);
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  // --- Modal Logic ---
+  let modalResolve = null;
+  function showModal(title, msg, showInput, showCancel) {
+    $('modalTitle').textContent = title;
+    $('modalMsg').textContent = msg;
+    $('modalInput').hidden = !showInput;
+    $('modalCancel').hidden = !showCancel;
+    if(showInput) $('modalInput').value = '';
+    $('modal').hidden = false;
+    return new Promise(res => { modalResolve = res; });
+  }
+  $('modalOk').onclick = () => { $('modal').hidden=true; if(modalResolve) modalResolve($('modalInput').hidden ? true : $('modalInput').value); };
+  $('modalCancel').onclick = () => { $('modal').hidden=true; if(modalResolve) modalResolve(null); };
+
+  async function uiAlert(msg, title='INFO') { await showModal(title, msg, false, false); }
+  async function uiConfirm(msg, title='CONFIRM') { return await showModal(title, msg, false, true); }
+
+  // --- GitHub Fetch Logic ---
+  let firmwareList = [];
+  async function loadFirmwareList() {
+    try {
+      log(dict[lang].log_fetch_start, 't');
+      console.log('Fetching GitHub API...'); const res = await fetch('https://api.github.com/repos/Alex-Electron/MLite-880_Flasher_Standalone_Universal/contents/'); console.log('API Response:', res);
+      if(!res.ok) throw new Error('HTTP ' + res.status);
+      const files = await res.json();
+      firmwareList = files.filter(f => f.name.endsWith('.bin')).sort((a,b) => b.name.localeCompare(a.name));
+      
+      const sel = $('fwSelect');
+      sel.innerHTML = '';
+      if(firmwareList.length === 0) {
+        const opt = document.createElement('option');
+        opt.value = ""; opt.textContent = dict[lang].fw_empty; opt.setAttribute('data-state', 'empty');
+        sel.appendChild(opt);
+        log(dict[lang].fw_empty, 'warn');
+        return;
+      }
+      firmwareList.forEach((fw, i) => {
+        const opt = document.createElement('option');
+        opt.value = fw.download_url;
+        opt.textContent = fw.name + ` (${(fw.size/1024).toFixed(1)} KB)`;
+        sel.appendChild(opt);
+      });
+      log(dict[lang].log_fetch_ok.replace('{n}', firmwareList.length), 'ok');
+    } catch (e) {
+      log(dict[lang].log_fetch_err + e.message, 'err');
+      const sel = $('fwSelect');
+      sel.innerHTML = '';
+      const opt = document.createElement('option');
+      opt.value = ""; opt.textContent = dict[lang].fw_err; opt.setAttribute('data-state', 'err');
+      sel.appendChild(opt);
+    }
+  }
+
+  // --- DFU Logic ---
+  let device = null;
+  
+  $('btnConnect').onclick = async () => {
+    try {
+      await navigator.usb.requestDevice({ filters: [{ vendorId: 0x0483, productId: 0xdf11 }] });
+      const devices = await navigator.usb.getDevices();
+      const stmDevice = devices.find(d => d.vendorId === 0x0483 && d.productId === 0xdf11);
+      
+      if(stmDevice) {
+        // dfu.Device(device, settings): the 2nd arg MUST be an interface
+        // settings object (configuration/interface/alternate/name), not navigator.usb.
+        // findDeviceDfuInterfaces builds it; dfuse.Device parses settings.name into the
+        // DfuSe memory map (start address 0x08000000) needed for download/verify.
+        const interfaces = dfu.findDeviceDfuInterfaces(stmDevice);
+        if (interfaces.length === 0) throw new Error('DFU Interface not found');
+        device = new dfuse.Device(stmDevice, interfaces[0]);
+        // open() handles selectConfiguration + claimInterface + alternate setting.
+        await device.open();
+        if (!device.memoryInfo || !device.memoryInfo.segments || !device.memoryInfo.segments.length)
+          throw new Error('No DfuSe memory map (interface name not exposed by device)');
+
+        $('connState').textContent = 'ONLINE (STM32 DFU)';
+        $('connState').style.color = 'var(--green)';
+        $('led').classList.add('on');
+        $('btnConnect').disabled = true;
+        $('btnDisconnect').disabled = false;
+        $('btnFlash').disabled = false;
+        log(dict[lang].log_conn_ok, 'ok');
+      }
+    } catch (e) {
+      log(dict[lang].log_conn_err + e.message, 'err');
+    }
+  };
+
+  $('btnDisconnect').onclick = async () => {
+    if(device) {
+      try { await device.close(); } catch(e){}
+      device = null;
+    }
+    $('connState').textContent = 'OFFLINE';
+    $('connState').style.color = '';
+    $('led').classList.remove('on');
+    $('btnConnect').disabled = false;
+    $('btnDisconnect').disabled = true;
+    $('btnFlash').disabled = true;
+    log(dict[lang].log_disc);
+  };
+
+  // CRC32 (IEEE 802.3) of a byte array — integrity check of the fetched firmware.
+  function crc32(bytes) {
+    let crc = 0xFFFFFFFF;
+    for (let i = 0; i < bytes.length; i++) {
+      crc ^= bytes[i];
+      for (let j = 0; j < 8; j++) {
+        crc = (crc & 1) ? ((crc >>> 1) ^ 0xEDB88320) : (crc >>> 1);
+      }
+    }
+    return (crc ^ 0xFFFFFFFF) >>> 0;
+  }
+
+  // git blob SHA-1 = SHA1("blob " + <byteLength> + "\0" + <content>).
+  // GitHub's /contents/ API returns this as fw.sha for every file, so it is a
+  // zero-maintenance reference hash — no checksums.txt to keep in sync.
+  // Used to confirm the .bin was downloaded from GitHub intact before flashing.
+  async function gitBlobSha1(arrayBuffer) {
+    const data = new Uint8Array(arrayBuffer);
+    const header = new TextEncoder().encode('blob ' + data.byteLength + '\0');
+    const full = new Uint8Array(header.length + data.byteLength);
+    full.set(header, 0);
+    full.set(data, header.length);
+    const digest = await crypto.subtle.digest('SHA-1', full);
+    return [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  // --- Flash Logic ---
+  $('btnFlash').onclick = async () => {
+    const fwUrl = $('fwSelect').value;
+    if(!fwUrl) return;
+    
+    const fwName = $('fwSelect').options[$('fwSelect').selectedIndex].text;
+    if(!await uiConfirm(dict[lang].confirm_flash.replace('{name}', fwName))) return;
+    
+    $('btnFlash').disabled = true;
+    $('barfill').style.width = '0%';
+    
+    try {
+      log(dict[lang].log_flash_dl, 't');
+      $('barlbl').textContent = dict[lang].lbl_dl;
+      const res = await fetch(fwUrl);
+      if(!res.ok) throw new Error('HTTP ' + res.status);
+      const arrayBuffer = await res.arrayBuffer();
+      log(dict[lang].log_dl_ok.replace('{n}', arrayBuffer.byteLength), 'ok');
+
+      // Integrity gate: confirm the downloaded .bin byte-for-byte matches GitHub's
+      // git-blob-sha1 BEFORE touching the radio. Blocks flashing on mismatch
+      // (corrupted/partial download). The reference sha comes free from the
+      // /contents/ API response stored in firmwareList — nothing to maintain.
+      const fwMeta = firmwareList.find(f => f.download_url === fwUrl);
+      if (fwMeta && fwMeta.sha) {
+        log(dict[lang].log_integrity, 't');
+        $('barlbl').textContent = dict[lang].lbl_verf;
+        const actualSha = await gitBlobSha1(arrayBuffer);
+        if (actualSha !== fwMeta.sha) {
+          log(dict[lang].log_integrity_err.replace('{exp}', fwMeta.sha).replace('{got}', actualSha), 'err');
+          $('barlbl').textContent = dict[lang].lbl_err;
+          await uiAlert(dict[lang].alert_integrity_err, 'INTEGRITY ERROR');
+          return;
+        }
+        log(dict[lang].log_integrity_ok.replace('{sha}', actualSha.slice(0, 12) + '…'), 'ok');
+      } else {
+        log('No GitHub sha for this file — integrity check skipped.', 'warn');
+      }
+
+      // `device` is already a dfuse.Device from connect — use it directly.
+      // (The old `new dfuse.Device(device.device_, device.settings)` shadowed the
+      // global `dfuse` and re-wrapped the device, throwing a TDZ ReferenceError.)
+
+      // CRC32 of the image we are about to write (integrity of the GitHub download).
+      const crc = crc32(new Uint8Array(arrayBuffer));
+      log('CRC32: 0x' + (crc >>> 0).toString(16).padStart(8, '0').toUpperCase(), 't');
+
+      // Progress bar fed by webdfu's logProgress callback.
+      device.logProgress = (done, total) => {
+         const pct = total ? Math.round((done / total) * 100) : 0;
+         $('barfill').style.width = pct + '%';
+      };
+
+      log(dict[lang].log_erase, 'warn');
+      $('barlbl').textContent = dict[lang].lbl_flash;
+
+      // xfer_size: DfuSe block size. 1024 is the safe value for STM32.
+      // (xfer_size=0 made chunk_size=0 -> the write loop never advanced -> hang.)
+      const XFER = 1024;
+      // do_download polls DFU_GETSTATUS after each block (poll_until_idle) and
+      // throws on errWRITE/errVERIFY — this is the same in-flight verification
+      // dfu-util performs. No read-back compare (not needed; RDP would break it).
+      await device.do_download(XFER, arrayBuffer, true);
+
+      log(dict[lang].log_reboot, 't');
+
+      $('barfill').style.width = '100%';
+      $('barlbl').textContent = dict[lang].lbl_done;
+      log(dict[lang].log_success, 'ok');
+      await uiAlert(dict[lang].alert_success, 'SUCCESS');
+      
+      $('btnDisconnect').click();
+      
+    } catch (e) {
+      log(dict[lang].log_flash_err + e.message, 'err');
+      $('barlbl').textContent = dict[lang].lbl_err;
+      await uiAlert('Error: ' + e.message, 'ERROR');
+    } finally {
+      $('btnFlash').disabled = (device === null);
+    }
+  };
+
+  // Init
+  setLang('en');
+  loadFirmwareList();
+</script>
+</body>
+</html>
