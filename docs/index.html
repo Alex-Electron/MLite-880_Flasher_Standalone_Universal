@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -96,7 +96,7 @@
       <h1>MLite-880 WEB FLASHER <span class="cur">_</span></h1>
       <div class="sub" data-i18n="sub">WebUSB · STM32 DFU · <a href="https://github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;text-shadow:0 0 4px rgba(0,255,65,.45)">github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal ↗</a></div>
     </div>
-    <button id="langBtn" style="padding:6px 12px">RU</button>
+    <button id="langBtn" style="padding:6px 12px">BEL</button>
   </div>
 
   <div class="panel"><h2 data-i18n="conn_title">Connection (DFU Mode)</h2>
@@ -192,53 +192,53 @@
       lbl_done: 'Done!',
       lbl_err: 'Error!'
     },
-    ru: {
+    be: {
       sub: 'WebUSB · STM32 DFU · <a href="https://github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;text-shadow:0 0 4px rgba(0,255,65,.45)">github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal ↗</a>',
-      conn_title: 'Соединение (DFU Mode)',
+      conn_title: 'Злучэнне (DFU Mode)',
       btn_connect: '[ CONNECT RECEIVER ]',
       btn_disconnect: '[ DISCONNECT ]',
-      conn_hint: "1. Зажми '1' на приёмнике. 2. Включи питание. 3. Подожди 3 сек и отпусти '1'. 4. Нажми CONNECT.",
-      flash_title: 'Прошивка',
-      fw_label: 'Версия прошивки (с GitHub)',
-      fw_loading: 'Загрузка списка...',
-      fw_empty: 'Нет файлов .bin',
-      fw_err: 'Ошибка загрузки',
+      conn_hint: "1. Заціснi '1' на прыёмніку. 2. Уключы сілкаванне. 3. Пачакай 3 сек і адпусцi '1'. 4. Націсні CONNECT.",
+      flash_title: 'Прашыўка',
+      fw_label: 'Версія прашыўкі (з GitHub)',
+      fw_loading: 'Загрузка спіса...',
+      fw_empty: 'Няма файлаў .bin',
+      fw_err: 'Памылка загрузкі',
       btn_flash: '[ ⟳ FLASH FIRMWARE ]',
       log_title: 'Лог',
-      log_fetch_start: 'Запрашиваю список прошивок с GitHub API...',
-      log_fetch_ok: 'Найдено {n} прошивок.',
-      log_fetch_err: 'Ошибка загрузки списка: ',
-      log_conn_ok: 'Подключено к STM32 BOOTLOADER',
-      log_conn_err: 'Ошибка подключения: ',
-      log_disc: 'Отключено.',
-      log_flash_dl: 'Скачиваю прошивку с GitHub...',
-      log_dl_ok: 'Скачано: {n} байт',
-      log_integrity: 'Проверка целостности (git-blob-sha1 vs GitHub)...',
-      log_integrity_ok: 'Целостность OK ✓ sha совпадает с GitHub ({sha})',
-      log_integrity_err: 'НЕСОВПАДЕНИЕ ЦЕЛОСТНОСТИ — файл скачан с ошибкой, прошивка заблокирована. ожидалось {exp}, получено {got}',
-      alert_integrity_err: 'Проверка целостности файла не пройдена!\nСкачанный файл не совпадает с git-blob-хэшем GitHub.\nПрошивка отменена в целях безопасности — повторите попытку.',
-      log_erase: 'Очистка и запись памяти (0x08000000)...',
-      log_verify: 'Запись завершена. Запуск проверки (Verify)...',
-      log_reboot: 'Перезагрузка приёмника...',
-      log_success: 'ПРОШИВКА УСПЕШНО ЗАВЕРШЕНА!',
-      log_flash_err: 'Ошибка прошивки: ',
-      alert_success: 'Прошивка успешно завершена!\nПриёмник должен перезагрузиться.',
-      confirm_flash: 'Вы уверены, что хотите прошить:\n{name}?',
-      browser_title: 'БРАУЗЕР НЕ ПОДДЕРЖИВАЕТСЯ',
-      browser_msg: 'Этому прошивальщику нужен WebUSB, а ваш браузер его не поддерживает.\n\nОткройте эту страницу в одном из браузеров:\n\n  • Google Chrome\n  • Microsoft Edge\n  • Opera\n  • Brave\n\n(на компьютере, либо Chrome/Edge на Android с OTG-кабелем)',
-      log_browser_err: 'WebUSB недоступен в этом браузере — прошивка отключена.',
-      lbl_dl: 'Скачивание...',
-      lbl_flash: 'Прошивка...',
-      lbl_verf: 'Верификация...',
-      lbl_done: 'Готово!',
-      lbl_err: 'Ошибка!'
+      log_fetch_start: 'Запытваю спіс прашывак з GitHub API...',
+      log_fetch_ok: 'Знойдзена {n} прашывак.',
+      log_fetch_err: 'Памылка загрузкі спіса: ',
+      log_conn_ok: 'Падключана да STM32 BOOTLOADER',
+      log_conn_err: 'Памылка падключэння: ',
+      log_disc: 'Адключана.',
+      log_flash_dl: 'Спампоўваю прашыўку з GitHub...',
+      log_dl_ok: 'Спампавана: {n} байт',
+      log_integrity: 'Праверка цэласнасці (git-blob-sha1 vs GitHub)...',
+      log_integrity_ok: 'Цэласнасць OK ✓ sha супадае з GitHub ({sha})',
+      log_integrity_err: 'НЕСУПАДЗЕННЕ ЦЭЛАСНАСЦІ — файл спампаваны з памылкай, прашыўка заблакіравана. чакалася {exp}, атрымана {got}',
+      alert_integrity_err: 'Праверка цэласнасці файла не пройдзена!\nСпампаваны файл не супадае з git-blob-хэшам GitHub.\nПрашыўка адменена ў мэтах бяспекі — паўтарыце спробу.',
+      log_erase: 'Ачыстка і запіс памяці (0x08000000)...',
+      log_verify: 'Запіс завершаны. Запуск праверкі (Verify)...',
+      log_reboot: 'Перазагрузка прыёмніка...',
+      log_success: 'ПРАШЫЎКА ПАСПЯХОВА ЗАВЕРШАНА!',
+      log_flash_err: 'Памылка прашыўкі: ',
+      alert_success: 'Прашыўка паспяхова завершана!\nПрыёмнік павінен перазагрузіцца.',
+      confirm_flash: 'Вы ўпэўнены, што хочаце прашыць:\n{name}?',
+      browser_title: 'БРАЎЗЕР НЕ ПАДТРЫМЛІВАЕЦЦА',
+      browser_msg: 'Гэтаму прашывальшчыку патрэбны WebUSB, а ваш браўзер яго не падтрымлівае.\n\nАдкрыйце гэту старонку ў адным з браўзераў:\n\n  • Google Chrome\n  • Microsoft Edge\n  • Opera\n  • Brave\n\n(на камп\'ютары, альбо Chrome/Edge на Android з OTG-кабелем)',
+      log_browser_err: 'WebUSB недаступны ў гэтым браўзеры — прашыўка адключана.',
+      lbl_dl: 'Спампоўванне...',
+      lbl_flash: 'Прашыўка...',
+      lbl_verf: 'Верыфікацыя...',
+      lbl_done: 'Гатова!',
+      lbl_err: 'Памылка!'
     }
   };
 
   let lang = 'en';
   function setLang(l) {
     lang = l;
-    $('langBtn').textContent = (l === 'en' ? 'RU' : 'EN');
+    $('langBtn').textContent = (l === 'en' ? 'BEL' : 'EN');
     document.querySelectorAll('[data-i18n]').forEach(el => {
       const k = el.getAttribute('data-i18n');
       if(dict[l][k]) el.innerHTML = dict[l][k];
@@ -252,7 +252,7 @@
     }
   }
   
-  $('langBtn').onclick = function() { setLang(lang === 'en' ? 'ru' : 'en'); };
+  $('langBtn').onclick = function() { setLang(lang === 'en' ? 'be' : 'en'); };
 
   const logEl = $('log');
   function log(msg, cls='') {
@@ -296,8 +296,8 @@
     log(dict[lang].log_browser_err, 'err');
     // Always show both languages — an unsupported browser may be set to either,
     // and this message must be understood by everyone.
-    const title = dict.en.browser_title + ' / ' + dict.ru.browser_title;
-    const msg = dict.en.browser_msg + '\n\n──────────\n\n' + dict.ru.browser_msg;
+    const title = dict.en.browser_title + ' / ' + dict.be.browser_title;
+    const msg = dict.en.browser_msg + '\n\n──────────\n\n' + dict.be.browser_msg;
     await uiAlert(msg, title);
     return false;
   }
