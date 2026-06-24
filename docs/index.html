@@ -95,7 +95,7 @@
 <div class="wrap">
   <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
     <div>
-      <h1>MLite-880 WEB FLASHER <span id="appVer" class="ver" style="font-size:13px;color:var(--green-dim);letter-spacing:1px;text-shadow:0 0 4px rgba(0,255,65,.35)">v0.1.9</span> <span class="cur">_</span></h1>
+      <h1>MLite-880 WEB FLASHER <span id="appVer" class="ver" style="font-size:13px;color:var(--green-dim);letter-spacing:1px;text-shadow:0 0 4px rgba(0,255,65,.35)">v0.1.10</span> <span class="cur">_</span></h1>
       <div class="sub" data-i18n="sub">WebUSB · STM32 DFU · <a href="https://github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;text-shadow:0 0 4px rgba(0,255,65,.45)">github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal ↗</a></div>
       <div class="sub" data-i18n="author" style="margin-top:-10px;">Author: Alexander Lavrinovich & AI agents</div>
     </div>
@@ -158,7 +158,7 @@
 
   // DOM helper must be defined before any top-level usage (TDZ guard)
   const $ = id => document.getElementById(id);
-  const APP_VERSION = '0.1.9';
+  const APP_VERSION = '0.1.10';
 
   const dict = {
     en: {
@@ -201,7 +201,8 @@
       lbl_flash: 'Flashing...',
       lbl_verf: 'Verifying...',
       lbl_done: 'Done!',
-      lbl_err: 'Error!'
+      lbl_err: 'Error!',
+      log_driver_hint: 'Hint: Access Denied? Windows: Use Zadig to install WinUSB for STM32 BOOTLOADER. Linux: Check udev rules.'
     },
     de: {
       author: 'Autor: Alexander Lavrinovich & KI-Agenten',
@@ -243,21 +244,22 @@
       lbl_flash: 'Flashen...',
       lbl_verf: 'Überprüfen...',
       lbl_done: 'Fertig!',
-      lbl_err: 'Fehler!'
+      lbl_err: 'Fehler!',
+      log_driver_hint: 'Tipp: Zugriff verweigert? Windows: WinUSB über Zadig installieren. Linux: udev-Regeln prüfen.'
     },
     be: {
       author: 'Аўтар: Аляксандр Лаўрыновіч і агенты штучнага інтэлекту',
       sub: 'WebUSB · STM32 DFU · <a href="https://github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;text-shadow:0 0 4px rgba(0,255,65,.45)">github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal ↗</a>',
       conn_title: "Злучэнне (рэжым DFU)",
-      btn_connect: "[ CONNECT RECEIVER ]",
-      btn_disconnect: "[ DISCONNECT ]",
+      btn_connect: '[ ПАДЛУЧЫЦЬ ПРЫЁМНІК ]',
+      btn_disconnect: '[ АДКЛЮЧЫЦЬ ]',
       conn_hint: "1. Націсніце і ўтрымлівайце кнопку '1' на прыёмніку. 2. Уключыце сілкаванне. 3. Праз 3 секунды адпусціце кнопку '1'. 4. Націсніце CONNECT.",
       flash_title: "Прашыўка",
       fw_label: "Версія прашыўкі (з GitHub)",
       fw_loading: "Загрузка спіса...",
       fw_empty: "Не знойдзена файлаў .bin",
       fw_err: "Памылка загрузкі",
-      btn_flash: "[ ⟳ FLASH FIRMWARE ]",
+      btn_flash: '[ ⟳ ЗАПІСАЦЬ ПРАШЫЎКУ ]',
       log_title: "Лог",
       log_fetch_start: "Запыт на спіс прашыўкі з API GitHub...",
       log_fetch_ok: "Знойдзена {n} файлаў прашыўкі.",
@@ -291,15 +293,15 @@
       author: 'Автор: Олександр Лавринович та агенти штучного інтелекту',
       sub: 'WebUSB · STM32 DFU · <a href="https://github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;text-shadow:0 0 4px rgba(0,255,65,.45)">github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal ↗</a>',
       conn_title: "З'єднання (режим DFU)",
-      btn_connect: "[ CONNECT RECEIVER ]",
-      btn_disconnect: "[ DISCONNECT ]",
+      btn_connect: '[ ПІДКЛЮЧИТИ ПРИЙМАЧ ]',
+      btn_disconnect: '[ ВІДКЛЮЧИТИ ]',
       conn_hint: "1. Натисніть і утримуйте кнопку '1' на приймачі. 2. Увімкніть живлення. 3. Через 3 секунди відпустіть кнопку '1'. 4. Натисніть CONNECT.",
       flash_title: "Прошивка",
       fw_label: "Версія прошивки (з GitHub)",
       fw_loading: "Завантаження списку...",
       fw_empty: "Не знайдено файлів .bin",
       fw_err: "Помилка завантаження",
-      btn_flash: "[ ⟳ FLASH FIRMWARE ]",
+      btn_flash: '[ ⟳ ЗАПИСАТИ ПРОШИВКУ ]',
       log_title: "Лог",
       log_fetch_start: "Запит списку прошивок з API GitHub...",
       log_fetch_ok: "Знайдено {n} файлів прошивки.",
@@ -333,15 +335,15 @@
       author: 'Автор: Александр Лавринович и агенты искусственного интеллекта',
       sub: 'WebUSB · STM32 DFU · <a href="https://github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;text-shadow:0 0 4px rgba(0,255,65,.45)">github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal ↗</a>',
       conn_title: 'Соединение (DFU Mode)',
-      btn_connect: '[ CONNECT RECEIVER ]',
-      btn_disconnect: '[ DISCONNECT ]',
+      btn_connect: '[ ПОДКЛЮЧИТЬ ПРИЕМНИК ]',
+      btn_disconnect: '[ ОТКЛЮЧИТЬ ]',
       conn_hint: "1. Зажми '1' на приёмнике. 2. Включи питание. 3. Подожди 3 сек и отпусти '1'. 4. Нажми CONNECT.",
       flash_title: 'Прошивка',
       fw_label: 'Версия прошивки (с GitHub)',
       fw_loading: 'Загрузка списка...',
       fw_empty: 'Нет файлов .bin',
       fw_err: 'Ошибка загрузки',
-      btn_flash: '[ ⟳ FLASH FIRMWARE ]',
+      btn_flash: '[ ⟳ ЗАПИСАТЬ ПРОШИВКУ ]',
       log_title: 'Лог',
       log_fetch_start: 'Запрашиваю список прошивок с GitHub API...',
       log_fetch_ok: 'Найдено {n} прошивок.',
@@ -369,7 +371,8 @@
       lbl_flash: 'Прошивка...',
       lbl_verf: 'Верификация...',
       lbl_done: 'Готово!',
-      lbl_err: 'Ошибка!'
+      lbl_err: 'Ошибка!',
+      log_driver_hint: 'Подсказка: Ошибка доступа? Windows: установите WinUSB через Zadig. Linux: проверьте права udev.'
     }
   };
 
@@ -539,6 +542,9 @@
       }
     } catch (e) {
       log(dict[lang].log_conn_err + e.message, 'err');
+      if (e.message && e.message.toLowerCase().includes('access') || e.name === 'SecurityError' || e.name === 'NotAllowedError' || e.name === 'NotFoundError') {
+        log(dict[lang].log_driver_hint, 'warn');
+      }
     }
   };
 
