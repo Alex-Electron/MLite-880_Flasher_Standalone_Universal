@@ -93,7 +93,7 @@
 <div class="wrap">
   <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
     <div>
-      <h1>MLite-880 WEB FLASHER <span id="appVer" class="ver" style="font-size:13px;color:var(--green-dim);letter-spacing:1px;text-shadow:0 0 4px rgba(0,255,65,.35)">v0.1.5</span> <span class="cur">_</span></h1>
+      <h1>MLite-880 WEB FLASHER <span id="appVer" class="ver" style="font-size:13px;color:var(--green-dim);letter-spacing:1px;text-shadow:0 0 4px rgba(0,255,65,.35)">v0.1.6</span> <span class="cur">_</span></h1>
       <div class="sub" data-i18n="sub">WebUSB · STM32 DFU · <a href="https://github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;text-shadow:0 0 4px rgba(0,255,65,.45)">github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal ↗</a></div>
       <div class="sub" data-i18n="author" style="margin-top:-10px;">Author: Alexander Lavrinovich & AI agents</div>
     </div>
@@ -150,7 +150,7 @@
 
   // DOM helper must be defined before any top-level usage (TDZ guard)
   const $ = id => document.getElementById(id);
-  const APP_VERSION = '0.1.5';
+  const APP_VERSION = '0.1.6';
 
   const dict = {
     en: {
@@ -278,12 +278,54 @@
       lbl_verf: "Перевірка...",
       lbl_done: "Готово!",
       lbl_err: "Помилка!"
+    },
+    ru: {
+      author: 'Автор: Александр Лавринович и ИИ-агенты',
+      sub: 'WebUSB · STM32 DFU · <a href="https://github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;text-shadow:0 0 4px rgba(0,255,65,.45)">github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal ↗</a>',
+      conn_title: 'Соединение (DFU Mode)',
+      btn_connect: '[ CONNECT RECEIVER ]',
+      btn_disconnect: '[ DISCONNECT ]',
+      conn_hint: "1. Зажми '1' на приёмнике. 2. Включи питание. 3. Подожди 3 сек и отпусти '1'. 4. Нажми CONNECT.",
+      flash_title: 'Прошивка',
+      fw_label: 'Версия прошивки (с GitHub)',
+      fw_loading: 'Загрузка списка...',
+      fw_empty: 'Нет файлов .bin',
+      fw_err: 'Ошибка загрузки',
+      btn_flash: '[ ⟳ FLASH FIRMWARE ]',
+      log_title: 'Лог',
+      log_fetch_start: 'Запрашиваю список прошивок с GitHub API...',
+      log_fetch_ok: 'Найдено {n} прошивок.',
+      log_fetch_err: 'Ошибка загрузки списка: ',
+      log_conn_ok: 'Подключено к STM32 BOOTLOADER',
+      log_conn_err: 'Ошибка подключения: ',
+      log_disc: 'Отключено.',
+      log_flash_dl: 'Скачиваю прошивку с GitHub...',
+      log_dl_ok: 'Скачано: {n} байт',
+      log_integrity: 'Проверка целостности (git-blob-sha1 vs GitHub)...',
+      log_integrity_ok: 'Целостность ОК ✓ sha совпадает с GitHub ({sha})',
+      log_integrity_err: 'НАРУШЕНИЕ ЦЕЛОСТНОСТИ — скачивание повреждено, прошивка заблокирована. ожидалось {exp}, получено {got}',
+      alert_integrity_err: 'Проверка целостности файла не удалась!\nСкачанный файл не совпадает с хэшем блоба на GitHub.\nЗапись прошивки отменена в целях безопасности — пожалуйста, попробуйте снова.',
+      log_erase: 'Очистка и запись памяти (0x08000000)...',
+      log_verify: 'Запись завершена. Запуск проверки (Verify)...',
+      log_reboot: 'Перезагрузка приёмника...',
+      log_success: 'ПРОШИВКА УСПЕШНО ЗАВЕРШЕНА!',
+      log_flash_err: 'Ошибка прошивки: ',
+      alert_success: 'Прошивка успешно завершена!\nПриёмник должен перезагрузиться.',
+      confirm_flash: 'Вы уверены, что хотите прошить:\n{name}?',
+      browser_title: 'БРАУЗЕР НЕ ПОДДЕРЖИВАЕТСЯ',
+      browser_msg: 'Этому прошивальщику нужен WebUSB, который не поддерживается в вашем браузере.\n\nПожалуйста, откройте эту страницу в одном из следующих браузеров:\n\n  • Google Chrome\n  • Microsoft Edge\n  • Opera\n  • Brave\n\n(на десктопе, или Chrome/Edge на Android с OTG-кабелем)',
+      log_browser_err: 'WebUSB недоступен в этом браузере — прошивка отключена.',
+      lbl_dl: 'Скачивание...',
+      lbl_flash: 'Прошивка...',
+      lbl_verf: 'Верификация...',
+      lbl_done: 'Готово!',
+      lbl_err: 'Ошибка!'
     }
   };
 
   let lang = 'en';
-  const langs = ['en', 'be', 'uk'];
-  const nextBtnLabel = { 'en': 'BY', 'be': 'UA', 'uk': 'EN' };
+  const langs = ['en', 'be', 'uk', 'ru'];
+  const nextBtnLabel = { 'en': 'BY', 'be': 'UA', 'uk': 'RU', 'ru': 'EN' };
   
   function setLang(l) {
     lang = l;
