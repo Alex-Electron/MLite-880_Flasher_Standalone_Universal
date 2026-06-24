@@ -183,6 +183,9 @@
       log_flash_err: 'Flashing error: ',
       alert_success: 'Flashing completed successfully!\nReceiver should reboot automatically.',
       confirm_flash: 'Are you sure you want to flash:\n{name}?',
+      browser_title: 'BROWSER NOT SUPPORTED',
+      browser_msg: 'This flasher needs WebUSB, which your browser does not support.\n\nPlease open this page in one of these browsers:\n\n  • Google Chrome\n  • Microsoft Edge\n  • Opera\n  • Brave\n\n(desktop, or Chrome/Edge on Android with an OTG cable)\n\nSafari and Firefox do NOT support WebUSB and will not work.',
+      log_browser_err: 'WebUSB unavailable in this browser — flashing disabled.',
       lbl_dl: 'Downloading...',
       lbl_flash: 'Flashing...',
       lbl_verf: 'Verifying...',
@@ -221,6 +224,9 @@
       log_flash_err: 'Ошибка прошивки: ',
       alert_success: 'Прошивка успешно завершена!\nПриёмник должен перезагрузиться.',
       confirm_flash: 'Вы уверены, что хотите прошить:\n{name}?',
+      browser_title: 'БРАУЗЕР НЕ ПОДДЕРЖИВАЕТСЯ',
+      browser_msg: 'Этому прошивальщику нужен WebUSB, а ваш браузер его не поддерживает.\n\nОткройте эту страницу в одном из браузеров:\n\n  • Google Chrome\n  • Microsoft Edge\n  • Opera\n  • Brave\n\n(на компьютере, либо Chrome/Edge на Android с OTG-кабелем)\n\nSafari и Firefox НЕ поддерживают WebUSB и работать не будут.',
+      log_browser_err: 'WebUSB недоступен в этом браузере — прошивка отключена.',
       lbl_dl: 'Скачивание...',
       lbl_flash: 'Прошивка...',
       lbl_verf: 'Верификация...',
@@ -274,6 +280,23 @@
 
   async function uiAlert(msg, title='INFO') { await showModal(title, msg, false, false); }
   async function uiConfirm(msg, title='CONFIRM') { return await showModal(title, msg, false, true); }
+
+  // --- Browser support gate ---
+  // Feature-detect WebUSB (navigator.usb) rather than sniffing the user-agent:
+  // catches Safari/Firefox (no WebUSB) and passes any Chromium browser
+  // (Chrome/Edge/Opera/Brave). If unsupported: disable connect/flash and
+  // show a modal telling the user which browsers to use.
+  function webUsbSupported() {
+    return !!(navigator.usb && typeof navigator.usb.requestDevice === 'function');
+  }
+  async function checkBrowserSupport() {
+    if (webUsbSupported()) return true;
+    $('btnConnect').disabled = true;
+    $('btnFlash').disabled = true;
+    log(dict[lang].log_browser_err, 'err');
+    await uiAlert(dict[lang].browser_msg, dict[lang].browser_title);
+    return false;
+  }
 
   // --- GitHub Fetch Logic ---
   let firmwareList = [];
@@ -470,6 +493,7 @@
 
   // Init
   setLang('en');
+  checkBrowserSupport();
   loadFirmwareList();
 </script>
 </body>
