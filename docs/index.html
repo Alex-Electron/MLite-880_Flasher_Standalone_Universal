@@ -340,7 +340,28 @@
 
   // --- DFU Logic ---
   let device = null;
-  
+
+  // macOS/Chrome frequently returns null for interfaceName because string
+  // descriptors are not auto-fetched. Without the name, dfuse.Device cannot
+  // build the DfuSe memory map and connect fails. Recover the names manually
+  // via string-descriptor reads (the approach from webdfu's own demo).
+  async function fixInterfaceNames(device_, interfaces) {
+    if (!interfaces.some(intf => intf.name == null)) return;
+    const tempDevice = new dfu.Device(device_, interfaces[0]);
+    await tempDevice.device_.open();
+    await tempDevice.device_.selectConfiguration(1);
+    const mapping = await tempDevice.readInterfaceNames();
+    await tempDevice.device_.close();
+    for (const intf of interfaces) {
+      if (intf.name === null) {
+        const ci = intf.configuration.configurationValue;
+        const ino = intf['interface'].interfaceNumber;
+        const alt = intf.alternate.alternateSetting;
+        intf.name = mapping[ci][ino][alt];
+      }
+    }
+  }
+
   $('btnConnect').onclick = async () => {
     try {
       await navigator.usb.requestDevice({ filters: [{ vendorId: 0x0483, productId: 0xdf11 }] });
@@ -354,6 +375,9 @@
         // DfuSe memory map (start address 0x08000000) needed for download/verify.
         const interfaces = dfu.findDeviceDfuInterfaces(stmDevice);
         if (interfaces.length === 0) throw new Error('DFU Interface not found');
+        // Recover null interface names (macOS WebUSB) BEFORE constructing the
+        // dfuse.Device — its constructor parses settings.name into the memory map.
+        await fixInterfaceNames(stmDevice, interfaces);
         device = new dfuse.Device(stmDevice, interfaces[0]);
         // open() handles selectConfiguration + claimInterface + alternate setting.
         await device.open();
