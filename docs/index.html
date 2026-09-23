@@ -95,7 +95,7 @@
 <div class="wrap">
   <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
     <div>
-      <h1>MLite-880 WEB FLASHER <span id="appVer" class="ver" style="font-size:13px;color:var(--green-dim);letter-spacing:1px;text-shadow:0 0 4px rgba(0,255,65,.35)">v0.1.10</span> <span class="cur">_</span></h1>
+      <h1>MLite-880 WEB FLASHER <span id="appVer" class="ver" style="font-size:13px;color:var(--green-dim);letter-spacing:1px;text-shadow:0 0 4px rgba(0,255,65,.35)">v0.1.12</span> <span class="cur">_</span></h1>
       <div class="sub" data-i18n="sub">WebUSB · STM32 DFU · <a href="https://github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;text-shadow:0 0 4px rgba(0,255,65,.45)">github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal ↗</a></div>
       <div class="sub" data-i18n="author" style="margin-top:-10px;">Author: Alexander Lavrinovich & AI agents</div>
     </div>
@@ -119,11 +119,13 @@
 
   <div class="panel"><h2 data-i18n="flash_title">Firmware</h2>
     <div class="row" style="align-items:flex-end;">
-      <label class="fld"><span data-i18n="fw_label">Firmware version (from GitHub)</span>
+      <label class="fld"><span data-i18n="fw_label">Firmware (GitHub or local .bin)</span>
         <select id="fwSelect" style="min-width:250px;">
           <option value="" data-i18n="fw_loading">Loading list...</option>
         </select>
       </label>
+      <button id="btnLocal" data-i18n="btn_local">[ 📂 LOCAL .BIN ]</button>
+      <input id="fileLocal" type="file" accept=".bin,application/octet-stream" hidden>
       <button id="btnFlash" class="danger" disabled data-i18n="btn_flash">[ ⟳ FLASH FIRMWARE ]</button>
     </div>
     <div id="bar"><div id="barfill" style="width:0%"></div></div>
@@ -158,7 +160,7 @@
 
   // DOM helper must be defined before any top-level usage (TDZ guard)
   const $ = id => document.getElementById(id);
-  const APP_VERSION = '0.1.10';
+  const APP_VERSION = '0.1.12';
 
   const dict = {
     en: {
@@ -169,7 +171,16 @@
       btn_disconnect: '[ DISCONNECT ]',
       conn_hint: "1. Hold '1' on receiver. 2. Turn power on. 3. Wait 3 sec and release '1'. 4. Click CONNECT.",
       flash_title: 'Firmware',
-      fw_label: 'Firmware version (from GitHub)',
+      fw_label: "Firmware (GitHub or local .bin)",
+      btn_local: "[ 📂 LOCAL .BIN ]",
+      log_local_ok: "Local file selected: {name} ({n} bytes). GitHub integrity check does not apply.",
+      log_local_bad: "Local file rejected: {why}",
+      bad_empty: "file is empty",
+      bad_big: "file is larger than the flash ({n} > {max} bytes)",
+      bad_align: "size is not a multiple of 4 bytes",
+      log_local_read: "Reading local file...",
+      warn_size: "Note: the file is {n} bytes; official MLite-880 images are exactly {max} bytes.",
+      confirm_local: "LOCAL FILE, not from the official list.\nMake sure it is a firmware for MLite-880.\nA wrong image will not brick the receiver (DFU stays available), but it will not start.",
       fw_loading: 'Loading list...',
       fw_empty: 'No .bin files found',
       fw_err: 'Load error',
@@ -212,7 +223,16 @@
       btn_disconnect: '[ TRENNEN ]',
       conn_hint: "1. '1' am Empfänger gedrückt halten. 2. Strom einschalten. 3. 3 Sek. warten und '1' loslassen. 4. CONNECT klicken.",
       flash_title: 'Firmware',
-      fw_label: 'Firmware-Version (von GitHub)',
+      fw_label: "Firmware (GitHub oder lokale .bin)",
+      btn_local: "[ 📂 LOKALE .BIN ]",
+      log_local_ok: "Lokale Datei gewählt: {name} ({n} Bytes). GitHub-Integritätsprüfung entfällt.",
+      log_local_bad: "Lokale Datei abgelehnt: {why}",
+      bad_empty: "Datei ist leer",
+      bad_big: "Datei ist größer als der Flash ({n} > {max} Bytes)",
+      bad_align: "Größe ist kein Vielfaches von 4 Bytes",
+      log_local_read: "Lese lokale Datei...",
+      warn_size: "Hinweis: Die Datei hat {n} Bytes; offizielle MLite-880-Images haben genau {max} Bytes.",
+      confirm_local: "LOKALE DATEI, nicht aus der offiziellen Liste.\nStellen Sie sicher, dass es eine Firmware für MLite-880 ist.\nEin falsches Image zerstört den Empfänger nicht (DFU bleibt verfügbar), er startet aber nicht.",
       fw_loading: 'Liste wird geladen...',
       fw_empty: 'Keine .bin-Dateien gefunden',
       fw_err: 'Ladefehler',
@@ -255,7 +275,16 @@
       btn_disconnect: '[ АДКЛЮЧЫЦЬ ]',
       conn_hint: "1. Націсніце і ўтрымлівайце кнопку '1' на прыёмніку. 2. Уключыце сілкаванне. 3. Праз 3 секунды адпусціце кнопку '1'. 4. Націсніце CONNECT.",
       flash_title: "Прашыўка",
-      fw_label: "Версія прашыўкі (з GitHub)",
+      fw_label: "Прашыўка (GitHub або лакальны .bin)",
+      btn_local: "[ 📂 ЛАКАЛЬНЫ .BIN ]",
+      log_local_ok: "Абраны лакальны файл: {name} ({n} байт). Праверка цэласнасці з GitHub не выконваецца.",
+      log_local_bad: "Лакальны файл адхілены: {why}",
+      bad_empty: "файл пусты",
+      bad_big: "файл большы за флэш ({n} > {max} байт)",
+      bad_align: "памер не кратны 4 байтам",
+      log_local_read: "Чытанне лакальнага файла...",
+      warn_size: "Заўвага: памер файла {n} байт; афіцыйныя вобразы MLite-880 маюць роўна {max} байт.",
+      confirm_local: "ЛАКАЛЬНЫ ФАЙЛ, не з афіцыйнага спіса.\nПераканайцеся, што гэта прашыўка для MLite-880.\nНяправільная прашыўка не выведзе прымач са строю (DFU застаецца даступным), але ён не запусціцца.",
       fw_loading: "Загрузка спіса...",
       fw_empty: "Не знойдзена файлаў .bin",
       fw_err: "Памылка загрузкі",
@@ -297,7 +326,16 @@
       btn_disconnect: '[ ВІДКЛЮЧИТИ ]',
       conn_hint: "1. Натисніть і утримуйте кнопку '1' на приймачі. 2. Увімкніть живлення. 3. Через 3 секунди відпустіть кнопку '1'. 4. Натисніть CONNECT.",
       flash_title: "Прошивка",
-      fw_label: "Версія прошивки (з GitHub)",
+      fw_label: "Прошивка (GitHub або локальний .bin)",
+      btn_local: "[ 📂 ЛОКАЛЬНИЙ .BIN ]",
+      log_local_ok: "Обрано локальний файл: {name} ({n} байт). Перевірка цілісності з GitHub не виконується.",
+      log_local_bad: "Локальний файл відхилено: {why}",
+      bad_empty: "файл порожній",
+      bad_big: "файл більший за флеш ({n} > {max} байт)",
+      bad_align: "розмір не кратний 4 байтам",
+      log_local_read: "Читання локального файлу...",
+      warn_size: "Примітка: розмір файлу {n} байт; офіційні образи MLite-880 мають рівно {max} байт.",
+      confirm_local: "ЛОКАЛЬНИЙ ФАЙЛ, не з офіційного списку.\nПереконайтеся, що це прошивка для MLite-880.\nНеправильна прошивка не виведе приймач з ладу (DFU лишається доступним), але він не запуститься.",
       fw_loading: "Завантаження списку...",
       fw_empty: "Не знайдено файлів .bin",
       fw_err: "Помилка завантаження",
@@ -339,7 +377,16 @@
       btn_disconnect: '[ ОТКЛЮЧИТЬ ]',
       conn_hint: "1. Зажми '1' на приёмнике. 2. Включи питание. 3. Подожди 3 сек и отпусти '1'. 4. Нажми CONNECT.",
       flash_title: 'Прошивка',
-      fw_label: 'Версия прошивки (с GitHub)',
+      fw_label: "Прошивка (GitHub или локальный .bin)",
+      btn_local: "[ 📂 ЛОКАЛЬНЫЙ .BIN ]",
+      log_local_ok: "Выбран локальный файл: {name} ({n} байт). Проверка целостности с GitHub не выполняется.",
+      log_local_bad: "Локальный файл отклонён: {why}",
+      bad_empty: "файл пустой",
+      bad_big: "файл больше флеша ({n} > {max} байт)",
+      bad_align: "размер не кратен 4 байтам",
+      log_local_read: "Читаю локальный файл...",
+      warn_size: "Примечание: размер файла {n} байт; официальные образы MLite-880 ровно {max} байт.",
+      confirm_local: "ЛОКАЛЬНЫЙ ФАЙЛ, не из официального списка.\nУбедитесь, что это прошивка для MLite-880.\nНеподходящая прошивка приёмник не убьёт (DFU остаётся доступен), но он не запустится.",
       fw_loading: 'Загрузка списка...',
       fw_empty: 'Нет файлов .bin',
       fw_err: 'Ошибка загрузки',
@@ -461,7 +508,9 @@
       firmwareList = files.filter(f => f.name.endsWith('.bin')).sort((a,b) => b.name.localeCompare(a.name));
       
       const sel = $('fwSelect');
+      const localOpt = sel.querySelector('option[value="' + LOCAL_VALUE + '"]');
       sel.innerHTML = '';
+      if (localOpt) sel.appendChild(localOpt);
       if(firmwareList.length === 0) {
         const opt = document.createElement('option');
         opt.value = ""; opt.textContent = dict[lang].fw_empty; opt.setAttribute('data-state', 'empty');
@@ -588,43 +637,111 @@
     return [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, '0')).join('');
   }
 
+  // --- Local .bin ---
+  // Any .bin from disk can be flashed instead of a GitHub one. It is kept as a File
+  // and read only at flash time; the GitHub git-blob-sha1 gate does not apply to it,
+  // so basic sanity checks and an explicit warning stand in for it.
+  const LOCAL_VALUE = 'local:';
+  const FLASH_MAX = 2 * 1024 * 1024;   // MLite-880 internal flash from 0x08000000
+  let localFile = null;
+
+  function localFileProblem(size) {
+    const t = dict[lang];
+    if (size === 0) return t.bad_empty;
+    if (size > FLASH_MAX) return t.bad_big.replace('{n}', size).replace('{max}', FLASH_MAX);
+    if (size % 4) return t.bad_align;
+    return null;
+  }
+
+  // Official MLite-880 images are full-flash dumps of exactly 2 MiB (the first
+  // sectors are zero-filled, so an STM32 vector-table check would reject them).
+  // Any other size is allowed but called out before the write.
+  function sizeWarning(size) {
+    return size === FLASH_MAX ? null : dict[lang].warn_size.replace('{n}', size).replace('{max}', FLASH_MAX);
+  }
+
+  $('btnLocal').onclick = () => { $('fileLocal').value = ''; $('fileLocal').click(); };
+  $('fileLocal').onchange = () => {
+    const f = $('fileLocal').files[0];
+    if (!f) return;
+    const why = localFileProblem(f.size);
+    if (why) { log(dict[lang].log_local_bad.replace('{why}', why), 'err'); return; }
+    localFile = f;
+    const sel = $('fwSelect');
+    let opt = sel.querySelector('option[value="' + LOCAL_VALUE + '"]');
+    if (!opt) {
+      opt = document.createElement('option');
+      opt.value = LOCAL_VALUE;
+      sel.insertBefore(opt, sel.firstChild);
+    }
+    opt.textContent = '📁 ' + f.name + ` (${(f.size/1024).toFixed(1)} KB)`;
+    sel.value = LOCAL_VALUE;
+    log(dict[lang].log_local_ok.replace('{name}', f.name).replace('{n}', f.size), 'warn');
+  };
+
   // --- Flash Logic ---
   $('btnFlash').onclick = async () => {
     const fwUrl = $('fwSelect').value;
     if(!fwUrl) return;
     
     const fwName = $('fwSelect').options[$('fwSelect').selectedIndex].text;
-    if(!await uiConfirm(dict[lang].confirm_flash.replace('{name}', fwName))) return;
+    const isLocal = fwUrl === LOCAL_VALUE;
+    if (isLocal && !localFile) return;
+
+    // A local file is read before the confirmation so the dialog can already say
+    // whether it even looks like an STM32 image.
+    let localBuffer = null;
+    let confirmMsg = dict[lang].confirm_flash.replace('{name}', fwName);
+    if (isLocal) {
+      try {
+        log(dict[lang].log_local_read, 't');
+        localBuffer = await localFile.arrayBuffer();
+      } catch (e) {
+        log(dict[lang].log_local_bad.replace('{why}', e.message), 'err');
+        return;
+      }
+      const why = localFileProblem(localBuffer.byteLength);
+      if (why) { log(dict[lang].log_local_bad.replace('{why}', why), 'err'); return; }
+      const sizeWarn = sizeWarning(localBuffer.byteLength);
+      if (sizeWarn) log(sizeWarn, 'warn');
+      confirmMsg += '\n\n' + dict[lang].confirm_local + (sizeWarn ? '\n\n' + sizeWarn : '');
+    }
+    if(!await uiConfirm(confirmMsg)) return;
     
     $('btnFlash').disabled = true;
     $('barfill').style.width = '0%';
     
     try {
-      log(dict[lang].log_flash_dl, 't');
-      $('barlbl').textContent = dict[lang].lbl_dl;
-      const res = await fetch(fwUrl);
-      if(!res.ok) throw new Error('HTTP ' + res.status);
-      const arrayBuffer = await res.arrayBuffer();
-      log(dict[lang].log_dl_ok.replace('{n}', arrayBuffer.byteLength), 'ok');
-
-      // Integrity gate: confirm the downloaded .bin byte-for-byte matches GitHub's
-      // git-blob-sha1 BEFORE touching the radio. Blocks flashing on mismatch
-      // (corrupted/partial download). The reference sha comes free from the
-      // /contents/ API response stored in firmwareList — nothing to maintain.
-      const fwMeta = firmwareList.find(f => f.download_url === fwUrl);
-      if (fwMeta && fwMeta.sha) {
-        log(dict[lang].log_integrity, 't');
-        $('barlbl').textContent = dict[lang].lbl_verf;
-        const actualSha = await gitBlobSha1(arrayBuffer);
-        if (actualSha !== fwMeta.sha) {
-          log(dict[lang].log_integrity_err.replace('{exp}', fwMeta.sha).replace('{got}', actualSha), 'err');
-          $('barlbl').textContent = dict[lang].lbl_err;
-          await uiAlert(dict[lang].alert_integrity_err, 'INTEGRITY ERROR');
-          return;
-        }
-        log(dict[lang].log_integrity_ok.replace('{sha}', actualSha.slice(0, 12) + '…'), 'ok');
+      let arrayBuffer;
+      if (isLocal) {
+        arrayBuffer = localBuffer;
       } else {
-        log('No GitHub sha for this file — integrity check skipped.', 'warn');
+        log(dict[lang].log_flash_dl, 't');
+        $('barlbl').textContent = dict[lang].lbl_dl;
+        const res = await fetch(fwUrl);
+        if(!res.ok) throw new Error('HTTP ' + res.status);
+        arrayBuffer = await res.arrayBuffer();
+        log(dict[lang].log_dl_ok.replace('{n}', arrayBuffer.byteLength), 'ok');
+
+        // Integrity gate: confirm the downloaded .bin byte-for-byte matches GitHub's
+        // git-blob-sha1 BEFORE touching the radio. Blocks flashing on mismatch
+        // (corrupted/partial download). The reference sha comes free from the
+        // /contents/ API response stored in firmwareList — nothing to maintain.
+        const fwMeta = firmwareList.find(f => f.download_url === fwUrl);
+        if (fwMeta && fwMeta.sha) {
+          log(dict[lang].log_integrity, 't');
+          $('barlbl').textContent = dict[lang].lbl_verf;
+          const actualSha = await gitBlobSha1(arrayBuffer);
+          if (actualSha !== fwMeta.sha) {
+            log(dict[lang].log_integrity_err.replace('{exp}', fwMeta.sha).replace('{got}', actualSha), 'err');
+            $('barlbl').textContent = dict[lang].lbl_err;
+            await uiAlert(dict[lang].alert_integrity_err, 'INTEGRITY ERROR');
+            return;
+          }
+          log(dict[lang].log_integrity_ok.replace('{sha}', actualSha.slice(0, 12) + '…'), 'ok');
+        } else {
+          log('No GitHub sha for this file — integrity check skipped.', 'warn');
+        }
       }
 
       // `device` is already a dfuse.Device from connect — use it directly.
@@ -636,8 +753,14 @@
       log('CRC32: 0x' + (crc >>> 0).toString(16).padStart(8, '0').toUpperCase(), 't');
 
       // Progress bar fed by webdfu's logProgress callback.
+      // Repaint only when the whole percent changes: 2048 blocks vs 100 bar steps.
+      // Writing style.width (with its CSS transition) on every block forced a layout
+      // pass per block and slowed the write itself.
+      let lastPct = -1;
       device.logProgress = (done, total) => {
          const pct = total ? Math.round((done / total) * 100) : 0;
+         if (pct === lastPct) return;
+         lastPct = pct;
          $('barfill').style.width = pct + '%';
       };
 

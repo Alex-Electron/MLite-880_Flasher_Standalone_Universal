@@ -1,3 +1,19 @@
+/*!
+ * WebDFU — https://github.com/devanlai/webdfu, modified: MALAHIT FORCE erase, single base address with sequential block numbers, expected manifestation errors silenced
+ * Copyright (c) 2016, Devan Lai
+ *
+ * Permission to use, copy, modify, and/or distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
+ * SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER
+ * RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT,
+ * NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE
+ * USE OR PERFORMANCE OF THIS SOFTWARE.
+ */
 /* dfu.js must be included before dfuse.js */
 
 var dfuse = {};
@@ -20,6 +36,16 @@ var dfuse = {};
 
     dfuse.Device.prototype = Object.create(dfu.Device.prototype);
     dfuse.Device.prototype.constructor = dfuse.Device;
+
+    // The receiver leaves the USB bus while it manifests the new firmware, so the
+    // final status poll normally dies with a transfer or disconnect error. That is
+    // the expected end of a successful write and must not be reported as a failure.
+    dfuse.isExpectedManifestationError = function(error) {
+        // String() keeps a DOMException's name ("NetworkError: Unable to reset the device.");
+        // reading .message alone would drop it and let a benign reset failure through.
+        const text = String(error);
+        return /^stall$|ControlTransfer(In|Out) failed|NetworkError|NotFoundError|A transfer error has occurred|device was disconnected|Device unavailable|\bstall(ed)?\b|\bbabble\b/i.test(text);
+    };
 
     dfuse.parseMemoryDescriptor = function(desc) {
         const nameEndIndex = desc.indexOf("/");
@@ -181,7 +207,7 @@ var dfuse = {};
         return numBytes;
     };
 
-    dfuse.Device.prototype.erase = async function(startAddr, length) {
+    dfuse.Device.prototype.erase = async function(startAddr, length, force = false) {
         let segment = this.getSegment(startAddr);
         let addr = this.getSectorStart(startAddr, segment);
         const endAddr = this.getSectorEnd(startAddr + length - 1);
@@ -196,7 +222,7 @@ var dfuse = {};
             if (segment.end <= addr) {
                 segment = this.getSegment(addr);
             }
-            if (!segment.erasable) {
+            if (!segment.erasable && !force) {
                 // Skip over the non-erasable section
                 bytesErased = Math.min(bytesErased + segment.end - addr, bytesToErase);
                 addr = segment.end;
@@ -213,7 +239,7 @@ var dfuse = {};
         }
     };
 
-    dfuse.Device.prototype.do_download = async function(xfer_size, data, manifestationTolerant) {
+    dfuse.Device.prototype.do_download = async function(xfer_size, data, manifestationTolerant, options = {}) {
         if (!this.memoryInfo || ! this.memoryInfo.segments) {
             throw "No memory map available";
         }
@@ -230,24 +256,33 @@ var dfuse = {};
         } else if (this.getSegment(startAddress) === null) {
             this.logError(`Start address 0x${startAddress.toString(16)} outside of memory map bounds`);
         }
-        await this.erase(startAddress, expected_size);
+        await this.erase(startAddress, expected_size, options.force === true);
 
         this.logInfo("Copying data from browser to DFU device");
 
         let address = startAddress;
+        let blockNum = 2;
+        // STM32 DfuSe derives each address from the base pointer and wBlockNum,
+        // so contiguous data needs one SET_ADDRESS instead of one per block.
+        await this.dfuseCommand(dfuse.SET_ADDRESS, address, 4);
+        this.logDebug(`Set base address to 0x${address.toString(16)}`);
         while (bytes_sent < expected_size) {
             const bytes_left = expected_size - bytes_sent;
             const chunk_size = Math.min(bytes_left, xfer_size);
 
+            // wBlockNum is 16-bit. For very large images, start a new address window.
+            if (blockNum > 0xffff) {
+                await this.dfuseCommand(dfuse.SET_ADDRESS, address, 4);
+                this.logDebug(`Set base address to 0x${address.toString(16)}`);
+                blockNum = 2;
+            }
+
             let bytes_written = 0;
             let dfu_status;
             try {
-                await this.dfuseCommand(dfuse.SET_ADDRESS, address, 4);
-                this.logDebug(`Set address to 0x${address.toString(16)}`);
-                bytes_written = await this.download(data.slice(bytes_sent, bytes_sent+chunk_size), 2);
+                bytes_written = await this.download(data.slice(bytes_sent, bytes_sent+chunk_size), blockNum);
                 this.logDebug("Sent " + bytes_written + " bytes");
                 dfu_status = await this.poll_until_idle(dfu.dfuDNLOAD_IDLE);
-                address += chunk_size;
             } catch (error) {
                 throw "Error during DfuSe download: " + error;
             }
@@ -255,9 +290,14 @@ var dfuse = {};
             if (dfu_status.status != dfu.STATUS_OK) {
                 throw `DFU DOWNLOAD failed state=${dfu_status.state}, status=${dfu_status.status}`;
             }
+            if (bytes_written != chunk_size) {
+                throw `DFU DOWNLOAD wrote ${bytes_written} of ${chunk_size} bytes`;
+            }
 
             this.logDebug("Wrote " + bytes_written + " bytes");
             bytes_sent += bytes_written;
+            address += bytes_written;
+            blockNum += 1;
 
             this.logProgress(bytes_sent, expected_size);
         }
@@ -274,7 +314,20 @@ var dfuse = {};
         try {
             await this.poll_until(state => (state == dfu.dfuMANIFEST));
         } catch (error) {
-            this.logError(error);
+            if (!dfuse.isExpectedManifestationError(error)) {
+                this.logWarning(error);
+            }
+        }
+
+        // dfu-util ends ":leave" with a bus reset. Without it the STM32 can stay in
+        // MANIFEST_WAIT_RESET, so the receiver would keep sitting in the bootloader
+        // instead of starting the firmware that was just written.
+        try {
+            await this.device_.reset();
+        } catch (error) {
+            if (!dfuse.isExpectedManifestationError(error)) {
+                this.logWarning("Reset after manifestation failed: " + error);
+            }
         }
     }
 
