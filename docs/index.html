@@ -4,10 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MLite-880 Web Flasher</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M8 11 25 3' stroke='%234dff79' stroke-width='2' stroke-linecap='round'/%3E%3Crect x='2' y='10' width='28' height='19' rx='3' fill='%23121a12' stroke='%234dff79' stroke-width='2'/%3E%3Ccircle cx='11' cy='19.5' r='5' fill='none' stroke='%234dff79' stroke-width='2'/%3E%3Ccircle cx='11' cy='19.5' r='1.6' fill='%234dff79'/%3E%3Crect x='19' y='14' width='8' height='4' rx='1' fill='%234dff79'/%3E%3Ccircle cx='21' cy='24' r='1.7' fill='%234dff79'/%3E%3Ccircle cx='25.5' cy='24' r='1.7' fill='%234dff79'/%3E%3C/svg%3E">
 <!-- Include DFU libraries. ?v= must follow APP_VERSION: GitHub Pages lets browsers cache
      these for 10 min, which could pair a new page with the previous libraries. -->
-<script src="dfu.js?v=0.1.13"></script>
-<script src="dfuse.js?v=0.1.13"></script>
+<script src="dfu.js?v=0.1.14"></script>
+<script src="dfuse.js?v=0.1.14"></script>
 <style>
   :root{
     --bg:#121a12; --green:#4dff79; --green-dim:#2b9640; --green-deep:#145c21;
@@ -98,7 +99,7 @@
 <div class="wrap">
   <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
     <div>
-      <h1>MLite-880 WEB FLASHER <span id="appVer" class="ver" style="font-size:13px;color:var(--green-dim);letter-spacing:1px;text-shadow:0 0 4px rgba(0,255,65,.35)">v0.1.13</span> <span class="cur">_</span></h1>
+      <h1>MLite-880 WEB FLASHER <span id="appVer" class="ver" style="font-size:13px;color:var(--green-dim);letter-spacing:1px;text-shadow:0 0 4px rgba(0,255,65,.35)">v0.1.14</span> <span class="cur">_</span></h1>
       <div class="sub" data-i18n="sub">WebUSB · STM32 DFU · <a href="https://github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;text-shadow:0 0 4px rgba(0,255,65,.45)">github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal ↗</a></div>
       <div class="sub" data-i18n="author" style="margin-top:-10px;">Author: Alexander Lavrinovich & AI agents</div>
     </div>
@@ -163,7 +164,7 @@
 
   // DOM helper must be defined before any top-level usage (TDZ guard)
   const $ = id => document.getElementById(id);
-  const APP_VERSION = '0.1.13';
+  const APP_VERSION = '0.1.14';
 
   const dict = {
     en: {
