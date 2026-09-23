@@ -4,9 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MLite-880 Web Flasher</title>
-<!-- Include DFU libraries -->
-<script src="dfu.js"></script>
-<script src="dfuse.js"></script>
+<!-- Include DFU libraries. ?v= must follow APP_VERSION: GitHub Pages lets browsers cache
+     these for 10 min, which could pair a new page with the previous libraries. -->
+<script src="dfu.js?v=0.1.13"></script>
+<script src="dfuse.js?v=0.1.13"></script>
 <style>
   :root{
     --bg:#121a12; --green:#4dff79; --green-dim:#2b9640; --green-deep:#145c21;
@@ -46,6 +47,8 @@
     border:1px solid var(--green-deep);border-radius:4px;padding:6px 8px;width:84px;text-shadow:0 0 4px rgba(0,255,65,.5)}
   label.fld{color:var(--green-dim);font-size:11px;letter-spacing:1px;display:inline-flex;flex-direction:column;gap:3px}
   #level{padding:6px 8px}   /* match input height */
+  /* Firmware row: select and buttons share one explicit height. */
+  #fwSelect,#btnLocal,#btnFlash{height:36px;box-sizing:border-box;padding-top:0;padding-bottom:0;line-height:34px}
   button.danger{color:var(--amber);border-color:#5a3a00}
   button.danger:hover:not(:disabled){background:#241700;border-color:var(--amber);box-shadow:0 0 10px rgba(255,176,0,.35)}
   .led{width:11px;height:11px;border-radius:50%;background:#3a0000;box-shadow:0 0 8px #f00;display:inline-block}
@@ -95,7 +98,7 @@
 <div class="wrap">
   <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
     <div>
-      <h1>MLite-880 WEB FLASHER <span id="appVer" class="ver" style="font-size:13px;color:var(--green-dim);letter-spacing:1px;text-shadow:0 0 4px rgba(0,255,65,.35)">v0.1.12</span> <span class="cur">_</span></h1>
+      <h1>MLite-880 WEB FLASHER <span id="appVer" class="ver" style="font-size:13px;color:var(--green-dim);letter-spacing:1px;text-shadow:0 0 4px rgba(0,255,65,.35)">v0.1.13</span> <span class="cur">_</span></h1>
       <div class="sub" data-i18n="sub">WebUSB · STM32 DFU · <a href="https://github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;text-shadow:0 0 4px rgba(0,255,65,.45)">github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal ↗</a></div>
       <div class="sub" data-i18n="author" style="margin-top:-10px;">Author: Alexander Lavrinovich & AI agents</div>
     </div>
@@ -160,7 +163,7 @@
 
   // DOM helper must be defined before any top-level usage (TDZ guard)
   const $ = id => document.getElementById(id);
-  const APP_VERSION = '0.1.12';
+  const APP_VERSION = '0.1.13';
 
   const dict = {
     en: {
@@ -764,6 +767,41 @@
          $('barfill').style.width = pct + '%';
       };
 
+      // Stage timing, so a slow run shows whether the bootloader (bwPollTimeout),
+      // the host, or a hidden tab took the time. webdfu reports stages via logInfo
+      // and every mandated wait via logDebug("Sleeping for Nms").
+      const stage = { waited: 0, hidden: 0 };
+      const now = () => performance.now();
+      const sec = ms => (ms / 1000).toFixed(1);
+      let hiddenSince = document.hidden ? now() : null;
+      const onVis = () => {
+        if (document.hidden) hiddenSince = now();
+        else if (hiddenSince !== null) { stage.hidden += now() - hiddenSince; hiddenSince = null; }
+      };
+      document.addEventListener('visibilitychange', onVis);
+      const hiddenMs = () => stage.hidden + (hiddenSince !== null ? now() - hiddenSince : 0);
+      const suffix = () => ` · ${sec(stage.waited)} s of it waiting on bwPollTimeout`;
+      device.logDebug = msg => {
+        const m = String(msg).match(/^Sleeping for (\d+)ms$/i);
+        if (m) stage.waited += Number(m[1]);
+      };
+      device.logInfo = msg => {
+        const text = String(msg);
+        if (/^Erasing DFU device memory$/i.test(text)) { stage.erase = now(); stage.waited = 0; return; }
+        if (/^Copying data from browser to DFU device$/i.test(text)) {
+          if (stage.erase) log(`ERASE COMPLETE · ${sec(now() - stage.erase)} s${suffix()}`, 'ok');
+          stage.write = now(); stage.waited = 0; return;
+        }
+        const w = text.match(/^Wrote (\d+) bytes$/i);
+        if (w && stage.write) {
+          const el = now() - stage.write, bytes = Number(w[1]);
+          log(`WRITE COMPLETE · ${bytes} bytes · ${sec(el)} s · ${(bytes / 1024 / (el / 1000)).toFixed(1)} KiB/s${suffix()}`, 'ok');
+          return;
+        }
+        console.log(text);
+      };
+      const flashStart = now();
+
       log(dict[lang].log_erase, 'warn');
       $('barlbl').textContent = dict[lang].lbl_flash;
 
@@ -773,7 +811,14 @@
       // do_download polls DFU_GETSTATUS after each block (poll_until_idle) and
       // throws on errWRITE/errVERIFY — this is the same in-flight verification
       // dfu-util performs. No read-back compare (not needed; RDP would break it).
-      await device.do_download(XFER, arrayBuffer, true);
+      try {
+        await device.do_download(XFER, arrayBuffer, true);
+      } finally {
+        document.removeEventListener('visibilitychange', onVis);
+      }
+      const total = now() - flashStart, hid = hiddenMs();
+      log(`FLASH COMPLETE · ${sec(total)} s · ${(arrayBuffer.byteLength / 1024 / (total / 1000)).toFixed(1)} KiB/s` +
+          (hid >= 1000 ? ` · tab hidden ${sec(hid)} s` : ''), 'ok');
 
       log(dict[lang].log_reboot, 't');
 
