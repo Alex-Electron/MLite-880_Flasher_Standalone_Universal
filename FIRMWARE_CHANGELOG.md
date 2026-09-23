@@ -25,8 +25,37 @@ Firmware files the author actually attached to the chat:
 | 1.56 | `MLite880_1_56_020626.zip` | 2026-06-02 12:00 |
 | 1.57 | `MLite880_1_57_080626.zip` | 2026-06-08 12:44 |
 | 1.58 | `MLite880_1_58_110626.zip` | 2026-06-11 |
+| 1.59 | `MLite880_v1.59_20260922.bin` (заводской пакет Manual-Flash; в чат перезалита 2026-09-22) | 2026-09-22 *(interim / промежуточная)* |
 
 Firmware 1.40 and 1.50 were never posted to the chat nor to «Прошивки» — the author calls both "interim" releases (1.40 was a factory-only build for new hardware, 1.50 leaked through the manufacturer and was effectively rolled into 1.51).
+
+---
+
+## [1.59] — 2026-09-22 (interim / промежуточная)
+
+### English
+
+Released: **2026-09-22**, effectively. This is an **interim** build, not a full public release: 1.59 went out through the vendor's Firmware Downloader / `elecevolve.com`, **not** through an RX9CIM post in the «Прошивки» topic. On 2026-09-19 the author stated directly that 1.59 is an interim build already shipping on a factory batch and that he did not intend to publish it widely; it was first noticed on 2026-09-22 when the MLite Firmware Downloader began offering 1.5.9, and re-uploaded to the chat the same day. **No official changelog was published.** Known changes, from the author's remarks and user reports:
+
+- **PC connection with HDSDR now works.** The IQ40 band was opened, so Windows enumerates the 880 as **two devices** (audio + IQ) correctly. In 1.58 only one was recognised; the second showed a yellow exclamation mark.
+- Menu **typo fixes**, updated documentation (**Product manual V22**) and a new installer (**MLite-880_Setup.exe**).
+- **No DRM reception** in 1.59 — it is promised for **1.6.0**.
+
+File in this repo (`MLite880_v1.59_20260922.bin`) is the vendor **Universal Firmware Package (Manual Flash) V159**, SHA-256 `9418cf2f736f9a9bcf0aefd257f0730d1a612adad83da79d58e70b57aae76cc4`.
+
+Sources: chat re-upload of the file (2026-09-22) <https://t.me/MalahitReceiver/409671/482901>; author's "interim" note (RX9CIM, 2026-09-19) <https://t.me/MalahitReceiver/409671/481832>; official download page <https://elecevolve.com/download/mlite-880>.
+
+### Русский
+
+Дата выпуска: **2026-09-22** (фактически). Это **промежуточная** сборка, а не полноценный публичный релиз: 1.59 вышла через фирменный Firmware Downloader / `elecevolve.com`, **а не** постом RX9CIM в теме «Прошивки». 2026-09-19 автор прямо сказал, что 1.59 — промежуточная, уже стоит на заводской партии, и в общий доступ он её выкладывать не хотел; замечена 2026-09-22, когда MLite Firmware Downloader начал предлагать 1.5.9, в тот же день перезалита в чат. **Официального changelog не публиковали.** Известные изменения — со слов автора и по отчётам пользователей:
+
+- **Заработало подключение к ПК с HDSDR.** Открыта полоса IQ40 — теперь Windows видит 880 как **два устройства** (аудио + IQ) корректно. В 1.58 распознавалось только одно, у второго висел жёлтый восклицательный знак.
+- Правки **опечаток в меню**, обновлённая документация (**Product manual V22**) и новый установщик (**MLite-880_Setup.exe**).
+- **DRM-приёма в 1.59 нет** — обещан в **1.6.0**.
+
+Файл в этом репозитории (`MLite880_v1.59_20260922.bin`) — заводской **Universal Firmware Package (Manual Flash) V159**, SHA-256 `9418cf2f736f9a9bcf0aefd257f0730d1a612adad83da79d58e70b57aae76cc4`.
+
+Источники: перезалив файла в чат (2026-09-22) <https://t.me/MalahitReceiver/409671/482901>; заметка автора о промежуточном статусе (RX9CIM, 2026-09-19) <https://t.me/MalahitReceiver/409671/481832>; официальная страница загрузки <https://elecevolve.com/download/mlite-880>.
 
 ---
 
