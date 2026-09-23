@@ -7,8 +7,8 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M8 11 25 3' stroke='%234dff79' stroke-width='2' stroke-linecap='round'/%3E%3Crect x='2' y='10' width='28' height='19' rx='3' fill='%23121a12' stroke='%234dff79' stroke-width='2'/%3E%3Ccircle cx='11' cy='19.5' r='5' fill='none' stroke='%234dff79' stroke-width='2'/%3E%3Ccircle cx='11' cy='19.5' r='1.6' fill='%234dff79'/%3E%3Crect x='19' y='14' width='8' height='4' rx='1' fill='%234dff79'/%3E%3Ccircle cx='21' cy='24' r='1.7' fill='%234dff79'/%3E%3Ccircle cx='25.5' cy='24' r='1.7' fill='%234dff79'/%3E%3C/svg%3E">
 <!-- Include DFU libraries. ?v= must follow APP_VERSION: GitHub Pages lets browsers cache
      these for 10 min, which could pair a new page with the previous libraries. -->
-<script src="dfu.js?v=0.1.15"></script>
-<script src="dfuse.js?v=0.1.15"></script>
+<script src="dfu.js?v=0.1.16"></script>
+<script src="dfuse.js?v=0.1.16"></script>
 <style>
   :root{
     --bg:#121a12; --green:#4dff79; --green-dim:#2b9640; --green-deep:#145c21;
@@ -95,15 +95,38 @@
   .modal-input:focus{outline:none;border-color:var(--green);box-shadow:0 0 8px rgba(0,255,65,.3)}
   .modal-btns{display:flex;gap:10px;justify-content:flex-end}
   .lang-btn { padding:6px 10px; min-width: 44px; }
+  .head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+  #fwSelect{min-width:250px;max-width:100%}
+  .sub{overflow-wrap:anywhere}
+  /* Phones: one column, full-width controls, no horizontal scroll. */
+  @media (max-width:600px){
+    body{padding:12px}
+    .head{flex-direction:column;gap:8px}
+    #langSelector{order:-1;align-self:stretch;justify-content:space-between}
+    #langSelector .lang-btn{flex:1;min-width:0;padding:8px 0}
+    h1{font-size:17px;letter-spacing:2px}
+    .sub{font-size:11px;margin-bottom:10px}
+    .panel{padding:12px}
+    .panel .row{align-items:stretch}
+    .panel .row>button{flex:1 1 100%;min-height:40px}
+    #fwSelect,#btnLocal,#btnFlash{height:40px;line-height:38px}
+    .panel .row>.stat{flex:1 1 100%;justify-content:center}
+    label.fld{flex:1 1 100%;min-width:0}
+    #fwSelect{min-width:0;width:100%}
+    #log{height:180px}
+    .modal-overlay{padding:12px}
+    .modal-box{padding:16px}
+    .modal-btns>button{flex:1}
+  }
   .lang-btn.active { background:#0f2a12; border-color:var(--green); box-shadow:0 0 10px rgba(0,255,65,.35); color:#fff; }
 </style>
 </head>
 <body>
 <div class="wrap">
   <div id="envBanner" role="alert" hidden></div>
-  <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+  <div class="head">
     <div>
-      <h1>MLite-880 WEB FLASHER <span id="appVer" class="ver" style="font-size:13px;color:var(--green-dim);letter-spacing:1px;text-shadow:0 0 4px rgba(0,255,65,.35)">v0.1.15</span> <span class="cur">_</span></h1>
+      <h1>MLite-880 WEB FLASHER <span id="appVer" class="ver" style="font-size:13px;color:var(--green-dim);letter-spacing:1px;text-shadow:0 0 4px rgba(0,255,65,.35)">v0.1.16</span> <span class="cur">_</span></h1>
       <div class="sub" data-i18n="sub">WebUSB · STM32 DFU · <a href="https://github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;text-shadow:0 0 4px rgba(0,255,65,.45)">github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal ↗</a></div>
       <div class="sub" data-i18n="author" style="margin-top:-10px;">Author: Alexander Lavrinovich & AI agents</div>
     </div>
@@ -128,7 +151,7 @@
   <div class="panel"><h2 data-i18n="flash_title">Firmware</h2>
     <div class="row" style="align-items:flex-end;">
       <label class="fld"><span data-i18n="fw_label">Firmware (GitHub or local .bin)</span>
-        <select id="fwSelect" style="min-width:250px;">
+        <select id="fwSelect">
           <option value="" data-i18n="fw_loading">Loading list...</option>
         </select>
       </label>
@@ -168,7 +191,7 @@
 
   // DOM helper must be defined before any top-level usage (TDZ guard)
   const $ = id => document.getElementById(id);
-  const APP_VERSION = '0.1.15';
+  const APP_VERSION = '0.1.16';
 
   const dict = {
     en: {
