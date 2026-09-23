@@ -7,8 +7,8 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M8 11 25 3' stroke='%234dff79' stroke-width='2' stroke-linecap='round'/%3E%3Crect x='2' y='10' width='28' height='19' rx='3' fill='%23121a12' stroke='%234dff79' stroke-width='2'/%3E%3Ccircle cx='11' cy='19.5' r='5' fill='none' stroke='%234dff79' stroke-width='2'/%3E%3Ccircle cx='11' cy='19.5' r='1.6' fill='%234dff79'/%3E%3Crect x='19' y='14' width='8' height='4' rx='1' fill='%234dff79'/%3E%3Ccircle cx='21' cy='24' r='1.7' fill='%234dff79'/%3E%3Ccircle cx='25.5' cy='24' r='1.7' fill='%234dff79'/%3E%3C/svg%3E">
 <!-- Include DFU libraries. ?v= must follow APP_VERSION: GitHub Pages lets browsers cache
      these for 10 min, which could pair a new page with the previous libraries. -->
-<script src="dfu.js?v=0.1.16"></script>
-<script src="dfuse.js?v=0.1.16"></script>
+<script src="dfu.js?v=0.1.17"></script>
+<script src="dfuse.js?v=0.1.17"></script>
 <style>
   :root{
     --bg:#121a12; --green:#4dff79; --green-dim:#2b9640; --green-deep:#145c21;
@@ -98,6 +98,23 @@
   .head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
   #fwSelect{min-width:250px;max-width:100%}
   .sub{overflow-wrap:anywhere}
+  /* Troubleshooting tips */
+  .help-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .help-grid article{min-width:0;border:1px solid var(--green-deep);border-radius:4px;padding:10px 12px;background:rgba(3,12,4,.55)}
+  .help-grid article.wide{grid-column:1/-1}
+  .help-grid h3{font-size:12px;letter-spacing:1px;color:var(--green);margin:0 0 6px;text-transform:uppercase}
+  .help-grid h3:not(:first-child){margin-top:12px}
+  .help-grid p,.help-grid li{font-size:12px;line-height:1.5;color:#9fdcae;margin:4px 0}
+  .help-grid ol{margin:4px 0;padding-left:20px}
+  .help-grid a{color:var(--green)}
+  .help-grid .warn-text{color:var(--amber)}
+  .help-grid .step{color:var(--green);margin-top:10px}
+  .cmd{display:flex;gap:8px;align-items:flex-start;margin:6px 0}
+  .cmd code{flex:1;min-width:0;font:11px/1.45 var(--mono);color:#b8ffc8;background:#010401;border:1px solid var(--green-deep);border-radius:4px;padding:7px 9px;white-space:pre-wrap;overflow-wrap:anywhere;user-select:all;-webkit-user-select:all;text-shadow:none}
+  .cmd button{flex:none;padding:5px 9px;font-size:11px}
+  .distros{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+  .distros strong{display:block;font-size:11px;color:var(--green-dim);letter-spacing:.5px}
+  .distros .cmd{flex-direction:column;align-items:stretch}
   /* Phones: one column, full-width controls, no horizontal scroll. */
   @media (max-width:600px){
     body{padding:12px}
@@ -117,6 +134,8 @@
     .modal-overlay{padding:12px}
     .modal-box{padding:16px}
     .modal-btns>button{flex:1}
+    .help-grid,.distros{grid-template-columns:1fr}
+    .cmd{flex-direction:column;align-items:stretch}
   }
   .lang-btn.active { background:#0f2a12; border-color:var(--green); box-shadow:0 0 10px rgba(0,255,65,.35); color:#fff; }
 </style>
@@ -126,7 +145,7 @@
   <div id="envBanner" role="alert" hidden></div>
   <div class="head">
     <div>
-      <h1>MLite-880 WEB FLASHER <span id="appVer" class="ver" style="font-size:13px;color:var(--green-dim);letter-spacing:1px;text-shadow:0 0 4px rgba(0,255,65,.35)">v0.1.16</span> <span class="cur">_</span></h1>
+      <h1>MLite-880 WEB FLASHER <span id="appVer" class="ver" style="font-size:13px;color:var(--green-dim);letter-spacing:1px;text-shadow:0 0 4px rgba(0,255,65,.35)">v0.1.17</span> <span class="cur">_</span></h1>
       <div class="sub" data-i18n="sub">WebUSB · STM32 DFU · <a href="https://github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;text-shadow:0 0 4px rgba(0,255,65,.45)">github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal ↗</a></div>
       <div class="sub" data-i18n="author" style="margin-top:-10px;">Author: Alexander Lavrinovich & AI agents</div>
     </div>
@@ -164,6 +183,58 @@
   </div>
 
   <div class="panel"><h2 data-i18n="log_title">Log</h2><div id="log"></div></div>
+
+  <details class="panel help" id="helpPanel">
+    <summary data-i18n="h_title">Troubleshooting tips</summary>
+    <div class="help-grid">
+      <article>
+        <h3 data-i18n="h_after_t">After the write</h3>
+        <ol><li data-i18n="h_after1">The flasher takes the receiver out of DFU itself: it sends the leave request and resets USB — the same finish as dfu-util with “:leave”.</li><li data-i18n="h_after2">If the screen stays dark, press button “1” or switch the receiver off and on again (as the MLite-880 manual says). The firmware is already written.</li><li data-i18n="h_after3">If it still will not start, put the receiver into DFU again and repeat the write.</li></ol>
+        <p class="warn-text" data-i18n="h_after_note">A dark screen right after the write is not a brick: the STM32 system bootloader stays available, so the receiver can always be put back into DFU and flashed again.</p>
+      </article>
+      <article>
+        <h3 data-i18n="h_nf_t">Receiver not found</h3>
+        <p data-i18n="h_nf">Check DFU mode (hold “1”, power on, wait 3 s, release “1”), the power supply and the USB cable: it must carry data, not only charge. Connect directly, without a hub, and disconnect other STM32 devices in DFU mode.</p>
+        <h3 data-i18n="h_busy_t">Device busy / cannot be opened</h3>
+        <p data-i18n="h_busy">Only one program can use the DFU interface at a time. Close dfu-util, STM32CubeProgrammer, other flashers and other tabs with this page, then connect again.</p>
+      </article>
+      <article>
+        <h3>Windows · WinUSB</h3>
+        <p data-i18n="h_win">If the receiver is missing from the browser list or the browser cannot open it, assign the built-in WinUSB driver to it once:</p>
+        <ol>
+          <li><span data-i18n="h_win1">Download Zadig from its official website and run it as administrator:</span> <a href="https://zadig.akeo.ie/" target="_blank" rel="noopener noreferrer">zadig.akeo.ie ↗</a></li>
+          <li data-i18n="h_win2">Enable List All Devices in the Options menu.</li><li data-i18n="h_win3">Select only STM32 BOOTLOADER (or Malahit-Lite DFU) with USB ID 0483 DF11.</li><li data-i18n="h_win4">Select WinUSB and click Replace Driver (or Install Driver).</li><li data-i18n="h_win5">Reconnect USB and click the connect button again.</li>
+        </ol>
+        <p class="warn-text" data-i18n="h_win_warn">Do not replace the driver of any other USB device.</p>
+        <p data-i18n="h_win_alt">Alternative: the flash_MLite880.bat script from this repository installs WinUSB automatically on its first run.</p>
+      </article>
+      <article>
+        <h3 data-i18n="h_mac_t">macOS · USB access</h3>
+        <p data-i18n="h_mac">macOS does not need a separate DFU driver.</p>
+        <ol><li data-i18n="h_mac1">On a Mac with Apple silicon, unlock the computer, connect the receiver and click “Allow” in the USB accessory prompt.</li><li data-i18n="h_mac2">If the prompt was denied, open System Settings → Privacy &amp; Security → Allow accessories to connect and choose Ask for New Accessories or Automatically When Unlocked.</li><li data-i18n="h_mac3">If the receiver is missing from the browser list, open System Information → USB. If 0483:DF11 is listed, check the browser or access settings; if not, check the cable, power and DFU mode.</li></ol>
+      </article>
+      <article class="wide">
+        <h3>Linux · udev</h3>
+        <p data-i18n="h_linux">If the browser reports an access error (Permission denied), create a udev rule for the receiver. The command works on current Debian/Ubuntu/Mint, Fedora/RHEL, Arch/Manjaro and openSUSE:</p>
+        <p class="step" data-i18n="h_linux_rule">1. Create the rule and reload settings</p>
+        <div class="cmd"><code id="cmdUdev">printf '%s\n' 'SUBSYSTEM=="usb", ATTR{idVendor}=="0483", ATTR{idProduct}=="df11", MODE="0660", TAG+="uaccess"' | sudo tee /etc/udev/rules.d/70-mlite-dfu.rules &gt;/dev/null &amp;&amp; sudo udevadm control --reload-rules &amp;&amp; sudo udevadm trigger --subsystem-match=usb</code><button type="button" class="copy-cmd" data-copy-target="cmdUdev" data-i18n="h_copy">[ COPY COMMAND ]</button></div>
+        <p class="step" data-i18n="h_linux_re">2. Fully unplug the receiver, reconnect it in DFU mode and connect again in the browser.</p>
+        <p data-i18n="h_linux_missing">If the terminal says udevadm was not found, first install the system package for your distribution:</p>
+        <div class="distros">
+          <div><strong>Debian / Ubuntu / Mint</strong><div class="cmd compact"><code id="cmdApt">sudo apt update &amp;&amp; sudo apt install -y udev</code><button type="button" class="copy-cmd" data-copy-target="cmdApt" data-i18n="h_copy">[ COPY COMMAND ]</button></div></div>
+          <div><strong>Fedora / RHEL / Rocky / Alma</strong><div class="cmd compact"><code id="cmdDnf">sudo dnf install -y systemd-udev</code><button type="button" class="copy-cmd" data-copy-target="cmdDnf" data-i18n="h_copy">[ COPY COMMAND ]</button></div></div>
+          <div><strong>Arch / Manjaro</strong><div class="cmd compact"><code id="cmdPacman">sudo pacman -S --needed systemd</code><button type="button" class="copy-cmd" data-copy-target="cmdPacman" data-i18n="h_copy">[ COPY COMMAND ]</button></div></div>
+        </div>
+        <p class="warn-text" data-i18n="h_linux_relogin">If access is still denied, sign out of your Linux account, sign in again and reconnect USB.</p>
+      </article>
+      <article class="wide">
+        <h3 data-i18n="h_refresh_t">Do not refresh while flashing</h3>
+        <p class="warn-text" data-i18n="h_refresh">While the write is running, the browser warns you if the page is refreshed or closed. If you confirm leaving, the USB transfer stops and the firmware remains incomplete.</p>
+        <p data-i18n="h_refresh2">After an interruption, put the receiver into DFU again and flash from the beginning. Do not disconnect power or USB until the success message appears.</p>
+        <p data-i18n="h_bg">Switching to another tab or minimizing the window during the write is fine: flashing continues at full speed.</p>
+      </article>
+    </div>
+  </details>
 </div>
 
 <div id="modal" class="modal-overlay" hidden>
@@ -191,7 +262,7 @@
 
   // DOM helper must be defined before any top-level usage (TDZ guard)
   const $ = id => document.getElementById(id);
-  const APP_VERSION = '0.1.16';
+  const APP_VERSION = '0.1.17';
 
   const dict = {
     en: {
@@ -234,7 +305,7 @@
       log_reboot: 'Rebooting receiver...',
       log_success: 'FLASHING SUCCESSFULLY COMPLETED!',
       log_flash_err: 'Flashing error: ',
-      alert_success: 'Flashing completed successfully!\nReceiver should reboot automatically.',
+      alert_success: 'Flashing completed successfully!\nIf the screen stays dark, press button “1” or switch the receiver off and on again.',
       confirm_flash: 'Are you sure you want to flash:\n{name}?',
       env_title: "FLASHING NOT POSSIBLE HERE",
       env_prefix: "⚠ Flashing is not possible here: ",
@@ -244,6 +315,41 @@
       env_inapp: "the page is open inside an app (Telegram, etc.), which has no USB access. Open it in Chrome: menu ⋮ → “Open in browser”.",
       env_insecure: "the page is not opened over HTTPS, so the browser blocks USB. Open https://alex-electron.github.io/MLite-880_Flasher_Standalone_Universal/",
       env_policy: "USB access is blocked for this page (it is embedded in another site, or blocked by browser policy). Open https://alex-electron.github.io/MLite-880_Flasher_Standalone_Universal/ in its own tab.",
+      h_title: "Troubleshooting tips",
+      h_after_t: "After the write",
+      h_after1: "The flasher takes the receiver out of DFU itself: it sends the leave request and resets USB — the same finish as dfu-util with “:leave”.",
+      h_after2: "If the screen stays dark, press button “1” or switch the receiver off and on again (as the MLite-880 manual says). The firmware is already written.",
+      h_after3: "If it still will not start, put the receiver into DFU again and repeat the write.",
+      h_after_note: "A dark screen right after the write is not a brick: the STM32 system bootloader stays available, so the receiver can always be put back into DFU and flashed again.",
+      h_nf_t: "Receiver not found",
+      h_nf: "Check DFU mode (hold “1”, power on, wait 3 s, release “1”), the power supply and the USB cable: it must carry data, not only charge. Connect directly, without a hub, and disconnect other STM32 devices in DFU mode.",
+      h_win: "If the receiver is missing from the browser list or the browser cannot open it, assign the built-in WinUSB driver to it once:",
+      h_win1: "Download Zadig from its official website and run it as administrator:",
+      h_win2: "Enable List All Devices in the Options menu.",
+      h_win3: "Select only STM32 BOOTLOADER (or Malahit-Lite DFU) with USB ID 0483 DF11.",
+      h_win4: "Select WinUSB and click Replace Driver (or Install Driver).",
+      h_win5: "Reconnect USB and click the connect button again.",
+      h_win_warn: "Do not replace the driver of any other USB device.",
+      h_win_alt: "Alternative: the flash_MLite880.bat script from this repository installs WinUSB automatically on its first run.",
+      h_linux: "If the browser reports an access error (Permission denied), create a udev rule for the receiver. The command works on current Debian/Ubuntu/Mint, Fedora/RHEL, Arch/Manjaro and openSUSE:",
+      h_linux_rule: "1. Create the rule and reload settings",
+      h_linux_re: "2. Fully unplug the receiver, reconnect it in DFU mode and connect again in the browser.",
+      h_linux_missing: "If the terminal says udevadm was not found, first install the system package for your distribution:",
+      h_linux_relogin: "If access is still denied, sign out of your Linux account, sign in again and reconnect USB.",
+      h_mac_t: "macOS · USB access",
+      h_mac: "macOS does not need a separate DFU driver.",
+      h_mac1: "On a Mac with Apple silicon, unlock the computer, connect the receiver and click “Allow” in the USB accessory prompt.",
+      h_mac2: "If the prompt was denied, open System Settings → Privacy & Security → Allow accessories to connect and choose Ask for New Accessories or Automatically When Unlocked.",
+      h_mac3: "If the receiver is missing from the browser list, open System Information → USB. If 0483:DF11 is listed, check the browser or access settings; if not, check the cable, power and DFU mode.",
+      h_busy_t: "Device busy / cannot be opened",
+      h_busy: "Only one program can use the DFU interface at a time. Close dfu-util, STM32CubeProgrammer, other flashers and other tabs with this page, then connect again.",
+      h_refresh_t: "Do not refresh while flashing",
+      h_refresh: "While the write is running, the browser warns you if the page is refreshed or closed. If you confirm leaving, the USB transfer stops and the firmware remains incomplete.",
+      h_refresh2: "After an interruption, put the receiver into DFU again and flash from the beginning. Do not disconnect power or USB until the success message appears.",
+      h_bg: "Switching to another tab or minimizing the window during the write is fine: flashing continues at full speed.",
+      h_copy: "[ COPY COMMAND ]",
+      h_copied: "[ COPIED ]",
+      h_copy_fail: "[ COPY FAILED ]",
       lbl_dl: 'Downloading...',
       lbl_flash: 'Flashing...',
       lbl_verf: 'Verifying...',
@@ -291,7 +397,7 @@
       log_reboot: 'Empfänger wird neu gestartet...',
       log_success: 'FLASHEN ERFOLGREICH ABGESCHLOSSEN!',
       log_flash_err: 'Fehler beim Flashen: ',
-      alert_success: 'Flashen erfolgreich abgeschlossen!\nDer Empfänger sollte automatisch neu starten.',
+      alert_success: 'Flashen erfolgreich abgeschlossen!\nBleibt der Bildschirm dunkel, drücken Sie die Taste „1“ oder schalten Sie den Empfänger aus und wieder ein.',
       confirm_flash: 'Möchten Sie wirklich flashen:\n{name}?',
       env_title: "FLASHEN HIER NICHT MÖGLICH",
       env_prefix: "⚠ Flashen hier nicht möglich: ",
@@ -301,6 +407,41 @@
       env_inapp: "die Seite ist in einer App geöffnet (Telegram o. Ä.), die keinen USB-Zugriff hat. Öffnen Sie sie in Chrome: Menü ⋮ → „Im Browser öffnen“.",
       env_insecure: "die Seite ist nicht über HTTPS geöffnet, daher sperrt der Browser USB. Öffnen Sie https://alex-electron.github.io/MLite-880_Flasher_Standalone_Universal/",
       env_policy: "USB-Zugriff ist für diese Seite gesperrt (in eine andere Seite eingebettet oder per Browser-Richtlinie). Öffnen Sie https://alex-electron.github.io/MLite-880_Flasher_Standalone_Universal/ in einem eigenen Tab.",
+      h_title: "Hilfe bei Problemen",
+      h_after_t: "Nach dem Schreiben",
+      h_after1: "Der Flasher holt den Empfänger selbst aus dem DFU-Modus: Er sendet den Leave-Befehl und setzt USB zurück — genau wie dfu-util mit „:leave“.",
+      h_after2: "Bleibt der Bildschirm dunkel, drücken Sie die Taste „1“ oder schalten Sie den Empfänger aus und wieder ein (so steht es im MLite-880-Handbuch). Die Firmware ist bereits geschrieben.",
+      h_after3: "Startet er trotzdem nicht, versetzen Sie ihn erneut in den DFU-Modus und wiederholen Sie den Schreibvorgang.",
+      h_after_note: "Ein dunkler Bildschirm direkt nach dem Schreiben ist kein „Brick“: Der STM32-System-Bootloader bleibt verfügbar, der Empfänger kann jederzeit wieder in den DFU-Modus versetzt und neu geflasht werden.",
+      h_nf_t: "Empfänger nicht gefunden",
+      h_nf: "Prüfen Sie den DFU-Modus („1“ gedrückt halten, einschalten, 3 s warten, „1“ loslassen), die Stromversorgung und das USB-Kabel: Es muss Daten übertragen, nicht nur laden. Direkt anschließen, ohne Hub, und andere STM32-Geräte im DFU-Modus trennen.",
+      h_win: "Fehlt der Empfänger in der Browserliste oder kann der Browser ihn nicht öffnen, weisen Sie ihm einmalig den integrierten WinUSB-Treiber zu:",
+      h_win1: "Laden Sie Zadig von der offiziellen Website und starten Sie es als Administrator:",
+      h_win2: "Aktivieren Sie im Menü Options den Punkt List All Devices.",
+      h_win3: "Wählen Sie ausschließlich STM32 BOOTLOADER (oder Malahit-Lite DFU) mit USB ID 0483 DF11.",
+      h_win4: "Wählen Sie WinUSB und klicken Sie auf Replace Driver (bzw. Install Driver).",
+      h_win5: "Stecken Sie USB neu ein und klicken Sie erneut auf die Schaltfläche zum Verbinden.",
+      h_win_warn: "Ändern Sie nicht den Treiber anderer USB-Geräte.",
+      h_win_alt: "Alternative: Das Skript flash_MLite880.bat aus diesem Repository installiert WinUSB beim ersten Start automatisch.",
+      h_linux: "Meldet der Browser einen Zugriffsfehler (Permission denied), legen Sie eine udev-Regel für den Empfänger an. Der Befehl funktioniert unter aktuellen Debian/Ubuntu/Mint, Fedora/RHEL, Arch/Manjaro und openSUSE:",
+      h_linux_rule: "1. Regel anlegen und Einstellungen neu laden",
+      h_linux_re: "2. Trennen Sie den Empfänger vollständig vom USB, schließen Sie ihn im DFU-Modus wieder an und verbinden Sie ihn erneut im Browser.",
+      h_linux_missing: "Meldet das Terminal, dass udevadm nicht gefunden wurde, installieren Sie zuerst das Systempaket Ihrer Distribution:",
+      h_linux_relogin: "Wird der Zugriff weiterhin verweigert, melden Sie sich von Ihrem Linux-Konto ab und wieder an und stecken Sie USB neu ein.",
+      h_mac_t: "macOS · USB-Zugriff",
+      h_mac: "macOS benötigt keinen separaten DFU-Treiber.",
+      h_mac1: "Entsperren Sie auf einem Mac mit Apple silicon den Computer, schließen Sie den Empfänger an und klicken Sie in der Abfrage für USB-Zubehör auf „Erlauben“.",
+      h_mac2: "Wurde die Abfrage abgelehnt: Öffnen Sie Systemeinstellungen → Datenschutz & Sicherheit → Verbindung von Zubehör erlauben und wählen Sie „Bei neuem Zubehör fragen“ oder „Automatisch, wenn entsperrt“.",
+      h_mac3: "Fehlt der Empfänger in der Browserliste, öffnen Sie Systeminformationen → USB. Ist 0483:DF11 aufgeführt, liegt es am Browser oder an den Zugriffsrechten; fehlt es, prüfen Sie Kabel, Stromversorgung und DFU-Modus.",
+      h_busy_t: "Gerät belegt / lässt sich nicht öffnen",
+      h_busy: "Die DFU-Schnittstelle kann jeweils nur ein Programm nutzen. Schließen Sie dfu-util, STM32CubeProgrammer, andere Flasher und weitere Tabs mit dieser Seite und verbinden Sie erneut.",
+      h_refresh_t: "Seite während des Flashens nicht neu laden",
+      h_refresh: "Während geschrieben wird, warnt der Browser, wenn die Seite neu geladen oder geschlossen wird. Bestätigen Sie das Verlassen, bricht die USB-Übertragung ab und die Firmware bleibt unvollständig.",
+      h_refresh2: "Versetzen Sie den Empfänger nach einer Unterbrechung erneut in den DFU-Modus und flashen Sie von vorn. Trennen Sie Strom und USB erst nach der Erfolgsmeldung.",
+      h_bg: "Während des Schreibens zu einem anderen Tab zu wechseln oder das Fenster zu minimieren ist in Ordnung: Das Flashen läuft mit voller Geschwindigkeit weiter.",
+      h_copy: "[ BEFEHL KOPIEREN ]",
+      h_copied: "[ KOPIERT ]",
+      h_copy_fail: "[ KOPIEREN FEHLGESCHLAGEN ]",
       lbl_dl: 'Herunterladen...',
       lbl_flash: 'Flashen...',
       lbl_verf: 'Überprüfen...',
@@ -348,7 +489,7 @@
       log_reboot: "Перазагрузка прыёмніка...",
       log_success: "ПРАШЫЎКА ПРАЙШЛА ПАСПЯХОВА!",
       log_flash_err: "Памылка пры прашыўцы: ",
-      alert_success: "Запіс прашыўкі завершаны паспяхова!\nПрыёмнік павінен перазагрузіцца аўтаматычна.",
+      alert_success: "Запіс прашыўкі завершаны паспяхова!\nКалі экран застаўся цёмным, націсніце кнопку «1» або выключыце і зноў уключыце прымач.",
       confirm_flash: "Ці ўпэўнены вы, што хочаце запісаць прашыўку:\n{name}?",
       env_title: "ЗАПІС ТУТ НЕМАГЧЫМЫ",
       env_prefix: "⚠ Запіс прашыўкі тут немагчымы: ",
@@ -358,6 +499,41 @@
       env_inapp: "старонка адкрыта ўнутры праграмы (Telegram і да т.п.), у якой няма доступу да USB. Адкрыйце яе ў Chrome: меню ⋮ → «Адкрыць у браўзеры».",
       env_insecure: "старонка адкрыта не праз HTTPS, таму браўзер блакуе USB. Адкрыйце https://alex-electron.github.io/MLite-880_Flasher_Standalone_Universal/",
       env_policy: "доступ да USB для гэтай старонкі заблакаваны (яна ўбудавана ў іншы сайт ці забаронена палітыкай браўзера). Адкрыйце https://alex-electron.github.io/MLite-880_Flasher_Standalone_Universal/ у асобнай укладцы.",
+      h_title: "Падказкі пры праблемах",
+      h_after_t: "Пасля запісу",
+      h_after1: "Прашывальшчык сам выводзіць прымач з DFU: адпраўляе каманду выхаду і скідае USB — гэтак жа, як dfu-util з ключом «:leave».",
+      h_after2: "Калі экран застаўся цёмным, націсніце кнопку «1» або выключыце і зноў уключыце прымач (так сказана ў інструкцыі MLite-880). Прашыўка ўжо запісана.",
+      h_after3: "Калі прымач усё роўна не запускаецца, зноў перавядзіце яго ў DFU і паўтарыце запіс.",
+      h_after_note: "Цёмны экран адразу пасля запісу — яшчэ не «цагліна»: сістэмны загрузчык STM32 застаецца даступным, таму прымач заўсёды можна зноў перавесці ў DFU і прашыць.",
+      h_nf_t: "Прымач не знойдзены",
+      h_nf: "Праверце рэжым DFU (утрымлівайце «1», уключыце жыўленне, пачакайце 3 с, адпусціце «1»), жыўленне і USB-кабель: ён павінен перадаваць даныя, а не толькі зараджаць. Падключайце напрамую, без хаба, і адключыце іншыя STM32-прылады ў рэжыме DFU.",
+      h_win: "Калі прымача няма ў спісе браўзера або браўзер не можа яго адкрыць, адзін раз прызначце яму ўбудаваны драйвер WinUSB:",
+      h_win1: "Спампуйце Zadig з афіцыйнага сайта і запусціце яго ад імя адміністратара:",
+      h_win2: "У меню Options уключыце List All Devices.",
+      h_win3: "Выберыце толькі STM32 BOOTLOADER (або Malahit-Lite DFU) з USB ID 0483 DF11.",
+      h_win4: "Выберыце WinUSB і націсніце Replace Driver (або Install Driver).",
+      h_win5: "Перападключыце USB і зноў націсніце кнопку падключэння прымача.",
+      h_win_warn: "Не мяняйце драйвер у іншых USB-прылад.",
+      h_win_alt: "Іншы спосаб: скрыпт flash_MLite880.bat з гэтага рэпазіторыя пры першым запуску сам усталёўвае WinUSB.",
+      h_linux: "Калі браўзер паведамляе пра памылку доступу (Permission denied), стварыце udev-правіла для прымача. Каманда падыходзіць для сучасных Debian/Ubuntu/Mint, Fedora/RHEL, Arch/Manjaro і openSUSE:",
+      h_linux_rule: "1. Стварыць правіла і перачытаць налады",
+      h_linux_re: "2. Цалкам адключыце прымач ад USB, падключыце зноў у рэжыме DFU і паўтарыце падключэнне ў браўзеры.",
+      h_linux_missing: "Калі тэрмінал паведамляе, што udevadm не знойдзены, спачатку ўсталюйце сістэмны пакет для свайго дыстрыбутыва:",
+      h_linux_relogin: "Калі доступ усё яшчэ забаронены, выйдзіце з уліковага запісу Linux, увайдзіце зноў і перападключыце USB.",
+      h_mac_t: "macOS · доступ да USB",
+      h_mac: "У macOS асобны DFU-драйвер не патрэбны.",
+      h_mac1: "На Mac з Apple silicon разблакуйце камп’ютар, падключыце прымач і націсніце «Дазволіць» у сістэмным запыце USB-аксесуара.",
+      h_mac2: "Калі запыт быў адхілены: адкрыйце «Сістэмныя налады → Прыватнасць і бяспека → Дазволіць падключэнне аксесуараў» і выберыце запыт для новых аксесуараў або аўтаматычны дазвол пры разблакоўцы.",
+      h_mac3: "Калі прымача няма ў спісе браўзера, адкрыйце «Інфармацыя аб сістэме → USB». Ёсць 0483:DF11 — справа ў браўзеры ці правах доступу; няма — праверце кабель, жыўленне і рэжым DFU.",
+      h_busy_t: "Прылада занятая / не адкрываецца",
+      h_busy: "DFU-інтэрфейс можа выкарыстоўваць толькі адна праграма. Закрыйце dfu-util, STM32CubeProgrammer, іншыя прашывальшчыкі і іншыя ўкладкі з гэтай старонкай і падключыцеся зноў.",
+      h_refresh_t: "Не абнаўляйце старонку падчас прашыўкі",
+      h_refresh: "Пакуль ідзе запіс, браўзер папярэдзіць, калі старонку абнавіць або закрыць. Калі пацвердзіць выхад, перадача па USB перапыніцца, і прашыўка застанецца недапісанай.",
+      h_refresh2: "Пасля перапынення зноў перавядзіце прымач у DFU і запішыце прашыўку з пачатку. Не адключайце жыўленне і USB да паведамлення пра паспяховае завяршэнне.",
+      h_bg: "Пераключыцца на іншую ўкладку або згарнуць акно падчас запісу можна: прашыўка працягнецца на поўнай хуткасці.",
+      h_copy: "[ КАПІЯВАЦЬ КАМАНДУ ]",
+      h_copied: "[ СКАПІЯВАНА ]",
+      h_copy_fail: "[ ПАМЫЛКА КАПІЯВАННЯ ]",
       lbl_dl: "Спампоўка...",
       lbl_flash: "Запіс прашыўкі...",
       lbl_verf: "Праверка...",
@@ -404,7 +580,7 @@
       log_reboot: "Перезавантаження приймача...",
       log_success: "ПРОШИВКУ ЗАВЕРШЕНО УСПІШНО!",
       log_flash_err: "Помилка при прошивці: ",
-      alert_success: "Запис прошивки завершено успішно!\nПриймач повинен перезавантажитися автоматично.",
+      alert_success: "Запис прошивки завершено успішно!\nЯкщо екран лишився темним, натисніть кнопку «1» або вимкніть і знову увімкніть приймач.",
       confirm_flash: "Ви впевнені, що хочете записати прошивку:\n{name}?",
       env_title: "ЗАПИС ТУТ НЕМОЖЛИВИЙ",
       env_prefix: "⚠ Запис прошивки тут неможливий: ",
@@ -414,6 +590,41 @@
       env_inapp: "сторінку відкрито всередині застосунку (Telegram тощо), який не має доступу до USB. Відкрийте її в Chrome: меню ⋮ → «Відкрити в браузері».",
       env_insecure: "сторінку відкрито не через HTTPS, тому браузер блокує USB. Відкрийте https://alex-electron.github.io/MLite-880_Flasher_Standalone_Universal/",
       env_policy: "доступ до USB для цієї сторінки заблоковано (її вбудовано в інший сайт або заборонено політикою браузера). Відкрийте https://alex-electron.github.io/MLite-880_Flasher_Standalone_Universal/ в окремій вкладці.",
+      h_title: "Підказки при проблемах",
+      h_after_t: "Після запису",
+      h_after1: "Прошивальник сам виводить приймач із DFU: надсилає команду виходу та скидає USB — так само, як dfu-util з ключем «:leave».",
+      h_after2: "Якщо екран лишився темним, натисніть кнопку «1» або вимкніть і знову увімкніть приймач (так сказано в інструкції MLite-880). Прошивку вже записано.",
+      h_after3: "Якщо приймач усе одно не запускається, знову переведіть його в DFU і повторіть запис.",
+      h_after_note: "Темний екран одразу після запису — ще не «цеглина»: системний завантажувач STM32 лишається доступним, тож приймач завжди можна знову перевести в DFU і прошити.",
+      h_nf_t: "Приймач не знайдено",
+      h_nf: "Перевірте режим DFU (затисніть «1», увімкніть живлення, зачекайте 3 с, відпустіть «1»), живлення та USB-кабель: він має передавати дані, а не лише заряджати. Підключайте напряму, без хаба, і від’єднайте інші STM32-пристрої в режимі DFU.",
+      h_win: "Якщо приймача немає у списку браузера або браузер не може його відкрити, один раз призначте йому вбудований драйвер WinUSB:",
+      h_win1: "Завантажте Zadig з офіційного сайту та запустіть його від імені адміністратора:",
+      h_win2: "У меню Options увімкніть List All Devices.",
+      h_win3: "Виберіть лише STM32 BOOTLOADER (або Malahit-Lite DFU) з USB ID 0483 DF11.",
+      h_win4: "Виберіть WinUSB і натисніть Replace Driver (або Install Driver).",
+      h_win5: "Перепідключіть USB і знову натисніть кнопку підключення приймача.",
+      h_win_warn: "Не змінюйте драйвер інших USB-пристроїв.",
+      h_win_alt: "Інший спосіб: скрипт flash_MLite880.bat з цього репозиторію під час першого запуску сам встановлює WinUSB.",
+      h_linux: "Якщо браузер повідомляє про помилку доступу (Permission denied), створіть udev-правило для приймача. Команда підходить для сучасних Debian/Ubuntu/Mint, Fedora/RHEL, Arch/Manjaro та openSUSE:",
+      h_linux_rule: "1. Створити правило й перечитати налаштування",
+      h_linux_re: "2. Повністю від’єднайте приймач від USB, підключіть знову в режимі DFU і повторіть підключення в браузері.",
+      h_linux_missing: "Якщо термінал повідомляє, що udevadm не знайдено, спочатку встановіть системний пакет для свого дистрибутива:",
+      h_linux_relogin: "Якщо доступ усе ще заборонено, вийдіть з облікового запису Linux, увійдіть знову й перепідключіть USB.",
+      h_mac_t: "macOS · доступ до USB",
+      h_mac: "У macOS окремий DFU-драйвер не потрібен.",
+      h_mac1: "На Mac з Apple silicon розблокуйте комп’ютер, підключіть приймач і натисніть «Дозволити» в системному запиті USB-аксесуара.",
+      h_mac2: "Якщо запит було відхилено: відкрийте «Системні параметри → Приватність і безпека → Дозволяти аксесуарам підключатися» та виберіть запит для нових аксесуарів або автоматичний дозвіл після розблокування.",
+      h_mac3: "Якщо приймача немає у списку браузера, відкрийте «Інформація про систему → USB». Є 0483:DF11 — справа в браузері чи правах доступу; немає — перевірте кабель, живлення та режим DFU.",
+      h_busy_t: "Пристрій зайнятий / не відкривається",
+      h_busy: "DFU-інтерфейс може використовувати лише одна програма. Закрийте dfu-util, STM32CubeProgrammer, інші прошивальники та інші вкладки з цією сторінкою й підключіться знову.",
+      h_refresh_t: "Не оновлюйте сторінку під час прошивки",
+      h_refresh: "Поки триває запис, браузер попередить, якщо сторінку оновити або закрити. Якщо підтвердити вихід, передача по USB перерветься, і прошивка лишиться недописаною.",
+      h_refresh2: "Після переривання знову переведіть приймач у DFU і запишіть прошивку з початку. Не вимикайте живлення та USB до повідомлення про успішне завершення.",
+      h_bg: "Перейти на іншу вкладку або згорнути вікно під час запису можна: прошивка продовжиться на повній швидкості.",
+      h_copy: "[ КОПІЮВАТИ КОМАНДУ ]",
+      h_copied: "[ СКОПІЙОВАНО ]",
+      h_copy_fail: "[ ПОМИЛКА КОПІЮВАННЯ ]",
       lbl_dl: "Завантаження...",
       lbl_flash: "Запис прошивки...",
       lbl_verf: "Перевірка...",
@@ -460,7 +671,7 @@
       log_reboot: 'Перезагрузка приёмника...',
       log_success: 'ПРОШИВКА УСПЕШНО ЗАВЕРШЕНА!',
       log_flash_err: 'Ошибка прошивки: ',
-      alert_success: 'Прошивка успешно завершена!\nПриёмник должен перезагрузиться.',
+      alert_success: 'Прошивка успешно завершена!\nЕсли экран остался тёмным, нажмите кнопку «1» или выключите и снова включите приёмник.',
       confirm_flash: 'Вы уверены, что хотите прошить:\n{name}?',
       env_title: "ПРОШИВКА ЗДЕСЬ НЕВОЗМОЖНА",
       env_prefix: "⚠ Прошивка здесь невозможна: ",
@@ -470,6 +681,41 @@
       env_inapp: "страница открыта внутри приложения (Telegram и т.п.), у которого нет доступа к USB. Откройте её в Chrome: меню ⋮ → «Открыть в браузере».",
       env_insecure: "страница открыта не по HTTPS, поэтому браузер блокирует USB. Откройте https://alex-electron.github.io/MLite-880_Flasher_Standalone_Universal/",
       env_policy: "доступ к USB для этой страницы заблокирован (она встроена в другой сайт или запрещена политикой браузера). Откройте https://alex-electron.github.io/MLite-880_Flasher_Standalone_Universal/ в отдельной вкладке.",
+      h_title: "Подсказки при проблемах",
+      h_after_t: "После записи",
+      h_after1: "Прошивальщик сам выводит приёмник из DFU: отправляет команду выхода и сбрасывает USB — так же, как dfu-util с ключом «:leave».",
+      h_after2: "Если экран остался тёмным, нажмите кнопку «1» или выключите и снова включите приёмник (так сказано в инструкции MLite-880). Прошивка уже записана.",
+      h_after3: "Если приёмник всё равно не запускается, снова переведите его в DFU и повторите запись.",
+      h_after_note: "Тёмный экран сразу после записи — ещё не «кирпич»: системный загрузчик STM32 остаётся доступен, приёмник всегда можно снова перевести в DFU и прошить.",
+      h_nf_t: "Приёмник не найден",
+      h_nf: "Проверьте режим DFU (зажмите «1», включите питание, подождите 3 с, отпустите «1»), питание и USB-кабель: он должен передавать данные, а не только заряжать. Подключайте напрямую, без хаба, и отключите другие STM32-устройства в режиме DFU.",
+      h_win: "Если приёмника нет в списке браузера или браузер не может его открыть, один раз назначьте ему встроенный драйвер WinUSB:",
+      h_win1: "Скачайте Zadig с официального сайта и запустите его от имени администратора:",
+      h_win2: "В меню Options включите List All Devices.",
+      h_win3: "Выберите только STM32 BOOTLOADER (или Malahit-Lite DFU) с USB ID 0483 DF11.",
+      h_win4: "Выберите WinUSB и нажмите Replace Driver (или Install Driver).",
+      h_win5: "Переподключите USB и снова нажмите кнопку подключения приёмника.",
+      h_win_warn: "Не меняйте драйвер у других USB-устройств.",
+      h_win_alt: "Другой способ: скрипт flash_MLite880.bat из этого репозитория при первом запуске сам ставит WinUSB.",
+      h_linux: "Если браузер сообщает об ошибке доступа (Permission denied), создайте udev-правило для приёмника. Команда подходит для современных Debian/Ubuntu/Mint, Fedora/RHEL, Arch/Manjaro и openSUSE:",
+      h_linux_rule: "1. Создать правило и перечитать настройки",
+      h_linux_re: "2. Полностью отключите приёмник от USB, подключите снова в режиме DFU и повторите подключение в браузере.",
+      h_linux_missing: "Если терминал сообщает, что udevadm не найден, сначала установите системный пакет для своего дистрибутива:",
+      h_linux_relogin: "Если доступ всё ещё запрещён, выйдите из учётной записи Linux, войдите снова и переподключите USB.",
+      h_mac_t: "macOS · доступ к USB",
+      h_mac: "В macOS отдельный DFU-драйвер не нужен.",
+      h_mac1: "На Mac с Apple silicon разблокируйте компьютер, подключите приёмник и нажмите «Разрешить» в системном запросе USB-аксессуара.",
+      h_mac2: "Если запрос был отклонён: откройте «Системные настройки → Конфиденциальность и безопасность → Разрешить подключение аксессуаров» и выберите запрос для новых аксессуаров или автоматическое разрешение при разблокировке.",
+      h_mac3: "Если приёмника нет в списке браузера, откройте «Информация о системе → USB». Есть 0483:DF11 — дело в браузере или правах доступа; нет — проверьте кабель, питание и режим DFU.",
+      h_busy_t: "Устройство занято / не открывается",
+      h_busy: "DFU-интерфейс может использовать только одна программа. Закройте dfu-util, STM32CubeProgrammer, другие прошивальщики и другие вкладки с этой страницей и подключитесь снова.",
+      h_refresh_t: "Не обновляйте страницу во время прошивки",
+      h_refresh: "Пока идёт запись, браузер предупредит, если страницу обновить или закрыть. Если подтвердить выход, передача по USB прервётся, и прошивка останется недописанной.",
+      h_refresh2: "После прерывания снова переведите приёмник в DFU и запишите прошивку с начала. Не отключайте питание и USB до сообщения об успешном завершении.",
+      h_bg: "Переключиться на другую вкладку или свернуть окно во время записи можно: прошивка продолжится на полной скорости.",
+      h_copy: "[ КОПИРОВАТЬ КОМАНДУ ]",
+      h_copied: "[ СКОПИРОВАНО ]",
+      h_copy_fail: "[ ОШИБКА КОПИРОВАНИЯ ]",
       lbl_dl: 'Скачивание...',
       lbl_flash: 'Прошивка...',
       lbl_verf: 'Верификация...',
@@ -775,6 +1021,33 @@
     log(dict[lang].log_local_ok.replace('{name}', f.name).replace('{n}', f.size), 'warn');
   };
 
+  // --- Troubleshooting: copy command rows ---
+  async function copyCommand(button) {
+    const text = $(button.dataset.copyTarget).textContent.trim();
+    const reset = () => { button.textContent = dict[lang].h_copy; };
+    try {
+      let copied = false;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        try { await navigator.clipboard.writeText(text); copied = true; } catch (_) {}
+      }
+      if (!copied) {
+        // Fallback when the Clipboard API is denied.
+        const ta = document.createElement('textarea');
+        ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select();
+        copied = document.execCommand('copy');
+        ta.remove();
+        if (!copied) throw new Error('clipboard');
+      }
+      button.textContent = dict[lang].h_copied;
+      setTimeout(reset, 1600);
+    } catch (e) {
+      button.textContent = dict[lang].h_copy_fail;
+      setTimeout(reset, 2400);
+    }
+  }
+  document.querySelectorAll('[data-copy-target]').forEach(b => b.addEventListener('click', () => copyCommand(b)));
+
   // --- Flash Logic ---
   $('btnFlash').onclick = async () => {
     const fwUrl = $('fwSelect').value;
@@ -806,6 +1079,9 @@
     
     $('btnFlash').disabled = true;
     $('barfill').style.width = '0%';
+    // Refreshing or closing the tab mid-write would leave the firmware incomplete,
+    // so the browser asks for confirmation until the flash is over.
+    window.onbeforeunload = (e) => { e.preventDefault(); return ''; };
     
     try {
       let arrayBuffer;
@@ -927,6 +1203,7 @@
       $('barlbl').textContent = dict[lang].lbl_err;
       await uiAlert('Error: ' + e.message, 'ERROR');
     } finally {
+      window.onbeforeunload = null;
       $('btnFlash').disabled = (device === null);
     }
   };
