@@ -7,8 +7,8 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M8 11 25 3' stroke='%234dff79' stroke-width='2' stroke-linecap='round'/%3E%3Crect x='2' y='10' width='28' height='19' rx='3' fill='%23121a12' stroke='%234dff79' stroke-width='2'/%3E%3Ccircle cx='11' cy='19.5' r='5' fill='none' stroke='%234dff79' stroke-width='2'/%3E%3Ccircle cx='11' cy='19.5' r='1.6' fill='%234dff79'/%3E%3Crect x='19' y='14' width='8' height='4' rx='1' fill='%234dff79'/%3E%3Ccircle cx='21' cy='24' r='1.7' fill='%234dff79'/%3E%3Ccircle cx='25.5' cy='24' r='1.7' fill='%234dff79'/%3E%3C/svg%3E">
 <!-- Include DFU libraries. ?v= must follow APP_VERSION: GitHub Pages lets browsers cache
      these for 10 min, which could pair a new page with the previous libraries. -->
-<script src="dfu.js?v=0.1.14"></script>
-<script src="dfuse.js?v=0.1.14"></script>
+<script src="dfu.js?v=0.1.15"></script>
+<script src="dfuse.js?v=0.1.15"></script>
 <style>
   :root{
     --bg:#121a12; --green:#4dff79; --green-dim:#2b9640; --green-deep:#145c21;
@@ -76,6 +76,9 @@
   #hiF:checked::after{content:'';position:absolute;left:4px;top:1px;width:3px;height:7px;border:solid #03130a;border-width:0 2px 2px 0;transform:rotate(45deg)}
   #log{font-size:12px;height:210px;overflow:auto;border:1px solid var(--green-deep);background:#040804;
     padding:8px;border-radius:4px;white-space:pre-wrap;word-break:break-word}
+  #envBanner{border:1px solid var(--red);background:rgba(255,59,59,.14);color:#ff8a8a;border-radius:6px;padding:10px 14px;margin-bottom:14px;font-size:13px;line-height:1.45;text-shadow:0 0 4px rgba(255,59,59,.45)}
+  #envBanner[hidden]{display:none}
+  #envBanner a{color:#ffb3b3}
   #log .t{color:#16401f}#log .ok{color:#5cff7a}#log .err{color:var(--red)}#log .warn{color:var(--amber)}
   .hint{color:var(--green-dim);font-size:11px;margin-top:6px}
   .modal-overlay{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;
@@ -97,9 +100,10 @@
 </head>
 <body>
 <div class="wrap">
+  <div id="envBanner" role="alert" hidden></div>
   <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
     <div>
-      <h1>MLite-880 WEB FLASHER <span id="appVer" class="ver" style="font-size:13px;color:var(--green-dim);letter-spacing:1px;text-shadow:0 0 4px rgba(0,255,65,.35)">v0.1.14</span> <span class="cur">_</span></h1>
+      <h1>MLite-880 WEB FLASHER <span id="appVer" class="ver" style="font-size:13px;color:var(--green-dim);letter-spacing:1px;text-shadow:0 0 4px rgba(0,255,65,.35)">v0.1.15</span> <span class="cur">_</span></h1>
       <div class="sub" data-i18n="sub">WebUSB · STM32 DFU · <a href="https://github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;text-shadow:0 0 4px rgba(0,255,65,.45)">github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal ↗</a></div>
       <div class="sub" data-i18n="author" style="margin-top:-10px;">Author: Alexander Lavrinovich & AI agents</div>
     </div>
@@ -164,7 +168,7 @@
 
   // DOM helper must be defined before any top-level usage (TDZ guard)
   const $ = id => document.getElementById(id);
-  const APP_VERSION = '0.1.14';
+  const APP_VERSION = '0.1.15';
 
   const dict = {
     en: {
@@ -209,9 +213,14 @@
       log_flash_err: 'Flashing error: ',
       alert_success: 'Flashing completed successfully!\nReceiver should reboot automatically.',
       confirm_flash: 'Are you sure you want to flash:\n{name}?',
-      browser_title: 'BROWSER NOT SUPPORTED',
-      browser_msg: 'This flasher needs WebUSB, which your browser does not support.\n\nPlease open this page in one of these browsers:\n\n  • Google Chrome\n  • Microsoft Edge\n  • Opera\n  • Brave\n\n(desktop, or Chrome/Edge on Android with an OTG cable)',
-      log_browser_err: 'WebUSB unavailable in this browser — flashing disabled.',
+      env_title: "FLASHING NOT POSSIBLE HERE",
+      env_prefix: "⚠ Flashing is not possible here: ",
+      env_this_browser: "this browser",
+      env_nousb: "{browser} does not support WebUSB. Open this page in Chrome, Edge, Opera or Brave on a computer (or Chrome on Android with an OTG cable).",
+      env_ios: "on iPhone and iPad no browser supports WebUSB (Apple restriction, Chrome there included). Use a computer, or an Android phone with Chrome and an OTG cable.",
+      env_inapp: "the page is open inside an app (Telegram, etc.), which has no USB access. Open it in Chrome: menu ⋮ → “Open in browser”.",
+      env_insecure: "the page is not opened over HTTPS, so the browser blocks USB. Open https://alex-electron.github.io/MLite-880_Flasher_Standalone_Universal/",
+      env_policy: "USB access is blocked for this page (it is embedded in another site, or blocked by browser policy). Open https://alex-electron.github.io/MLite-880_Flasher_Standalone_Universal/ in its own tab.",
       lbl_dl: 'Downloading...',
       lbl_flash: 'Flashing...',
       lbl_verf: 'Verifying...',
@@ -261,9 +270,14 @@
       log_flash_err: 'Fehler beim Flashen: ',
       alert_success: 'Flashen erfolgreich abgeschlossen!\nDer Empfänger sollte automatisch neu starten.',
       confirm_flash: 'Möchten Sie wirklich flashen:\n{name}?',
-      browser_title: 'BROWSER NICHT UNTERSTÜTZT',
-      browser_msg: 'Dieser Flasher benötigt WebUSB, was von Ihrem Browser nicht unterstützt wird.\n\nBitte öffnen Sie diese Seite in einem der folgenden Browser:\n\n  • Google Chrome\n  • Microsoft Edge\n  • Opera\n  • Brave\n\n(Desktop, oder Chrome/Edge auf Android mit einem OTG-Kabel)',
-      log_browser_err: 'WebUSB in diesem Browser nicht verfügbar — Flashen deaktiviert.',
+      env_title: "FLASHEN HIER NICHT MÖGLICH",
+      env_prefix: "⚠ Flashen hier nicht möglich: ",
+      env_this_browser: "dieser Browser",
+      env_nousb: "{browser} unterstützt kein WebUSB. Öffnen Sie die Seite in Chrome, Edge, Opera oder Brave am Computer (oder Chrome auf Android mit OTG-Kabel).",
+      env_ios: "auf iPhone und iPad unterstützt kein Browser WebUSB (Apple-Einschränkung, auch Chrome nicht). Nutzen Sie einen Computer oder ein Android-Handy mit Chrome und OTG-Kabel.",
+      env_inapp: "die Seite ist in einer App geöffnet (Telegram o. Ä.), die keinen USB-Zugriff hat. Öffnen Sie sie in Chrome: Menü ⋮ → „Im Browser öffnen“.",
+      env_insecure: "die Seite ist nicht über HTTPS geöffnet, daher sperrt der Browser USB. Öffnen Sie https://alex-electron.github.io/MLite-880_Flasher_Standalone_Universal/",
+      env_policy: "USB-Zugriff ist für diese Seite gesperrt (in eine andere Seite eingebettet oder per Browser-Richtlinie). Öffnen Sie https://alex-electron.github.io/MLite-880_Flasher_Standalone_Universal/ in einem eigenen Tab.",
       lbl_dl: 'Herunterladen...',
       lbl_flash: 'Flashen...',
       lbl_verf: 'Überprüfen...',
@@ -313,9 +327,14 @@
       log_flash_err: "Памылка пры прашыўцы: ",
       alert_success: "Запіс прашыўкі завершаны паспяхова!\nПрыёмнік павінен перазагрузіцца аўтаматычна.",
       confirm_flash: "Ці ўпэўнены вы, што хочаце запісаць прашыўку:\n{name}?",
-      browser_title: "БРАЎЗЕР НЕ ПАДТРЫМЛІВАЕЦЦА",
-      browser_msg: "Гэтаму прашывальшчыку патрэбны WebUSB, які не падтрымлівае ваш браўзер.\n\nКалі ласка, адкрыйце гэту старонку ў адным з наступных браўзераў:\n\n  • Google Chrome\n  • Microsoft Edge\n  • Opera\n  • Brave\n\n(на камп'ютары, або Chrome/Edge на Android з OTG-кабелем)",
-      log_browser_err: "WebUSB недаступны ў гэтым браўзеры — запіс прашыўкі адключаны.",
+      env_title: "ЗАПІС ТУТ НЕМАГЧЫМЫ",
+      env_prefix: "⚠ Запіс прашыўкі тут немагчымы: ",
+      env_this_browser: "гэты браўзер",
+      env_nousb: "{browser} не падтрымлівае WebUSB. Адкрыйце старонку ў Chrome, Edge, Opera ці Brave на камп'ютары (або ў Chrome на Android з OTG-кабелем).",
+      env_ios: "на iPhone і iPad ніводзін браўзер не падтрымлівае WebUSB (абмежаванне Apple, Chrome таксама). Скарыстайцеся камп'ютарам або Android-тэлефонам з Chrome і OTG-кабелем.",
+      env_inapp: "старонка адкрыта ўнутры праграмы (Telegram і да т.п.), у якой няма доступу да USB. Адкрыйце яе ў Chrome: меню ⋮ → «Адкрыць у браўзеры».",
+      env_insecure: "старонка адкрыта не праз HTTPS, таму браўзер блакуе USB. Адкрыйце https://alex-electron.github.io/MLite-880_Flasher_Standalone_Universal/",
+      env_policy: "доступ да USB для гэтай старонкі заблакаваны (яна ўбудавана ў іншы сайт ці забаронена палітыкай браўзера). Адкрыйце https://alex-electron.github.io/MLite-880_Flasher_Standalone_Universal/ у асобнай укладцы.",
       lbl_dl: "Спампоўка...",
       lbl_flash: "Запіс прашыўкі...",
       lbl_verf: "Праверка...",
@@ -364,9 +383,14 @@
       log_flash_err: "Помилка при прошивці: ",
       alert_success: "Запис прошивки завершено успішно!\nПриймач повинен перезавантажитися автоматично.",
       confirm_flash: "Ви впевнені, що хочете записати прошивку:\n{name}?",
-      browser_title: "БРАУЗЕР НЕ ПІДТРИМУЄТЬСЯ",
-      browser_msg: "Цьому прошивальнику потрібен WebUSB, який не підтримує ваш браузер.\n\nБудь ласка, відкрийте цю сторінку в одному з наступних браузерів:\n\n  • Google Chrome\n  • Microsoft Edge\n  • Opera\n  • Brave\n\n(на комп'ютері, або Chrome/Edge на Android з OTG-кабелем)",
-      log_browser_err: "WebUSB недоступний у цьому браузері — запис прошивки відключено.",
+      env_title: "ЗАПИС ТУТ НЕМОЖЛИВИЙ",
+      env_prefix: "⚠ Запис прошивки тут неможливий: ",
+      env_this_browser: "цей браузер",
+      env_nousb: "{browser} не підтримує WebUSB. Відкрийте сторінку в Chrome, Edge, Opera чи Brave на комп'ютері (або в Chrome на Android з OTG-кабелем).",
+      env_ios: "на iPhone та iPad жоден браузер не підтримує WebUSB (обмеження Apple, Chrome теж). Скористайтеся комп'ютером або Android-телефоном з Chrome і OTG-кабелем.",
+      env_inapp: "сторінку відкрито всередині застосунку (Telegram тощо), який не має доступу до USB. Відкрийте її в Chrome: меню ⋮ → «Відкрити в браузері».",
+      env_insecure: "сторінку відкрито не через HTTPS, тому браузер блокує USB. Відкрийте https://alex-electron.github.io/MLite-880_Flasher_Standalone_Universal/",
+      env_policy: "доступ до USB для цієї сторінки заблоковано (її вбудовано в інший сайт або заборонено політикою браузера). Відкрийте https://alex-electron.github.io/MLite-880_Flasher_Standalone_Universal/ в окремій вкладці.",
       lbl_dl: "Завантаження...",
       lbl_flash: "Запис прошивки...",
       lbl_verf: "Перевірка...",
@@ -415,9 +439,14 @@
       log_flash_err: 'Ошибка прошивки: ',
       alert_success: 'Прошивка успешно завершена!\nПриёмник должен перезагрузиться.',
       confirm_flash: 'Вы уверены, что хотите прошить:\n{name}?',
-      browser_title: 'БРАУЗЕР НЕ ПОДДЕРЖИВАЕТСЯ',
-      browser_msg: 'Этому прошивальщику нужен WebUSB, который не поддерживается в вашем браузере.\n\nПожалуйста, откройте эту страницу в одном из следующих браузеров:\n\n  • Google Chrome\n  • Microsoft Edge\n  • Opera\n  • Brave\n\n(на десктопе, или Chrome/Edge на Android с OTG-кабелем)',
-      log_browser_err: 'WebUSB недоступен в этом браузере — прошивка отключена.',
+      env_title: "ПРОШИВКА ЗДЕСЬ НЕВОЗМОЖНА",
+      env_prefix: "⚠ Прошивка здесь невозможна: ",
+      env_this_browser: "этот браузер",
+      env_nousb: "{browser} не поддерживает WebUSB. Откройте страницу в Chrome, Edge, Opera или Brave на компьютере (или в Chrome на Android с OTG-кабелем).",
+      env_ios: "на iPhone и iPad ни один браузер не поддерживает WebUSB (ограничение Apple, Chrome тоже). Используйте компьютер или Android-телефон с Chrome и OTG-кабелем.",
+      env_inapp: "страница открыта внутри приложения (Telegram и т.п.), у которого нет доступа к USB. Откройте её в Chrome: меню ⋮ → «Открыть в браузере».",
+      env_insecure: "страница открыта не по HTTPS, поэтому браузер блокирует USB. Откройте https://alex-electron.github.io/MLite-880_Flasher_Standalone_Universal/",
+      env_policy: "доступ к USB для этой страницы заблокирован (она встроена в другой сайт или запрещена политикой браузера). Откройте https://alex-electron.github.io/MLite-880_Flasher_Standalone_Universal/ в отдельной вкладке.",
       lbl_dl: 'Скачивание...',
       lbl_flash: 'Прошивка...',
       lbl_verf: 'Верификация...',
@@ -444,6 +473,7 @@
       const k = el.getAttribute('data-i18n');
       if(dict[l][k]) el.innerHTML = dict[l][k];
     });
+    if (typeof renderEnvBanner === 'function') renderEnvBanner();
     // Update select placeholder if empty
     const sel = $('fwSelect');
     if(sel.options.length === 1 && sel.value === "") {
@@ -481,22 +511,61 @@
   async function uiConfirm(msg, title='CONFIRM') { return await showModal(title, msg, false, true); }
 
   // --- Browser support gate ---
-  // Feature-detect WebUSB (navigator.usb) rather than sniffing the user-agent:
-  // catches Safari/Firefox (no WebUSB) and passes any Chromium browser
-  // (Chrome/Edge/Opera/Brave). If unsupported: disable connect/flash and
-  // show a modal telling the user which browsers to use.
-  function webUsbSupported() {
-    return !!(navigator.usb && typeof navigator.usb.requestDevice === 'function');
+  // --- Environment gate ---
+  // Figure out up front whether flashing can work at all here, and why not, so
+  // people get the real reason instead of buttons that silently do nothing.
+  // WebUSB itself is feature-detected; the user-agent is only used to pick the
+  // right advice (iOS, in-app browser, which browser to name).
+  let envProblem = null;   // null or { reason, browser }
+
+  function detectEnvProblem() {
+    const ua = navigator.userAgent || '';
+    const hasUsb = !!(navigator.usb && typeof navigator.usb.requestDevice === 'function');
+    if (!window.isSecureContext) return { reason: 'insecure' };
+    if (/iPad|iPhone|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1)) return { reason: 'ios' };
+    if (!hasUsb) {
+      if (/; wv\)|Telegram|FBAN|FBAV|Instagram|Line\/|MicroMessenger|VKClient/i.test(ua)) return { reason: 'inapp' };
+      let browser = null;
+      if (/Firefox\//.test(ua)) browser = 'Firefox';
+      else if (/Safari\//.test(ua) && !/Chrome|Chromium|CriOS|Edg|OPR/.test(ua)) browser = 'Safari';
+      return { reason: 'nousb', browser };
+    }
+    // WebUSB exists but this document may not be allowed to use it (iframe without
+    // allow="usb", or an enterprise policy).
+    const policy = document.permissionsPolicy || document.featurePolicy;
+    if (policy && typeof policy.allowsFeature === 'function' && !policy.allowsFeature('usb')) return { reason: 'policy' };
+    return null;
   }
+
+  function envText(l, p) {
+    const t = dict[l];
+    return t['env_' + p.reason].replace('{browser}', p.browser || t.env_this_browser);
+  }
+
+  // Persistent banner in the current UI language (re-rendered by setLang), so the
+  // reason stays visible after the dialog is closed.
+  function renderEnvBanner() {
+    const el = $('envBanner');
+    if (!envProblem) { el.hidden = true; return; }
+    const text = envText(lang, envProblem);
+    el.textContent = dict[lang].env_prefix + text;
+    el.hidden = false;
+  }
+
   async function checkBrowserSupport() {
-    if (webUsbSupported()) return true;
+    envProblem = detectEnvProblem();
+    if (!envProblem) return true;
     $('btnConnect').disabled = true;
     $('btnFlash').disabled = true;
-    log(dict[lang].log_browser_err, 'err');
-    // Always show both languages — an unsupported browser may be set to either,
-    // and this message must be understood by everyone.
-    const title = dict.en.browser_title + ' / ' + dict.be.browser_title;
-    const msg = dict.en.browser_msg + '\n\n──────────\n\n' + dict.be.browser_msg;
+    renderEnvBanner();
+    log(dict.en.env_prefix + envText('en', envProblem), 'err');
+    // The dialog shows English plus the system language (Belarusian if that is not
+    // one of ours), since the UI language has not been chosen yet at this point.
+    const sys = (navigator.languages || [navigator.language || '']).map(x => String(x).slice(0, 2).toLowerCase());
+    const second = sys.map(x => ({ be: 'be', uk: 'uk', ru: 'ru', de: 'de' })[x]).find(Boolean) || 'be';
+    const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+    const title = dict.en.env_title + ' / ' + dict[second].env_title;
+    const msg = cap(envText('en', envProblem)) + '\n\n──────────\n\n' + cap(envText(second, envProblem));
     await uiAlert(msg, title);
     return false;
   }
