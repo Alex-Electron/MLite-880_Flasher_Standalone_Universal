@@ -3,6 +3,22 @@
 **🌐 Language:** English · [Русский (Russian) →](README_RU.md)
 **📋 Changelog:** [CHANGELOG.md](CHANGELOG.md) (flasher version history)
 
+## ⚡ The easiest and fastest way to flash: the Web Flasher
+
+<p align="center">
+  <a href="https://alex-electron.github.io/MLite-880_Flasher_Standalone_Universal/"><img src="assets/web-flasher-button-en.svg" alt="Open the MLite-880 Web Flasher" width="440"></a>
+</p>
+
+**Nothing to download, install or unpack** — the flasher runs right in your browser:
+
+1. Open **[https://alex-electron.github.io/MLite-880_Flasher_Standalone_Universal/](https://alex-electron.github.io/MLite-880_Flasher_Standalone_Universal/)** in Chrome, Edge, Opera or Brave (Windows, macOS, Linux, or Android with an OTG cable).
+2. Put the receiver into DFU mode and click **Connect receiver**.
+3. Pick a firmware from the list (it always shows the current files of this repository, each checked against GitHub before writing) or your own `.bin`, and click **Flash firmware**.
+
+Windows only: if the browser cannot open the receiver, assign the WinUSB driver to *STM32 BOOTLOADER* once with [Zadig](https://zadig.akeo.ie/).
+
+The command-line scripts below are still here for offline use and for advanced users.
+
 This is a standalone firmware flashing toolkit for the Malachite DSP (MLite-880) receiver.
 Supports Windows, macOS, and Linux.
 **Tested successfully on: Windows 10/11, macOS (Intel), and Ubuntu Linux.**
@@ -14,6 +30,8 @@ Email: EU1L@mail.ru
 > For per-version firmware changes (compiled from the author's posts in the official Telegram chat), see [FIRMWARE_CHANGELOG.md](FIRMWARE_CHANGELOG.md). Firmware author: **RX9CIM (Георгий)**.
 
 ## 📥 New to GitHub? Download the Toolkit First
+
+> Only needed for the command-line scripts. For the [Web Flasher](#-the-easiest-and-fastest-way-to-flash-the-web-flasher) you do not have to download anything.
 
 You don't need a GitHub account or any knowledge of Git. The whole toolkit is one folder of files, and you grab it as a single ZIP.
 

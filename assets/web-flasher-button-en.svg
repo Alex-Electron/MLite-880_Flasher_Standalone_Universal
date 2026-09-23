@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="88" viewBox="0 0 520 88" role="img" aria-label="Open the MLite-880 Web Flasher">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16301a"/><stop offset="1" stop-color="#0b170c"/></linearGradient>
+    <filter id="glow" x="-10%" y="-40%" width="120%" height="180%"><feGaussianBlur stdDeviation="3.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <pattern id="scan" width="4" height="3" patternUnits="userSpaceOnUse"><rect width="4" height="1" y="2" fill="#000" fill-opacity=".22"/></pattern>
+  </defs>
+  <rect x="3" y="3" width="514" height="82" rx="10" fill="url(#bg)" stroke="#4dff79" stroke-width="2.5" filter="url(#glow)"/>
+  <rect x="3" y="3" width="514" height="82" rx="10" fill="url(#scan)"/>
+  <g font-family="ui-monospace,'Cascadia Mono',Consolas,'DejaVu Sans Mono','Courier New',monospace" text-anchor="middle">
+    <text x="260" y="44" font-size="24" font-weight="700" letter-spacing="2" fill="#4dff79" filter="url(#glow)">▶ OPEN WEB FLASHER</text>
+    <text x="260" y="68" font-size="13" letter-spacing="1" fill="#8dffa3" fill-opacity=".8">in the browser · nothing to install</text>
+  </g>
+</svg>
