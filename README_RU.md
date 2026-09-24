@@ -27,6 +27,10 @@
 GitHub: https://github.com/Alex-Electron
 Почта: EU1L@mail.ru
 
+Если прошивальщик сэкономил вам время, будет очень приятно, если вы угостите меня чашечкой кофе:
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/G2F222TXLI) [![DonationAlerts](https://img.shields.io/badge/Donate-DonationAlerts-fb5b2d?style=for-the-badge&logo=donationalerts&logoColor=white)](https://www.donationalerts.com/r/alex_electron)
+
 > Изменения по каждой версии прошивки (собраны из постов автора в официальном чате Telegram) смотрите в [FIRMWARE_CHANGELOG.md](FIRMWARE_CHANGELOG.md). Автор прошивки: **RX9CIM (Георгий)**.
 
 ## 📥 Впервые на GitHub? Сначала скачайте набор

@@ -7,8 +7,8 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M8 11 25 3' stroke='%234dff79' stroke-width='2' stroke-linecap='round'/%3E%3Crect x='2' y='10' width='28' height='19' rx='3' fill='%23121a12' stroke='%234dff79' stroke-width='2'/%3E%3Ccircle cx='11' cy='19.5' r='5' fill='none' stroke='%234dff79' stroke-width='2'/%3E%3Ccircle cx='11' cy='19.5' r='1.6' fill='%234dff79'/%3E%3Crect x='19' y='14' width='8' height='4' rx='1' fill='%234dff79'/%3E%3Ccircle cx='21' cy='24' r='1.7' fill='%234dff79'/%3E%3Ccircle cx='25.5' cy='24' r='1.7' fill='%234dff79'/%3E%3C/svg%3E">
 <!-- Include DFU libraries. ?v= must follow APP_VERSION: GitHub Pages lets browsers cache
      these for 10 min, which could pair a new page with the previous libraries. -->
-<script src="dfu.js?v=0.1.17"></script>
-<script src="dfuse.js?v=0.1.17"></script>
+<script src="dfu.js?v=0.1.18"></script>
+<script src="dfuse.js?v=0.1.18"></script>
 <style>
   :root{
     --bg:#121a12; --green:#4dff79; --green-dim:#2b9640; --green-deep:#145c21;
@@ -98,6 +98,13 @@
   .head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
   #fwSelect{min-width:250px;max-width:100%}
   .sub{overflow-wrap:anywhere}
+  /* Donations */
+  .donate p{margin:0 0 10px;font-size:13px;color:#9fdcae}
+  .don-btn{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 16px;border-radius:4px;font:700 13px/1 var(--mono);letter-spacing:1px;text-decoration:none;transition:.12s}
+  .don-btn.kofi{color:#fff;background:#29abe0;border:1px solid #29abe0;text-shadow:none}
+  .don-btn.kofi:hover{background:#1f93c2;box-shadow:0 0 10px rgba(41,171,224,.5)}
+  .don-btn.da{color:#fff;background:#f57507;border:1px solid #f57507;text-shadow:none}
+  .don-btn.da:hover{background:#d96505;box-shadow:0 0 10px rgba(245,117,7,.5)}
   /* Troubleshooting tips */
   .help-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
   .help-grid article{min-width:0;border:1px solid var(--green-deep);border-radius:4px;padding:10px 12px;background:rgba(3,12,4,.55)}
@@ -135,6 +142,7 @@
     .modal-box{padding:16px}
     .modal-btns>button{flex:1}
     .help-grid,.distros{grid-template-columns:1fr}
+    .donate .don-btn{flex:1 1 100%;justify-content:center;min-height:40px}
     .cmd{flex-direction:column;align-items:stretch}
   }
   .lang-btn.active { background:#0f2a12; border-color:var(--green); box-shadow:0 0 10px rgba(0,255,65,.35); color:#fff; }
@@ -145,7 +153,7 @@
   <div id="envBanner" role="alert" hidden></div>
   <div class="head">
     <div>
-      <h1>MLite-880 WEB FLASHER <span id="appVer" class="ver" style="font-size:13px;color:var(--green-dim);letter-spacing:1px;text-shadow:0 0 4px rgba(0,255,65,.35)">v0.1.17</span> <span class="cur">_</span></h1>
+      <h1>MLite-880 WEB FLASHER <span id="appVer" class="ver" style="font-size:13px;color:var(--green-dim);letter-spacing:1px;text-shadow:0 0 4px rgba(0,255,65,.35)">v0.1.18</span> <span class="cur">_</span></h1>
       <div class="sub" data-i18n="sub">WebUSB · STM32 DFU · <a href="https://github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;text-shadow:0 0 4px rgba(0,255,65,.45)">github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal ↗</a></div>
       <div class="sub" data-i18n="author" style="margin-top:-10px;">Author: Alexander Lavrinovich & AI agents</div>
     </div>
@@ -184,6 +192,13 @@
 
   <div class="panel"><h2 data-i18n="log_title">Log</h2><div id="log"></div></div>
 
+  <div class="panel donate"><h2 data-i18n="don_title">Support the project</h2>
+    <p data-i18n="don_text">If the flasher saved you time, it would be really nice of you to buy me a cup of coffee:</p>
+    <div class="row">
+      <a class="don-btn kofi" href="https://ko-fi.com/G2F222TXLI" target="_blank" rel="noopener noreferrer">☕ Ko-fi</a>
+      <a class="don-btn da" href="https://www.donationalerts.com/r/alex_electron" target="_blank" rel="noopener noreferrer">♥ DonationAlerts</a>
+    </div>
+  </div>
   <details class="panel help" id="helpPanel">
     <summary data-i18n="h_title">Troubleshooting tips</summary>
     <div class="help-grid">
@@ -262,7 +277,7 @@
 
   // DOM helper must be defined before any top-level usage (TDZ guard)
   const $ = id => document.getElementById(id);
-  const APP_VERSION = '0.1.17';
+  const APP_VERSION = '0.1.18';
 
   const dict = {
     en: {
@@ -350,6 +365,8 @@
       h_copy: "[ COPY COMMAND ]",
       h_copied: "[ COPIED ]",
       h_copy_fail: "[ COPY FAILED ]",
+      don_title: "Support the project",
+      don_text: "If the flasher saved you time, it would be really nice of you to buy me a cup of coffee:",
       lbl_dl: 'Downloading...',
       lbl_flash: 'Flashing...',
       lbl_verf: 'Verifying...',
@@ -442,6 +459,8 @@
       h_copy: "[ BEFEHL KOPIEREN ]",
       h_copied: "[ KOPIERT ]",
       h_copy_fail: "[ KOPIEREN FEHLGESCHLAGEN ]",
+      don_title: "Projekt unterstützen",
+      don_text: "Wenn Ihnen der Flasher Zeit gespart hat, würde ich mich sehr über einen Kaffee freuen:",
       lbl_dl: 'Herunterladen...',
       lbl_flash: 'Flashen...',
       lbl_verf: 'Überprüfen...',
@@ -534,6 +553,8 @@
       h_copy: "[ КАПІЯВАЦЬ КАМАНДУ ]",
       h_copied: "[ СКАПІЯВАНА ]",
       h_copy_fail: "[ ПАМЫЛКА КАПІЯВАННЯ ]",
+      don_title: "Падтрымаць праект",
+      don_text: "Калі прашывальшчык зэканоміў вам час, будзе вельмі прыемна, калі вы пачастуеце мяне кубачкам кавы:",
       lbl_dl: "Спампоўка...",
       lbl_flash: "Запіс прашыўкі...",
       lbl_verf: "Праверка...",
@@ -625,6 +646,8 @@
       h_copy: "[ КОПІЮВАТИ КОМАНДУ ]",
       h_copied: "[ СКОПІЙОВАНО ]",
       h_copy_fail: "[ ПОМИЛКА КОПІЮВАННЯ ]",
+      don_title: "Підтримати проєкт",
+      don_text: "Якщо прошивальник заощадив вам час, буде дуже приємно, якщо ви пригостите мене чашкою кави:",
       lbl_dl: "Завантаження...",
       lbl_flash: "Запис прошивки...",
       lbl_verf: "Перевірка...",
@@ -716,6 +739,8 @@
       h_copy: "[ КОПИРОВАТЬ КОМАНДУ ]",
       h_copied: "[ СКОПИРОВАНО ]",
       h_copy_fail: "[ ОШИБКА КОПИРОВАНИЯ ]",
+      don_title: "Поддержать проект",
+      don_text: "Если прошивальщик сэкономил вам время, будет очень приятно, если вы угостите меня чашечкой кофе:",
       lbl_dl: 'Скачивание...',
       lbl_flash: 'Прошивка...',
       lbl_verf: 'Верификация...',

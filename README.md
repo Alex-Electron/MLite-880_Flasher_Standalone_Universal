@@ -27,6 +27,10 @@ Developed by: Alexander Lavrinovich
 GitHub: https://github.com/Alex-Electron
 Email: EU1L@mail.ru
 
+If the flasher saved you time, it would be really nice of you to buy me a cup of coffee:
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/G2F222TXLI) [![DonationAlerts](https://img.shields.io/badge/Donate-DonationAlerts-fb5b2d?style=for-the-badge&logo=donationalerts&logoColor=white)](https://www.donationalerts.com/r/alex_electron)
+
 > For per-version firmware changes (compiled from the author's posts in the official Telegram chat), see [FIRMWARE_CHANGELOG.md](FIRMWARE_CHANGELOG.md). Firmware author: **RX9CIM (Георгий)**.
 
 ## 📥 New to GitHub? Download the Toolkit First
