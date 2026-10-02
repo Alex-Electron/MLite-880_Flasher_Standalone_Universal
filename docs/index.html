@@ -7,8 +7,8 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M8 11 25 3' stroke='%234dff79' stroke-width='2' stroke-linecap='round'/%3E%3Crect x='2' y='10' width='28' height='19' rx='3' fill='%23121a12' stroke='%234dff79' stroke-width='2'/%3E%3Ccircle cx='11' cy='19.5' r='5' fill='none' stroke='%234dff79' stroke-width='2'/%3E%3Ccircle cx='11' cy='19.5' r='1.6' fill='%234dff79'/%3E%3Crect x='19' y='14' width='8' height='4' rx='1' fill='%234dff79'/%3E%3Ccircle cx='21' cy='24' r='1.7' fill='%234dff79'/%3E%3Ccircle cx='25.5' cy='24' r='1.7' fill='%234dff79'/%3E%3C/svg%3E">
 <!-- Include DFU libraries. ?v= must follow APP_VERSION: GitHub Pages lets browsers cache
      these for 10 min, which could pair a new page with the previous libraries. -->
-<script src="dfu.js?v=0.1.18"></script>
-<script src="dfuse.js?v=0.1.18"></script>
+<script src="dfu.js?v=0.1.19"></script>
+<script src="dfuse.js?v=0.1.19"></script>
 <style>
   :root{
     --bg:#121a12; --green:#4dff79; --green-dim:#2b9640; --green-deep:#145c21;
@@ -97,6 +97,17 @@
   .lang-btn { padding:6px 10px; min-width: 44px; }
   .head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
   #fwSelect{min-width:250px;max-width:100%}
+  /* Local .bin: drop zone + file summary (name, size, CRC32, SHA-256) shown right after selection. */
+  .drop-zone{margin-top:10px;border:1px dashed var(--green-deep);border-radius:4px;padding:14px 12px;text-align:center;
+    color:var(--green-dim);font-size:12px;letter-spacing:1px;cursor:pointer;transition:.12s;background:rgba(3,12,4,.55)}
+  .drop-zone:hover,.drop-zone:focus-visible{border-color:var(--green-dim);color:var(--green);outline:none}
+  .drop-zone.over{border-style:solid;border-color:var(--green);color:var(--green);background:#0f2a12;box-shadow:0 0 10px rgba(0,255,65,.35)}
+  .fileinfo{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:3px 12px;margin:10px 0 0;font-size:12px}
+  .fileinfo[hidden]{display:none}
+  .fileinfo dt{color:var(--green-dim);font-size:11px;letter-spacing:1px}
+  .fileinfo dd{margin:0;min-width:0;overflow-wrap:anywhere;color:#b8ffc8}
+  .fileinfo dd.crc{color:var(--amber);font-weight:bold;text-shadow:0 0 6px rgba(255,176,0,.5)}
+  .fileinfo dd.warn{color:var(--amber)}
   .sub{overflow-wrap:anywhere}
   /* Donations */
   .donate p{margin:0 0 10px;font-size:13px;color:#9fdcae}
@@ -153,7 +164,7 @@
   <div id="envBanner" role="alert" hidden></div>
   <div class="head">
     <div>
-      <h1>MLite-880 WEB FLASHER <span id="appVer" class="ver" style="font-size:13px;color:var(--green-dim);letter-spacing:1px;text-shadow:0 0 4px rgba(0,255,65,.35)">v0.1.18</span> <span class="cur">_</span></h1>
+      <h1>MLite-880 WEB FLASHER <span id="appVer" class="ver" style="font-size:13px;color:var(--green-dim);letter-spacing:1px;text-shadow:0 0 4px rgba(0,255,65,.35)">v0.1.19</span> <span class="cur">_</span></h1>
       <div class="sub" data-i18n="sub">WebUSB · STM32 DFU · <a href="https://github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;text-shadow:0 0 4px rgba(0,255,65,.45)">github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal ↗</a></div>
       <div class="sub" data-i18n="author" style="margin-top:-10px;">Author: Alexander Lavrinovich & AI agents</div>
     </div>
@@ -186,6 +197,13 @@
       <input id="fileLocal" type="file" accept=".bin,application/octet-stream" hidden>
       <button id="btnFlash" class="danger" disabled data-i18n="btn_flash">[ ⟳ FLASH FIRMWARE ]</button>
     </div>
+    <div id="dropZone" class="drop-zone" role="button" tabindex="0" data-i18n="drop_zone">⇩ Drop a local .bin file here — or click to choose</div>
+    <dl id="fileInfo" class="fileinfo" hidden>
+      <dt data-i18n="fi_name">FILE</dt><dd id="fiName">—</dd>
+      <dt data-i18n="fi_size">SIZE</dt><dd id="fiSize">—</dd>
+      <dt>CRC32</dt><dd id="fiCrc" class="crc">—</dd>
+      <dt>SHA-256</dt><dd id="fiSha">—</dd>
+    </dl>
     <div id="bar"><div id="barfill" style="width:0%"></div></div>
     <div id="barlbl" class="hint" style="margin-top:4px;min-height:1.1em;color:var(--green)"></div>
   </div>
@@ -277,7 +295,7 @@
 
   // DOM helper must be defined before any top-level usage (TDZ guard)
   const $ = id => document.getElementById(id);
-  const APP_VERSION = '0.1.18';
+  const APP_VERSION = '0.1.19';
 
   const dict = {
     en: {
@@ -295,6 +313,11 @@
       bad_empty: "file is empty",
       bad_big: "file is larger than the flash ({n} > {max} bytes)",
       bad_align: "size is not a multiple of 4 bytes",
+      bad_ext: "only .bin files are accepted",
+      drop_zone: "⇩ Drop a local .bin file here — or click to choose",
+      fi_name: "FILE",
+      fi_size: "SIZE",
+      fi_calc: "computing…",
       log_local_read: "Reading local file...",
       warn_size: "Note: the file is {n} bytes; official MLite-880 images are exactly {max} bytes.",
       confirm_local: "LOCAL FILE, not from the official list.\nMake sure it is a firmware for MLite-880.\nA wrong image will not brick the receiver (DFU stays available), but it will not start.",
@@ -389,6 +412,11 @@
       bad_empty: "Datei ist leer",
       bad_big: "Datei ist größer als der Flash ({n} > {max} Bytes)",
       bad_align: "Größe ist kein Vielfaches von 4 Bytes",
+      bad_ext: "nur .bin-Dateien werden akzeptiert",
+      drop_zone: "⇩ Lokale .bin-Datei hierher ziehen — oder klicken zum Auswählen",
+      fi_name: "DATEI",
+      fi_size: "GRÖSSE",
+      fi_calc: "wird berechnet…",
       log_local_read: "Lese lokale Datei...",
       warn_size: "Hinweis: Die Datei hat {n} Bytes; offizielle MLite-880-Images haben genau {max} Bytes.",
       confirm_local: "LOKALE DATEI, nicht aus der offiziellen Liste.\nStellen Sie sicher, dass es eine Firmware für MLite-880 ist.\nEin falsches Image zerstört den Empfänger nicht (DFU bleibt verfügbar), er startet aber nicht.",
@@ -483,6 +511,11 @@
       bad_empty: "файл пусты",
       bad_big: "файл большы за флэш ({n} > {max} байт)",
       bad_align: "памер не кратны 4 байтам",
+      bad_ext: "прымаюцца толькі файлы .bin",
+      drop_zone: "⇩ Перацягніце сюды лакальны .bin — або націсніце, каб выбраць",
+      fi_name: "ФАЙЛ",
+      fi_size: "ПАМЕР",
+      fi_calc: "вылічваецца…",
       log_local_read: "Чытанне лакальнага файла...",
       warn_size: "Заўвага: памер файла {n} байт; афіцыйныя вобразы MLite-880 маюць роўна {max} байт.",
       confirm_local: "ЛАКАЛЬНЫ ФАЙЛ, не з афіцыйнага спіса.\nПераканайцеся, што гэта прашыўка для MLite-880.\nНяправільная прашыўка не выведзе прымач са строю (DFU застаецца даступным), але ён не запусціцца.",
@@ -576,6 +609,11 @@
       bad_empty: "файл порожній",
       bad_big: "файл більший за флеш ({n} > {max} байт)",
       bad_align: "розмір не кратний 4 байтам",
+      bad_ext: "приймаються лише файли .bin",
+      drop_zone: "⇩ Перетягніть сюди локальний .bin — або натисніть, щоб вибрати",
+      fi_name: "ФАЙЛ",
+      fi_size: "РОЗМІР",
+      fi_calc: "обчислюється…",
       log_local_read: "Читання локального файлу...",
       warn_size: "Примітка: розмір файлу {n} байт; офіційні образи MLite-880 мають рівно {max} байт.",
       confirm_local: "ЛОКАЛЬНИЙ ФАЙЛ, не з офіційного списку.\nПереконайтеся, що це прошивка для MLite-880.\nНеправильна прошивка не виведе приймач з ладу (DFU лишається доступним), але він не запуститься.",
@@ -669,6 +707,11 @@
       bad_empty: "файл пустой",
       bad_big: "файл больше флеша ({n} > {max} байт)",
       bad_align: "размер не кратен 4 байтам",
+      bad_ext: "принимаются только файлы .bin",
+      drop_zone: "⇩ Перетащите сюда локальный .bin — или нажмите, чтобы выбрать",
+      fi_name: "ФАЙЛ",
+      fi_size: "РАЗМЕР",
+      fi_calc: "вычисляется…",
       log_local_read: "Читаю локальный файл...",
       warn_size: "Примечание: размер файла {n} байт; официальные образы MLite-880 ровно {max} байт.",
       confirm_local: "ЛОКАЛЬНЫЙ ФАЙЛ, не из официального списка.\nУбедитесь, что это прошивка для MLite-880.\nНеподходящая прошивка приёмник не убьёт (DFU остаётся доступен), но он не запустится.",
@@ -1027,9 +1070,112 @@
     return size === FLASH_MAX ? null : dict[lang].warn_size.replace('{n}', size).replace('{max}', FLASH_MAX);
   }
 
+  // CRC32 for the file summary: the same CRC32 (IEEE 802.3, reflected poly
+  // 0xEDB88320) as crc32() above, which the flash path logs before the write,
+  // but table-driven and yielding to the event loop every 256 KiB, so a 2 MiB
+  // image does not freeze the page right after it is chosen.
+  const CRC32_TABLE = (() => {
+    const t = new Uint32Array(256);
+    for (let n = 0; n < 256; n++) {
+      let c = n;
+      for (let k = 0; k < 8; k++) c = (c & 1) ? ((c >>> 1) ^ 0xEDB88320) : (c >>> 1);
+      t[n] = c >>> 0;
+    }
+    return t;
+  })();
+  async function crc32Async(bytes) {
+    const STEP = 256 * 1024;
+    let crc = 0xFFFFFFFF;
+    for (let off = 0; off < bytes.length; off += STEP) {
+      const end = Math.min(off + STEP, bytes.length);
+      for (let i = off; i < end; i++) crc = CRC32_TABLE[(crc ^ bytes[i]) & 0xFF] ^ (crc >>> 8);
+      if (end < bytes.length) await new Promise(r => setTimeout(r, 0));
+    }
+    return (crc ^ 0xFFFFFFFF) >>> 0;
+  }
+  const crcHex = crc => '0x' + (crc >>> 0).toString(16).padStart(8, '0').toUpperCase();
+
+  async function sha256Hex(arrayBuffer) {
+    if (!(window.crypto && crypto.subtle)) return null;   // insecure context: no WebCrypto
+    const digest = await crypto.subtle.digest('SHA-256', arrayBuffer);
+    return [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  // Summary of the chosen local file, filled as soon as it is picked or dropped.
+  // The file is read here only for the summary; the flash path still reads it
+  // again itself at flash time, exactly as before. infoSeq drops a result that
+  // arrives after a newer file was already chosen.
+  let infoSeq = 0;
+  async function showFileInfo(f) {
+    const seq = ++infoSeq;
+    $('fiName').textContent = f.name;
+    $('fiSize').textContent = `${f.size} B (${(f.size/1024).toFixed(1)} KB)`;
+    $('fiSize').className = f.size === FLASH_MAX ? '' : 'warn';
+    $('fiCrc').textContent = $('fiSha').textContent = dict[lang].fi_calc;
+    $('fileInfo').hidden = false;
+    try {
+      const buf = await f.arrayBuffer();
+      const crc = await crc32Async(new Uint8Array(buf));
+      const sha = await sha256Hex(buf);
+      if (seq !== infoSeq) return;
+      $('fiCrc').textContent = crcHex(crc);
+      $('fiSha').textContent = sha || '—';
+      log('CRC32: ' + crcHex(crc) + (sha ? ' · SHA-256: ' + sha : ''));
+    } catch (e) {
+      if (seq !== infoSeq) return;
+      $('fiCrc').textContent = $('fiSha').textContent = '—';
+      log(dict[lang].log_local_bad.replace('{why}', e.message), 'err');
+    }
+  }
+
+  // The summary belongs to the local file: hide it while a GitHub image is selected.
+  $('fwSelect').addEventListener('change', () => {
+    $('fileInfo').hidden = !(localFile && $('fwSelect').value === LOCAL_VALUE);
+  });
+
   $('btnLocal').onclick = () => { $('fileLocal').value = ''; $('fileLocal').click(); };
-  $('fileLocal').onchange = () => {
-    const f = $('fileLocal').files[0];
+  $('fileLocal').onchange = () => selectLocalFile($('fileLocal').files[0]);
+
+  // --- Drag and drop ---
+  // A file dropped on the zone (or anywhere on the page) goes through the same
+  // checks as the file picker. Dropping a file elsewhere must never make the
+  // browser open the .bin and leave the page, so default handling is always
+  // cancelled for file drags. Drops are ignored while a dialog is open or a
+  // write is running (window.onbeforeunload is set only for the write).
+  const dropZone = $('dropZone');
+  const isFileDrag = e => !!(e.dataTransfer && [...e.dataTransfer.types].includes('Files'));
+  const dropBlocked = () => !$('modal').hidden || !!window.onbeforeunload;
+  dropZone.onclick = () => $('btnLocal').click();
+  dropZone.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('btnLocal').click(); } };
+  let dragDepth = 0;
+  window.addEventListener('dragenter', e => {
+    if (!isFileDrag(e)) return;
+    e.preventDefault();
+    if (++dragDepth === 1 && !dropBlocked()) dropZone.classList.add('over');
+  });
+  window.addEventListener('dragover', e => {
+    if (!isFileDrag(e)) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = dropBlocked() ? 'none' : 'copy';
+  });
+  window.addEventListener('dragleave', e => {
+    if (!isFileDrag(e)) return;
+    if (--dragDepth <= 0) { dragDepth = 0; dropZone.classList.remove('over'); }
+  });
+  window.addEventListener('drop', e => {
+    if (!isFileDrag(e)) return;
+    e.preventDefault();
+    dragDepth = 0;
+    dropZone.classList.remove('over');
+    if (dropBlocked()) return;
+    const f = e.dataTransfer.files[0];
+    if (!f) return;
+    // The picker filters by accept=".bin"; a drop has no such filter.
+    if (!/\.bin$/i.test(f.name)) { log(dict[lang].log_local_bad.replace('{why}', dict[lang].bad_ext), 'err'); return; }
+    selectLocalFile(f);
+  });
+
+  function selectLocalFile(f) {
     if (!f) return;
     const why = localFileProblem(f.size);
     if (why) { log(dict[lang].log_local_bad.replace('{why}', why), 'err'); return; }
@@ -1044,7 +1190,10 @@
     opt.textContent = '📁 ' + f.name + ` (${(f.size/1024).toFixed(1)} KB)`;
     sel.value = LOCAL_VALUE;
     log(dict[lang].log_local_ok.replace('{name}', f.name).replace('{n}', f.size), 'warn');
-  };
+    const sizeWarn = sizeWarning(f.size);
+    if (sizeWarn) log(sizeWarn, 'warn');
+    showFileInfo(f);
+  }
 
   // --- Troubleshooting: copy command rows ---
   async function copyCommand(button) {
