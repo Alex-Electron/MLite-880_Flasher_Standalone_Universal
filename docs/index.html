@@ -7,8 +7,8 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M8 11 25 3' stroke='%234dff79' stroke-width='2' stroke-linecap='round'/%3E%3Crect x='2' y='10' width='28' height='19' rx='3' fill='%23121a12' stroke='%234dff79' stroke-width='2'/%3E%3Ccircle cx='11' cy='19.5' r='5' fill='none' stroke='%234dff79' stroke-width='2'/%3E%3Ccircle cx='11' cy='19.5' r='1.6' fill='%234dff79'/%3E%3Crect x='19' y='14' width='8' height='4' rx='1' fill='%234dff79'/%3E%3Ccircle cx='21' cy='24' r='1.7' fill='%234dff79'/%3E%3Ccircle cx='25.5' cy='24' r='1.7' fill='%234dff79'/%3E%3C/svg%3E">
 <!-- Include DFU libraries. ?v= must follow APP_VERSION: GitHub Pages lets browsers cache
      these for 10 min, which could pair a new page with the previous libraries. -->
-<script src="dfu.js?v=0.1.19"></script>
-<script src="dfuse.js?v=0.1.19"></script>
+<script src="dfu.js?v=0.1.20"></script>
+<script src="dfuse.js?v=0.1.20"></script>
 <style>
   :root{
     --bg:#121a12; --green:#4dff79; --green-dim:#2b9640; --green-deep:#145c21;
@@ -29,6 +29,12 @@
   .wrap{max-width:1040px;margin:0 auto;position:relative;z-index:1}
   h1{font-size:20px;letter-spacing:3px;margin:0 0 2px}
   h1 .cur{animation:blink 1s step-end infinite}
+  /* Flash progress badge next to the title (stage + percent); mirrored in document.title. */
+  .fbadge{display:inline-block;vertical-align:middle;margin-left:6px;padding:1px 9px;border:1px solid #5a3a00;border-radius:12px;
+    font-size:12px;letter-spacing:1px;color:var(--amber);background:#241700;text-shadow:0 0 6px rgba(255,176,0,.5);white-space:nowrap}
+  .fbadge[hidden]{display:none}
+  .fbadge.done{color:var(--green);border-color:var(--green-dim);background:#0f2a12;text-shadow:0 0 6px rgba(0,255,65,.5)}
+  .fbadge.err{color:#ff8a8a;border-color:var(--red);background:rgba(255,59,59,.14);text-shadow:0 0 6px rgba(255,59,59,.6)}
   .sub{color:var(--green-dim);font-size:12px;letter-spacing:1px;margin-bottom:14px}
   .panel{border:1px solid var(--green-deep);background:rgba(20,35,20,.8);border-radius:6px;
     padding:12px 14px;margin-bottom:14px;box-shadow:0 0 12px rgba(0,255,65,.07) inset}
@@ -164,7 +170,7 @@
   <div id="envBanner" role="alert" hidden></div>
   <div class="head">
     <div>
-      <h1>MLite-880 WEB FLASHER <span id="appVer" class="ver" style="font-size:13px;color:var(--green-dim);letter-spacing:1px;text-shadow:0 0 4px rgba(0,255,65,.35)">v0.1.19</span> <span class="cur">_</span></h1>
+      <h1>MLite-880 WEB FLASHER <span id="appVer" class="ver" style="font-size:13px;color:var(--green-dim);letter-spacing:1px;text-shadow:0 0 4px rgba(0,255,65,.35)">v0.1.20</span> <span class="cur">_</span> <span id="flashBadge" class="fbadge" role="status" aria-live="polite" hidden></span></h1>
       <div class="sub" data-i18n="sub">WebUSB · STM32 DFU · <a href="https://github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;text-shadow:0 0 4px rgba(0,255,65,.45)">github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal ↗</a></div>
       <div class="sub" data-i18n="author" style="margin-top:-10px;">Author: Alexander Lavrinovich & AI agents</div>
     </div>
@@ -295,7 +301,7 @@
 
   // DOM helper must be defined before any top-level usage (TDZ guard)
   const $ = id => document.getElementById(id);
-  const APP_VERSION = '0.1.19';
+  const APP_VERSION = '0.1.20';
 
   const dict = {
     en: {
@@ -318,6 +324,13 @@
       fi_name: "FILE",
       fi_size: "SIZE",
       fi_calc: "computing…",
+      st_dl: "DOWNLOAD",
+      st_verify: "VERIFY",
+      st_erase: "ERASE",
+      st_write: "WRITE",
+      st_leave: "RESTART",
+      st_done: "DONE",
+      st_err: "ERROR",
       log_local_read: "Reading local file...",
       warn_size: "Note: the file is {n} bytes; official MLite-880 images are exactly {max} bytes.",
       confirm_local: "LOCAL FILE, not from the official list.\nMake sure it is a firmware for MLite-880.\nA wrong image will not brick the receiver (DFU stays available), but it will not start.",
@@ -417,6 +430,13 @@
       fi_name: "DATEI",
       fi_size: "GRÖSSE",
       fi_calc: "wird berechnet…",
+      st_dl: "DOWNLOAD",
+      st_verify: "PRÜFUNG",
+      st_erase: "LÖSCHEN",
+      st_write: "SCHREIBEN",
+      st_leave: "NEUSTART",
+      st_done: "FERTIG",
+      st_err: "FEHLER",
       log_local_read: "Lese lokale Datei...",
       warn_size: "Hinweis: Die Datei hat {n} Bytes; offizielle MLite-880-Images haben genau {max} Bytes.",
       confirm_local: "LOKALE DATEI, nicht aus der offiziellen Liste.\nStellen Sie sicher, dass es eine Firmware für MLite-880 ist.\nEin falsches Image zerstört den Empfänger nicht (DFU bleibt verfügbar), er startet aber nicht.",
@@ -516,6 +536,13 @@
       fi_name: "ФАЙЛ",
       fi_size: "ПАМЕР",
       fi_calc: "вылічваецца…",
+      st_dl: "СПАМПОЎКА",
+      st_verify: "ПРАВЕРКА",
+      st_erase: "СЦІРАННЕ",
+      st_write: "ЗАПІС",
+      st_leave: "ПЕРАЗАПУСК",
+      st_done: "ГАТОВА",
+      st_err: "ПАМЫЛКА",
       log_local_read: "Чытанне лакальнага файла...",
       warn_size: "Заўвага: памер файла {n} байт; афіцыйныя вобразы MLite-880 маюць роўна {max} байт.",
       confirm_local: "ЛАКАЛЬНЫ ФАЙЛ, не з афіцыйнага спіса.\nПераканайцеся, што гэта прашыўка для MLite-880.\nНяправільная прашыўка не выведзе прымач са строю (DFU застаецца даступным), але ён не запусціцца.",
@@ -614,6 +641,13 @@
       fi_name: "ФАЙЛ",
       fi_size: "РОЗМІР",
       fi_calc: "обчислюється…",
+      st_dl: "ЗАВАНТАЖЕННЯ",
+      st_verify: "ПЕРЕВІРКА",
+      st_erase: "СТИРАННЯ",
+      st_write: "ЗАПИС",
+      st_leave: "ПЕРЕЗАПУСК",
+      st_done: "ГОТОВО",
+      st_err: "ПОМИЛКА",
       log_local_read: "Читання локального файлу...",
       warn_size: "Примітка: розмір файлу {n} байт; офіційні образи MLite-880 мають рівно {max} байт.",
       confirm_local: "ЛОКАЛЬНИЙ ФАЙЛ, не з офіційного списку.\nПереконайтеся, що це прошивка для MLite-880.\nНеправильна прошивка не виведе приймач з ладу (DFU лишається доступним), але він не запуститься.",
@@ -712,6 +746,13 @@
       fi_name: "ФАЙЛ",
       fi_size: "РАЗМЕР",
       fi_calc: "вычисляется…",
+      st_dl: "СКАЧИВАНИЕ",
+      st_verify: "ПРОВЕРКА",
+      st_erase: "СТИРАНИЕ",
+      st_write: "ЗАПИСЬ",
+      st_leave: "ПЕРЕЗАПУСК",
+      st_done: "ГОТОВО",
+      st_err: "ОШИБКА",
       log_local_read: "Читаю локальный файл...",
       warn_size: "Примечание: размер файла {n} байт; официальные образы MLite-880 ровно {max} байт.",
       confirm_local: "ЛОКАЛЬНЫЙ ФАЙЛ, не из официального списка.\nУбедитесь, что это прошивка для MLite-880.\nНеподходящая прошивка приёмник не убьёт (DFU остаётся доступен), но он не запустится.",
@@ -811,6 +852,7 @@
       if(dict[l][k]) el.innerHTML = dict[l][k];
     });
     if (typeof renderEnvBanner === 'function') renderEnvBanner();
+    if (typeof renderFlashStatus === 'function') renderFlashStatus();
     // Update select placeholder if empty
     const sel = $('fwSelect');
     if(sel.options.length === 1 && sel.value === "") {
@@ -1222,6 +1264,46 @@
   }
   document.querySelectorAll('[data-copy-target]').forEach(b => b.addEventListener('click', () => copyCommand(b)));
 
+  // --- Flash status in the header and the tab title ---
+  // Display only: fed from the flash handler below (stage from webdfu's logInfo,
+  // percent from its logProgress), so the DFU logic is not touched. webdfu reports
+  // erase and write as two separate 0..100 % runs, so the stage name is shown with
+  // the percent. document.title carries the same text, which keeps the progress
+  // visible while the tab is in the background.
+  const BASE_TITLE = document.title;
+  const flashStatus = { stage: null, pct: null };
+  let flashStatusTimer = null;
+
+  function renderFlashStatus() {
+    const b = $('flashBadge');
+    const st = flashStatus.stage;
+    if (!st) { b.hidden = true; b.textContent = ''; b.className = 'fbadge'; document.title = BASE_TITLE; return; }
+    const name = dict[lang]['st_' + st];
+    const pct = flashStatus.pct;
+    const mark = st === 'done' ? '✓ ' : st === 'err' ? '✗ ' : '';
+    b.className = 'fbadge' + (st === 'done' ? ' done' : st === 'err' ? ' err' : '');
+    b.textContent = mark + name + (pct === null ? '' : ' ' + pct + ' %');
+    b.hidden = false;
+    document.title = (pct === null ? mark + name : '(' + pct + '%) ' + name) + ' · ' + BASE_TITLE;
+  }
+
+  // stage: 'dl' | 'verify' | 'erase' | 'write' | 'leave' | 'done' | 'err' | null (normal header).
+  function setFlashStatus(stage, pct = null) {
+    if (flashStatusTimer) { clearTimeout(flashStatusTimer); flashStatusTimer = null; }
+    flashStatus.stage = stage;
+    flashStatus.pct = pct;
+    renderFlashStatus();
+  }
+
+  // End of a flash attempt (called from finally, after the result dialog is closed):
+  // anything that did not reach "done" counts as an error; the result stays briefly,
+  // then the normal header and tab title come back.
+  function endFlashStatus() {
+    if (!flashStatus.stage) return;
+    if (flashStatus.stage !== 'done' && flashStatus.stage !== 'err') setFlashStatus('err');
+    flashStatusTimer = setTimeout(() => { flashStatusTimer = null; setFlashStatus(null); }, 4000);
+  }
+
   // --- Flash Logic ---
   $('btnFlash').onclick = async () => {
     const fwUrl = $('fwSelect').value;
@@ -1264,6 +1346,7 @@
       } else {
         log(dict[lang].log_flash_dl, 't');
         $('barlbl').textContent = dict[lang].lbl_dl;
+        setFlashStatus('dl');
         const res = await fetch(fwUrl);
         if(!res.ok) throw new Error('HTTP ' + res.status);
         arrayBuffer = await res.arrayBuffer();
@@ -1277,10 +1360,12 @@
         if (fwMeta && fwMeta.sha) {
           log(dict[lang].log_integrity, 't');
           $('barlbl').textContent = dict[lang].lbl_verf;
+          setFlashStatus('verify');
           const actualSha = await gitBlobSha1(arrayBuffer);
           if (actualSha !== fwMeta.sha) {
             log(dict[lang].log_integrity_err.replace('{exp}', fwMeta.sha).replace('{got}', actualSha), 'err');
             $('barlbl').textContent = dict[lang].lbl_err;
+            setFlashStatus('err');
             await uiAlert(dict[lang].alert_integrity_err, 'INTEGRITY ERROR');
             return;
           }
@@ -1308,6 +1393,7 @@
          if (pct === lastPct) return;
          lastPct = pct;
          $('barfill').style.width = pct + '%';
+         if (flashStatus.stage === 'erase' || flashStatus.stage === 'write') setFlashStatus(flashStatus.stage, pct);
       };
 
       // Stage timing, so a slow run shows whether the bootloader (bwPollTimeout),
@@ -1330,8 +1416,9 @@
       };
       device.logInfo = msg => {
         const text = String(msg);
-        if (/^Erasing DFU device memory$/i.test(text)) { stage.erase = now(); stage.waited = 0; return; }
+        if (/^Erasing DFU device memory$/i.test(text)) { stage.erase = now(); stage.waited = 0; setFlashStatus('erase', 0); return; }
         if (/^Copying data from browser to DFU device$/i.test(text)) {
+          setFlashStatus('write', 0);
           if (stage.erase) log(`ERASE COMPLETE · ${sec(now() - stage.erase)} s${suffix()}`, 'ok');
           stage.write = now(); stage.waited = 0; return;
         }
@@ -1341,6 +1428,7 @@
           log(`WRITE COMPLETE · ${bytes} bytes · ${sec(el)} s · ${(bytes / 1024 / (el / 1000)).toFixed(1)} KiB/s${suffix()}`, 'ok');
           return;
         }
+        if (/^Manifesting new firmware$/i.test(text)) setFlashStatus('leave');
         console.log(text);
       };
       const flashStart = now();
@@ -1367,6 +1455,7 @@
 
       $('barfill').style.width = '100%';
       $('barlbl').textContent = dict[lang].lbl_done;
+      setFlashStatus('done');
       log(dict[lang].log_success, 'ok');
       await uiAlert(dict[lang].alert_success, 'SUCCESS');
       
@@ -1375,9 +1464,11 @@
     } catch (e) {
       log(dict[lang].log_flash_err + e.message, 'err');
       $('barlbl').textContent = dict[lang].lbl_err;
+      setFlashStatus('err');
       await uiAlert('Error: ' + e.message, 'ERROR');
     } finally {
       window.onbeforeunload = null;
+      endFlashStatus();
       $('btnFlash').disabled = (device === null);
     }
   };
