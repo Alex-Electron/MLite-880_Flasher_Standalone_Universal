@@ -45,7 +45,7 @@ Three builds were posted the same day; this repo carries the last one, **build 2
 - `1325` (10:39) — "sample rate and resampler were not supported; fixed" (stations whose DRM audio stayed silent).
 - `2044` (17:46) — posted with "check it"; the author plans to add IQ recording next so users can send recordings of stations that still do not play.
 
-Known issues reported in the chat on 2026-10-02 (not confirmed by the author): the NR on/off button does not work after power-on until NR is toggled once in the menu; occasional freeze/reboot when DRM is switched on; some stations (e.g. 13835 kHz) decode without sound — the author asks for reports and IQ recordings, since not every codec variant is in the firmware.
+Known issues reported in the chat on 2026-10-02 (not confirmed by the author): the NR on/off button does not work after power-on until NR is toggled once in the menu (a long press on NR also works); the NR icon sometimes does not appear — users suspect a conflict with switching AM ↔ DRM in Menu 2; occasional freeze/reboot when DRM is switched on; audio drops out on weak DRM signals, and some stations decode without sound (e.g. 13835, 9780 kHz) — the author asks for reports and IQ recordings, since not every codec variant is in the firmware.
 
 File in this repo: `MLite880_v1.60_20261002.bin` = `MLite880_1_60_021026_2044.bin` from the chat, SHA-256 `db0a1451685b6bc081426255698b272a4bd88c91b6a6b3d2bbf264048d0391c8`, CRC32 `0x9645BBDF`.
 Other builds of the same day (not in this repo): `…_1016.bin` SHA-256 `ae1521cb75d19ca6039a983ec41bca313cad80d627a1a0616856893604f3217b`; `…_1325.bin` SHA-256 `0df54444f1e6827355a23c1bea45da0a0b7b9bfdc086a8c0de6851f2eb9f0f5b`.
@@ -63,7 +63,7 @@ Sources: build 2044 <https://t.me/MalahitReceiver/409671/486367>; release note <
 - `1325` (10:39) — «не поддерживался сэмплрейт и ресэмплер. Доработал» (станции, где DRM декодировался без звука).
 - `2044` (17:46) — «Проверьте»; дальше автор планирует добавить запись IQ, чтобы присылать записи станций, которые ещё не звучат.
 
-Замечания пользователей в чате 2026-10-02 (автором не подтверждены): кнопка вкл/выкл NR после включения приёмника не работает, пока не переключить NR в меню; временами зависает и перезагружается при включении DRM; часть станций (например 13835 кГц) декодируется без звука — автор просит сообщать о таких и присылать IQ-записи: в прошивку вошли не все варианты кодеков.
+Замечания пользователей в чате 2026-10-02 (автором не подтверждены): кнопка вкл/выкл NR после включения приёмника не работает, пока не переключить NR в меню (помогает и долгое нажатие NR); значок NR иногда не появляется — пользователи связывают это с переключением AM ↔ DRM в меню 2; временами зависает и перезагружается при включении DRM; на слабом сигнале DRM звук прерывается, часть станций декодируется без звука (например 13835, 9780 кГц) — автор просит сообщать о таких и присылать IQ-записи: в прошивку вошли не все варианты кодеков.
 
 Файл в этом репозитории: `MLite880_v1.60_20261002.bin` = `MLite880_1_60_021026_2044.bin` из чата, SHA-256 `db0a1451685b6bc081426255698b272a4bd88c91b6a6b3d2bbf264048d0391c8`, CRC32 `0x9645BBDF`.
 Другие сборки того же дня (в репозитории нет): `…_1016.bin` SHA-256 `ae1521cb75d19ca6039a983ec41bca313cad80d627a1a0616856893604f3217b`; `…_1325.bin` SHA-256 `0df54444f1e6827355a23c1bea45da0a0b7b9bfdc086a8c0de6851f2eb9f0f5b`.
