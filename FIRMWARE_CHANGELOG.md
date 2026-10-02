@@ -26,8 +26,49 @@ Firmware files the author actually attached to the chat:
 | 1.57 | `MLite880_1_57_080626.zip` | 2026-06-08 12:44 |
 | 1.58 | `MLite880_1_58_110626.zip` | 2026-06-11 |
 | 1.59 | `MLite880_v1.59_20260922.bin` (заводской пакет Manual-Flash; в чат перезалита 2026-09-22) | 2026-09-22 *(interim / промежуточная)* |
+| 1.60 | `MLite880_1_60_021026_1016.zip`, `…_1325.zip`, `…_2044.zip` (three builds the same day; this repo has **2044**) | 2026-10-02 07:18 / 10:39 / 17:46 *(test / тестовая)* |
 
 Firmware 1.40 and 1.50 were never posted to the chat nor to «Прошивки» — the author calls both "interim" releases (1.40 was a factory-only build for new hardware, 1.50 leaked through the manufacturer and was effectively rolled into 1.51).
+
+---
+
+## [1.60] — 2026-10-02 (test build 2044 / тестовая сборка 2044)
+
+### English
+**DRM reception arrives.** The author posted 1.60 as a test build and asked users to test it, warning that it "may contain many bugs" (RX9CIM, 2026-10-02 07:20):
+- **New: DRM mode** with the AAC, AAC+ (HE-AAC) and **xHE-AAC** codecs, **mono** output (the 880 has no stereo).
+- Recorder files are now sorted by date, newest first.
+- Fixed: USB audio on macOS.
+
+Three builds were posted the same day; this repo carries the last one, **build 2044**:
+- `1016` (07:18) — the first test build.
+- `1325` (10:39) — "sample rate and resampler were not supported; fixed" (stations whose DRM audio stayed silent).
+- `2044` (17:46) — posted with "check it"; the author plans to add IQ recording next so users can send recordings of stations that still do not play.
+
+Known issues reported in the chat on 2026-10-02 (not confirmed by the author): the NR on/off button does not work after power-on until NR is toggled once in the menu; occasional freeze/reboot when DRM is switched on; some stations (e.g. 13835 kHz) decode without sound — the author asks for reports and IQ recordings, since not every codec variant is in the firmware.
+
+File in this repo: `MLite880_v1.60_20261002.bin` = `MLite880_1_60_021026_2044.bin` from the chat, SHA-256 `db0a1451685b6bc081426255698b272a4bd88c91b6a6b3d2bbf264048d0391c8`, CRC32 `0x9645BBDF`.
+Other builds of the same day (not in this repo): `…_1016.bin` SHA-256 `ae1521cb75d19ca6039a983ec41bca313cad80d627a1a0616856893604f3217b`; `…_1325.bin` SHA-256 `0df54444f1e6827355a23c1bea45da0a0b7b9bfdc086a8c0de6851f2eb9f0f5b`.
+
+Sources: build 2044 <https://t.me/MalahitReceiver/409671/486367>; release note <https://t.me/MalahitReceiver/409671/486214>; build 1325 note <https://t.me/MalahitReceiver/409671/486257>; build 1016 <https://t.me/MalahitReceiver/409671/486213>.
+
+### Русский
+**Появился приём DRM.** Автор выложил 1.60 как тестовую сборку и попросил потестировать, предупредив: «прошивка может содержать много багов» (RX9CIM, 2026-10-02 07:20):
+- **Новое: режим DRM**, кодеки AAC, AAC+ (HE-AAC) и **xHE-AAC**, выход **моно** (стерео в 880 нет).
+- Сортировка файлов рекордера — по дате, самый свежий сверху.
+- Исправлено: работа аудио по USB на macOS.
+
+В тот же день выложены три сборки; в этом репозитории последняя, **2044**:
+- `1016` (07:18) — первая тестовая.
+- `1325` (10:39) — «не поддерживался сэмплрейт и ресэмплер. Доработал» (станции, где DRM декодировался без звука).
+- `2044` (17:46) — «Проверьте»; дальше автор планирует добавить запись IQ, чтобы присылать записи станций, которые ещё не звучат.
+
+Замечания пользователей в чате 2026-10-02 (автором не подтверждены): кнопка вкл/выкл NR после включения приёмника не работает, пока не переключить NR в меню; временами зависает и перезагружается при включении DRM; часть станций (например 13835 кГц) декодируется без звука — автор просит сообщать о таких и присылать IQ-записи: в прошивку вошли не все варианты кодеков.
+
+Файл в этом репозитории: `MLite880_v1.60_20261002.bin` = `MLite880_1_60_021026_2044.bin` из чата, SHA-256 `db0a1451685b6bc081426255698b272a4bd88c91b6a6b3d2bbf264048d0391c8`, CRC32 `0x9645BBDF`.
+Другие сборки того же дня (в репозитории нет): `…_1016.bin` SHA-256 `ae1521cb75d19ca6039a983ec41bca313cad80d627a1a0616856893604f3217b`; `…_1325.bin` SHA-256 `0df54444f1e6827355a23c1bea45da0a0b7b9bfdc086a8c0de6851f2eb9f0f5b`.
+
+Источники: сборка 2044 <https://t.me/MalahitReceiver/409671/486367>; описание выпуска <https://t.me/MalahitReceiver/409671/486214>; заметка к 1325 <https://t.me/MalahitReceiver/409671/486257>; сборка 1016 <https://t.me/MalahitReceiver/409671/486213>.
 
 ---
 
