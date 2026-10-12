@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.8.0] - 2026-10-12
+
+### Added
+- Added the 2026-10-11 MLite-880 firmware 1.60 test build: **MLite880_v1.60_20261011.bin**. User testing in the Malahit Telegram chat reports improved medium-wave DRM Mode A reception; the author did not publish a formal change list for this build. See [firmware notes](FIRMWARE_CHANGELOG.md).
+
+### Changed
+- Bumped the command-line flasher version to **2.8.0** and updated the included-firmware date in both READMEs.
+
+## [2.7.0] - 2026-10-02
+
+### Added
+- Added firmware 1.60 test build `2044` with DRM reception and AAC, HE-AAC, and xHE-AAC support.
+- The web flasher now shows the write stage and progress percentage in its header and browser tab.
+
 ## [2.6.0] - 2026-06-11
 
 ### Added

@@ -5,6 +5,7 @@ Firmware author: **RX9CIM (Георгий)**.
 Sources:
 - «Технический чат - MLite-880» Telegram topic — discussion + occasional release notes by the author. Export window: 2026-02-03 — 2026-05-27.
 - «Прошивки» Telegram topic — author's release-only posts (consolidated changelogs). Coverage: 2024-04-25 — 2026-05-27.
+- Live Telegram MCP lookup via Hermes on 2026-10-12: MLite-880 firmware topic, posts from 2026-10-11 through 2026-10-12.
 
 This document is NOT the flasher changelog — for that see [CHANGELOG.md](CHANGELOG.md).
 This file collects what changed inside each firmware `.bin`, based on what the author wrote in the chat.
@@ -27,8 +28,33 @@ Firmware files the author actually attached to the chat:
 | 1.58 | `MLite880_1_58_110626.zip` | 2026-06-11 |
 | 1.59 | `MLite880_v1.59_20260922.bin` (заводской пакет Manual-Flash; в чат перезалита 2026-09-22) | 2026-09-22 *(interim / промежуточная)* |
 | 1.60 | `MLite880_1_60_021026_1016.zip`, `…_1325.zip`, `…_2044.zip` (three builds the same day; this repo has **2044**) | 2026-10-02 07:18 / 10:39 / 17:46 *(test / тестовая)* |
+| 1.60 | `MLite880_1_60_111026.zip` (newer test build; this repo has the extracted BIN) | 2026-10-11 16:00:57 UTC *(test / тестовая)* |
 
 Firmware 1.40 and 1.50 were never posted to the chat nor to «Прошивки» — the author calls both "interim" releases (1.40 was a factory-only build for new hardware, 1.50 leaked through the manufacturer and was effectively rolled into 1.51).
+
+---
+
+## [1.60] — 2026-10-11 (test build / тестовая сборка)
+
+### English
+
+RX9CIM posted a new file and asked users to test it after a request for better medium-wave DRM reception. The user specified **DRM Mode A, 9 kHz bandwidth and 400 ms short interleaving**, and supplied 1062 kHz test recordings. RX9CIM did **not** publish a formal change list for this build in the checked messages. The BIN differs from the 2026-10-02 `2044` build; the binary comparison alone cannot identify functional changes.
+
+User reports, **not author release notes**: Cotin Fan reported successful medium-wave DRM decoding on 1386 kHz on 2026-10-11 and 1062 kHz on 2026-10-12. The request, new test build and subsequent reports support improved reception of this Mode A signal; they do not establish performance across other stations or receivers.
+
+File in this repo: `MLite880_v1.60_20261011.bin` = `MLite880_1_60_111026.bin` extracted from the downloaded `MLite880_1_60_111026.zip`; size 2,097,152 bytes, SHA-256 `fefd9d954e898b9693fab6c27024cc37f5d1347b33f74e3b335e009a23222f30`, CRC32 `0xA1332710`.
+
+Sources: [Mode A user request](https://t.me/MalahitReceiver/489011), [author's ZIP post](https://t.me/MalahitReceiver/489206), [author's test request](https://t.me/MalahitReceiver/489209), [1386 kHz user report](https://t.me/MalahitReceiver/489231), [1062 kHz user report](https://t.me/MalahitReceiver/489281).
+
+### Русский
+
+После просьбы улучшить приём DRM на средних волнах RX9CIM выложил новый файл и попросил его проверить. Пользователь уточнил формат сигнала: **DRM Mode A, полоса 9 кГц и короткое перемежение 400 мс**, и передал записи на 1062 кГц. **Формального списка изменений для этой сборки** в проверенных сообщениях **нет**. BIN отличается от сборки `2044` от 2 октября, но побайтное сравнение не позволяет установить, какие функции изменились.
+
+Сообщения пользователя, **не авторское описание релиза**: Cotin Fan сообщил об успешном декодировании DRM на средних волнах 1386 кГц 11 октября и 1062 кГц 12 октября. Последовательность «запрос → тестовая сборка → успешные проверки» подтверждает улучшение приёма такого сигнала Mode A, но не позволяет судить о работе на других станциях и экземплярах приёмника.
+
+Файл в репозитории: `MLite880_v1.60_20261011.bin` = `MLite880_1_60_111026.bin` из скачанного `MLite880_1_60_111026.zip`; размер 2 097 152 байта, SHA-256 `fefd9d954e898b9693fab6c27024cc37f5d1347b33f74e3b335e009a23222f30`, CRC32 `0xA1332710`.
+
+Источники: [запрос пользователя о Mode A](https://t.me/MalahitReceiver/489011), [ZIP-архив автора](https://t.me/MalahitReceiver/489206), [просьба автора проверить](https://t.me/MalahitReceiver/489209), [сообщение пользователя о 1386 кГц](https://t.me/MalahitReceiver/489231), [сообщение пользователя о 1062 кГц](https://t.me/MalahitReceiver/489281).
 
 ---
 
