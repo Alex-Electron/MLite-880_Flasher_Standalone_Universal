@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Bumped the command-line flasher version to **2.8.0** and updated the included-firmware date in both READMEs.
+- Updated the Web Flasher to **v0.1.21** with a firmware-notes link beside the file picker.
 
 ## [2.7.0] - 2026-10-02
 

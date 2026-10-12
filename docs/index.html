@@ -7,8 +7,8 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M8 11 25 3' stroke='%234dff79' stroke-width='2' stroke-linecap='round'/%3E%3Crect x='2' y='10' width='28' height='19' rx='3' fill='%23121a12' stroke='%234dff79' stroke-width='2'/%3E%3Ccircle cx='11' cy='19.5' r='5' fill='none' stroke='%234dff79' stroke-width='2'/%3E%3Ccircle cx='11' cy='19.5' r='1.6' fill='%234dff79'/%3E%3Crect x='19' y='14' width='8' height='4' rx='1' fill='%234dff79'/%3E%3Ccircle cx='21' cy='24' r='1.7' fill='%234dff79'/%3E%3Ccircle cx='25.5' cy='24' r='1.7' fill='%234dff79'/%3E%3C/svg%3E">
 <!-- Include DFU libraries. ?v= must follow APP_VERSION: GitHub Pages lets browsers cache
      these for 10 min, which could pair a new page with the previous libraries. -->
-<script src="dfu.js?v=0.1.20"></script>
-<script src="dfuse.js?v=0.1.20"></script>
+<script src="dfu.js?v=0.1.21"></script>
+<script src="dfuse.js?v=0.1.21"></script>
 <style>
   :root{
     --bg:#121a12; --green:#4dff79; --green-dim:#2b9640; --green-deep:#145c21;
@@ -170,7 +170,7 @@
   <div id="envBanner" role="alert" hidden></div>
   <div class="head">
     <div>
-      <h1>MLite-880 WEB FLASHER <span id="appVer" class="ver" style="font-size:13px;color:var(--green-dim);letter-spacing:1px;text-shadow:0 0 4px rgba(0,255,65,.35)">v0.1.20</span> <span class="cur">_</span> <span id="flashBadge" class="fbadge" role="status" aria-live="polite" hidden></span></h1>
+      <h1>MLite-880 WEB FLASHER <span id="appVer" class="ver" style="font-size:13px;color:var(--green-dim);letter-spacing:1px;text-shadow:0 0 4px rgba(0,255,65,.35)">v0.1.21</span> <span class="cur">_</span> <span id="flashBadge" class="fbadge" role="status" aria-live="polite" hidden></span></h1>
       <div class="sub" data-i18n="sub">WebUSB · STM32 DFU · <a href="https://github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;text-shadow:0 0 4px rgba(0,255,65,.45)">github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal ↗</a></div>
       <div class="sub" data-i18n="author" style="margin-top:-10px;">Author: Alexander Lavrinovich & AI agents</div>
     </div>
@@ -204,6 +204,7 @@
       <button id="btnFlash" class="danger" disabled data-i18n="btn_flash">[ ⟳ FLASH FIRMWARE ]</button>
     </div>
     <div id="dropZone" class="drop-zone" role="button" tabindex="0" data-i18n="drop_zone">⇩ Drop a local .bin file here — or click to choose</div>
+    <div class="hint" style="margin-top:8px"><a href="https://github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal/blob/main/FIRMWARE_CHANGELOG.md" target="_blank" rel="noopener noreferrer" data-i18n="fw_notes" style="color:var(--green);text-decoration:underline">Firmware notes: Oct 11 DRM Mode A medium-wave tests ↗</a></div>
     <dl id="fileInfo" class="fileinfo" hidden>
       <dt data-i18n="fi_name">FILE</dt><dd id="fiName">—</dd>
       <dt data-i18n="fi_size">SIZE</dt><dd id="fiSize">—</dd>
@@ -301,7 +302,7 @@
 
   // DOM helper must be defined before any top-level usage (TDZ guard)
   const $ = id => document.getElementById(id);
-  const APP_VERSION = '0.1.20';
+  const APP_VERSION = '0.1.21';
 
   const dict = {
     en: {
@@ -313,6 +314,7 @@
       conn_hint: "1. Hold '1' on receiver. 2. Turn power on. 3. Wait 3 sec and release '1'. 4. Click CONNECT.",
       flash_title: 'Firmware',
       fw_label: "Firmware (GitHub or local .bin)",
+      fw_notes: "Firmware notes: Oct 11 DRM Mode A medium-wave tests ↗",
       btn_local: "[ 📂 LOCAL .BIN ]",
       log_local_ok: "Local file selected: {name} ({n} bytes). GitHub integrity check does not apply.",
       log_local_bad: "Local file rejected: {why}",
@@ -419,6 +421,7 @@
       conn_hint: "1. '1' am Empfänger gedrückt halten. 2. Strom einschalten. 3. 3 Sek. warten und '1' loslassen. 4. CONNECT klicken.",
       flash_title: 'Firmware',
       fw_label: "Firmware (GitHub oder lokale .bin)",
+      fw_notes: "Firmware-Hinweise: DRM Mode A auf Mittelwelle, Tests vom 11. Oktober ↗",
       btn_local: "[ 📂 LOKALE .BIN ]",
       log_local_ok: "Lokale Datei gewählt: {name} ({n} Bytes). GitHub-Integritätsprüfung entfällt.",
       log_local_bad: "Lokale Datei abgelehnt: {why}",
@@ -525,6 +528,7 @@
       conn_hint: "1. Націсніце і ўтрымлівайце кнопку '1' на прыёмніку. 2. Уключыце сілкаванне. 3. Праз 3 секунды адпусціце кнопку '1'. 4. Націсніце CONNECT.",
       flash_title: "Прашыўка",
       fw_label: "Прашыўка (GitHub або лакальны .bin)",
+      fw_notes: "Змены прашыўкі: DRM Mode A на сярэдніх хвалях, тэсты 11 кастрычніка ↗",
       btn_local: "[ 📂 ЛАКАЛЬНЫ .BIN ]",
       log_local_ok: "Абраны лакальны файл: {name} ({n} байт). Праверка цэласнасці з GitHub не выконваецца.",
       log_local_bad: "Лакальны файл адхілены: {why}",
@@ -630,6 +634,7 @@
       conn_hint: "1. Натисніть і утримуйте кнопку '1' на приймачі. 2. Увімкніть живлення. 3. Через 3 секунди відпустіть кнопку '1'. 4. Натисніть CONNECT.",
       flash_title: "Прошивка",
       fw_label: "Прошивка (GitHub або локальний .bin)",
+      fw_notes: "Зміни прошивки: DRM Mode A на середніх хвилях, тести 11 жовтня ↗",
       btn_local: "[ 📂 ЛОКАЛЬНИЙ .BIN ]",
       log_local_ok: "Обрано локальний файл: {name} ({n} байт). Перевірка цілісності з GitHub не виконується.",
       log_local_bad: "Локальний файл відхилено: {why}",
@@ -735,6 +740,7 @@
       conn_hint: "1. Зажми '1' на приёмнике. 2. Включи питание. 3. Подожди 3 сек и отпусти '1'. 4. Нажми CONNECT.",
       flash_title: 'Прошивка',
       fw_label: "Прошивка (GitHub или локальный .bin)",
+      fw_notes: "Изменения прошивки: DRM Mode A на средних волнах, тесты 11 октября ↗",
       btn_local: "[ 📂 ЛОКАЛЬНЫЙ .BIN ]",
       log_local_ok: "Выбран локальный файл: {name} ({n} байт). Проверка целостности с GitHub не выполняется.",
       log_local_bad: "Локальный файл отклонён: {why}",
