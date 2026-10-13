@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.9.0] - 2026-10-13
+
+### Changed
+- Moved all 13 MLite-880 BINs into `Firmware/MLite-880/`; reserved `Firmware/DSP4/` for future DSP4 releases.
+- Updated Windows and macOS/Linux flash scripts to resolve the MLite-880 directory relative to the script. Both support `--list-firmware` for a hardware-free listing check.
+- Updated Web Flasher to **v0.1.22**: its GitHub API list is scoped to `Firmware/MLite-880/`, and its existing GitHub download and integrity check use the returned file URLs and hashes.
+- Updated both READMEs for the new paths.
+- Added a firmware-layout check on Windows, macOS, and Linux in GitHub Actions.
+
 ## [2.8.0] - 2026-10-12
 
 ### Added

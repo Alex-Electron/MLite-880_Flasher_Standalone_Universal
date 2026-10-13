@@ -3,13 +3,14 @@ setlocal EnableDelayedExpansion EnableExtensions
 title Flashing Malachite DSP (MLite-880)
 
 :: ===================================================
-::  Malachite DSP Firmware Flasher v2.8.0
+::  Malachite DSP Firmware Flasher v2.9.0
 ::  Created by: Alexander Lavrinovich
 ::  GitHub: https://github.com/Alex-Electron
 ::  Email: EU1L@mail.ru
 :: ===================================================
 
 set "SCRIPT_DIR=%~dp0"
+set "FW_DIR=%SCRIPT_DIR%Firmware\MLite-880\"
 set "DFU_EXE=%SCRIPT_DIR%dfu-util.exe"
 set "WDI_EXE=%SCRIPT_DIR%qmk_driver_installer.exe"
 set "ZADIG_EXE=%SCRIPT_DIR%tools\zadig-2.9.exe"
@@ -17,13 +18,15 @@ set "STM_VID=0483"
 set "STM_PID=df11"
 
 echo ===================================================
-echo             Malachite DSP Flasher v2.8.0
+echo             Malachite DSP Flasher v2.9.0
 echo.
 echo   Developed by: Alexander Lavrinovich
 echo   GitHub:       https://github.com/Alex-Electron
 echo   Email:        EU1L@mail.ru
 echo ===================================================
 echo.
+
+if /I "%~1"=="--list-firmware" goto fw_select
 
 if not exist "%DFU_EXE%" (
     echo [ERROR] dfu-util.exe not found in script directory.
@@ -271,30 +274,38 @@ set "count=0"
 :: mis-rank e.g. v10 below v2.)
 set "FWLIST=%TEMP%\mlite_fw_%RANDOM%.txt"
 type nul > "%FWLIST%"
-for /f "delims=" %%f in ('dir /b /a-d "%SCRIPT_DIR%*.bin" 2^>nul') do (
+for /f "delims=" %%f in ('dir /b /a-d "%FW_DIR%*.bin" 2^>nul') do (
     set "nm=%%~nf"
     >> "%FWLIST%" echo !nm:~-8! %%f
 )
 for /f "tokens=1,* delims= " %%a in ('sort /r "%FWLIST%" 2^>nul') do (
     set /a count+=1
     set "file[!count!]=%%b"
-    set "path[!count!]=%SCRIPT_DIR%%%b"
+    set "path[!count!]=%FW_DIR%%%b"
 )
 del "%FWLIST%" 2>nul
 
 if %count%==0 (
-    echo [ERROR] No .bin files found in script directory.
-    pause
+    echo [ERROR] No .bin firmware files found in Firmware\MLite-880.
+    if /I not "%~1"=="--list-firmware" pause
     exit /b 1
 )
 
 echo Available firmware files:
 echo ---------------------------------------------------
 for /L %%i in (1, 1, %count%) do (
-    echo   [%%i] !file[%%i]!
+    call set "display=%%file[%%i]%%"
+    call set "candidate=%%path[%%i]%%"
+    if not exist "!candidate!" (
+        echo [ERROR] Firmware file is missing: !candidate!
+        exit /b 1
+    )
+    echo   [%%i] !display!
 )
 echo ---------------------------------------------------
 echo.
+
+if /I "%~1"=="--list-firmware" exit /b 0
 
 set /p "choice=Select firmware (1-%count%) [Enter = 1, newest]: "
 if "%choice%"=="" set "choice=1"

@@ -1,0 +1,38 @@
+name: Firmware layout
+
+on:
+  push:
+    paths:
+      - 'Firmware/**'
+      - 'flash_MLite880.sh'
+      - 'flash_MLite880.bat'
+      - 'docs/index.html'
+      - 'tools/check_firmware_layout.py'
+      - '.github/workflows/firmware-layout.yml'
+  pull_request:
+    paths:
+      - 'Firmware/**'
+      - 'flash_MLite880.sh'
+      - 'flash_MLite880.bat'
+      - 'docs/index.html'
+      - 'tools/check_firmware_layout.py'
+      - '.github/workflows/firmware-layout.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  list-firmware:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+      - run: python tools/check_firmware_layout.py

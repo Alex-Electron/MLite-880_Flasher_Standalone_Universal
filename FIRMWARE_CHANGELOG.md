@@ -7,6 +7,8 @@ Sources:
 - «Прошивки» Telegram topic — author's release-only posts (consolidated changelogs). Coverage: 2024-04-25 — 2026-05-27.
 - Live Telegram MCP lookup via Hermes on 2026-10-12: MLite-880 firmware topic, posts from 2026-10-11 through 2026-10-12.
 
+All MLite-880 `.bin` files included in this repository are in [`Firmware/MLite-880/`](Firmware/MLite-880/). The [`Firmware/DSP4/`](Firmware/DSP4/) directory is reserved for a separate receiver family.
+
 This document is NOT the flasher changelog — for that see [CHANGELOG.md](CHANGELOG.md).
 This file collects what changed inside each firmware `.bin`, based on what the author wrote in the chat.
 

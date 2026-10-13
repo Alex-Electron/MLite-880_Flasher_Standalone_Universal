@@ -1,4 +1,4 @@
-# Malachite DSP (MLite-880) Universal Flasher v2.8.0
+# Malachite DSP (MLite-880) Universal Flasher v2.9.0
 
 **🌐 Language:** English · [Русский (Russian) →](README_RU.md)
 **📋 Changelog:** [CHANGELOG.md](CHANGELOG.md) (flasher version history)
@@ -46,7 +46,7 @@ You don't need a GitHub account or any knowledge of Git. The whole toolkit is on
    - **Windows** — right-click the ZIP, choose *Extract All*.
    - **macOS** — double-click the ZIP.
    - **Linux** — right-click, choose *Extract Here*, or run `unzip <file>.zip` in a terminal.
-5. Open the unpacked folder. The firmware `.bin` files, the flasher scripts, and the Windows drivers are all sitting inside it.
+5. Open the unpacked folder. The flasher scripts and Windows drivers are in its root; the MLite-880 `.bin` files are in [`Firmware/MLite-880/`](Firmware/MLite-880/). [`Firmware/DSP4/`](Firmware/DSP4/) is reserved for future DSP4 releases.
 
 Need an older or a specific version? Open the [Releases](https://github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal/releases) page, click a release, and download **Source code (zip)** under *Assets*.
 
@@ -54,13 +54,15 @@ Once the folder is on your computer, follow the flashing steps below.
 
 ## 🚀 How to Flash Firmware
 
-1. All current firmware `.bin` files (as of October 11, 2026) are already included in this folder. If new versions are released in the future, simply drop the new `.bin` files into this directory, and the flasher will automatically detect them.
+1. All current MLite-880 firmware `.bin` files (as of October 11, 2026) are in `Firmware/MLite-880/`. Put future MLite-880 `.bin` files in that same directory; the flasher will detect them automatically. Keep DSP4 images in `Firmware/DSP4/` when support for that model is added.
 2. Connect your receiver to your computer via USB.
 3. Put the receiver into **DFU mode**: Press and hold the **1** button, turn on the radio, wait for 3 seconds, then release the **1** button. The radio will now be in DFU mode.
 4. Run the flasher:
    - **Windows:** Double-click `flash_MLite880.bat`.
    - **macOS / Linux:** Open Terminal and run `./flash_MLite880.sh`.
 5. Follow the on-screen menu to select the firmware version.
+
+To inspect the firmware list without connecting a receiver, run `./flash_MLite880.sh --list-firmware` on macOS/Linux or `flash_MLite880.bat --list-firmware` on Windows. Both scripts resolve the firmware directory relative to themselves, so they also work when launched from another working directory.
 
 That's it. Starting from v2.0.0 the script automatically:
 - detects whether the receiver is in DFU mode and visible on the USB bus;

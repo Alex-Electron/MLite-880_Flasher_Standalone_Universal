@@ -2,7 +2,7 @@
 
 # ===================================================
 #  Malachite DSP Firmware Flasher for macOS / Linux
-#  v2.8.0 - Universal Stable Edition
+#  v2.9.0 - Universal Stable Edition
 #  Created by: Alexander Lavrinovich
 #  GitHub: https://github.com/Alex-Electron
 #  Email: EU1L@mail.ru
@@ -16,11 +16,58 @@ BANNER='\033[1;92m'
 NC='\033[0m'
 
 echo -e "${BANNER}===================================================${NC}"
-echo -e "${BANNER}            Malachite DSP Flasher v2.8.0           ${NC}"
+echo -e "${BANNER}            Malachite DSP Flasher v2.9.0           ${NC}"
 echo -e "${BANNER}===================================================${NC}"
 echo ""
 
 DIR="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+FW_DIR="$DIR/Firmware/MLite-880"
+
+list_firmware() {
+    # Build the firmware list newest-first. Sort by the YYYYMMDD date embedded at the
+    # end of each filename (MLite880_vX.YY_YYYYMMDD.bin) rather than by raw name, so the
+    # newest stays option [1] even when the version-number width changes (e.g. v1.100 or
+    # v10.xx) — an 8-digit date always sorts both lexically and chronologically.
+    valid_files=()
+    count=0
+    while IFS= read -r file; do
+        [ -n "$file" ] && [ -f "$file" ] && { valid_files+=("$file"); count=$((count+1)); }
+    done < <(
+        for f in "$FW_DIR"/*.bin; do
+            [ -e "$f" ] || continue
+            d=$(basename "$f" | grep -oE '[0-9]{8}' | tail -1)
+            printf '%s\t%s\n' "${d:-00000000}" "$f"
+        done | sort -rn | cut -f2-
+    )
+
+    if [ "$count" -eq 0 ]; then
+        echo -e "${RED}[ERROR] No .bin firmware files found in Firmware/MLite-880!${NC}"
+        return 1
+    fi
+
+    echo -e "${GREEN}Available firmware files:${NC}"
+    echo "---------------------------------------------------"
+    i=1
+    for file in "${valid_files[@]}"; do
+        filename=$(basename "$file")
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            filesize=$(stat -f%z "$file" 2>/dev/null)
+        else
+            filesize=$(stat -c%s "$file" 2>/dev/null)
+        fi
+        echo -e "  [$i] $filename (${YELLOW}$((filesize/1024)) KB${NC})"
+        i=$((i+1))
+    done
+    echo "---------------------------------------------------"
+    echo ""
+
+}
+
+if [ "${1:-}" = "--list-firmware" ]; then
+    list_firmware
+    exit $?
+fi
 
 # Smart DFU binary detection
 # On Windows/GitBash: prefer bundled .exe
@@ -299,42 +346,7 @@ elif [ "$_devn" -eq 1 ] && [ -n "${sel_serials[0]}" ]; then
     echo ""
 fi
 
-# Build the firmware list newest-first. Sort by the YYYYMMDD date embedded at the
-# end of each filename (MLite880_vX.YY_YYYYMMDD.bin) rather than by raw name, so the
-# newest stays option [1] even when the version-number width changes (e.g. v1.100 or
-# v10.xx) — an 8-digit date always sorts both lexically and chronologically.
-valid_files=()
-count=0
-while IFS= read -r file; do
-    [ -n "$file" ] && [ -f "$file" ] && { valid_files+=("$file"); count=$((count+1)); }
-done < <(
-    for f in "$DIR"/*.bin; do
-        [ -e "$f" ] || continue
-        d=$(basename "$f" | grep -oE '[0-9]{8}' | tail -1)
-        printf '%s\t%s\n' "${d:-00000000}" "$f"
-    done | sort -rn | cut -f2-
-)
-
-if [ "$count" -eq 0 ]; then
-    echo -e "${RED}[ERROR] No .bin firmware files found!${NC}"
-    exit 1
-fi
-
-echo -e "${GREEN}Available firmware files:${NC}"
-echo "---------------------------------------------------"
-i=1
-for file in "${valid_files[@]}"; do
-    filename=$(basename "$file")
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        filesize=$(stat -f%z "$file" 2>/dev/null)
-    else
-        filesize=$(stat -c%s "$file" 2>/dev/null)
-    fi
-    echo -e "  [$i] $filename (${YELLOW}$((filesize/1024)) KB${NC})"
-    i=$((i+1))
-done
-echo "---------------------------------------------------"
-echo ""
+list_firmware || exit 1
 
 read -p "Select a firmware to flash (1-$count) [Enter = 1, newest]: " choice
 choice="${choice:-1}"
