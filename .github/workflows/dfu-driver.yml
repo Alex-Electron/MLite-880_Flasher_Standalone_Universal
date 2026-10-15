@@ -1,0 +1,25 @@
+name: STM32 DFU installer
+on:
+  push:
+    paths:
+      - 'tools/dfu-driver/**'
+      - 'qmk_driver_installer.exe'
+      - 'tools/zadig-2.9.exe'
+      - '.github/workflows/dfu-driver.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Build and test installer (no driver installation)
+        shell: powershell
+        run: tools/dfu-driver/build.ps1
+      - uses: actions/upload-artifact@v6
+        with:
+          name: Malahit-STM32-DFU-Setup
+          path: dist/Malahit-STM32-DFU-Setup.exe*
