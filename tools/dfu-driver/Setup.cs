@@ -134,7 +134,7 @@ internal static class Setup
             System.Threading.Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo(args[2]);
             using (var form = new SetupForm(null)) {
                 form.Shown += delegate {
-                    using (var bitmap = new Bitmap(form.Width, form.Height)) { form.DrawToBitmap(bitmap, form.ClientRectangle); bitmap.Save(args[1]); }
+                    using (var bitmap = new Bitmap(form.Width, form.Height)) { form.DrawToBitmap(bitmap, new Rectangle(0, 0, form.Width, form.Height)); bitmap.Save(args[1]); }
                     form.Close();
                 };
                 Application.Run(form);
@@ -189,7 +189,7 @@ internal sealed class SetupForm : Form
     }
 
     private void SetStatus(string text, bool success = false) { status.Text = text; status.ForeColor = success ? Color.DarkGreen : Color.Black; }
-    private void UpdateButtons() { install.Enabled = !busy; manual.Enabled = !busy; check.Enabled = !busy; }
+    private void UpdateButtons() { if (IsDisposed) return; install.Enabled = !busy; manual.Enabled = !busy; check.Enabled = !busy; }
     private void RefreshDevice()
     {
         try {
