@@ -22,4 +22,4 @@ jobs:
       - uses: actions/upload-artifact@v6
         with:
           name: Malahit-STM32-DFU-Setup
-          path: dist/Malahit-STM32-DFU-Setup.exe*
+          path: dist/*

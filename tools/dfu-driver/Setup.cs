@@ -33,7 +33,7 @@ internal static class Setup
     internal const string Csv = "winusb,STM32 Bootloader,0483,df11,6d98a87f-4ecf-464d-89ed-8c684d857a75\r\n";
     internal const string Ini = "[general]\r\nadvanced_mode=false\r\nexit_on_success=true\r\nlog_level=1\r\n[device]\r\nlist_all=true\r\ninclude_hubs=false\r\n[driver]\r\ndefault_driver=0\r\nextract_only=false\r\n";
     internal const string Project = "https://github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal";
-    internal static readonly bool Russian = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ru";
+    internal static bool Russian { get { return System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ru"; } }
     internal static string T(string ru, string en) { return Russian ? ru : en; }
 
     internal static bool IsDfu(string id)
@@ -55,7 +55,11 @@ internal static class Setup
 
     internal static DfuDevice OnlyDevice(string expected = null)
     {
-        var devices = FindDevices();
+        return RequireSingle(FindDevices(), expected);
+    }
+
+    internal static DfuDevice RequireSingle(DfuDevice[] devices, string expected = null)
+    {
         if (devices.Length != 1) throw new InvalidOperationException(devices.Length == 0
             ? T("STM32 DFU 0483:DF11 не найден. Подключите приёмник в режиме DFU по его руководству и нажмите «Проверить USB».",
                 "STM32 DFU 0483:DF11 was not found. Connect the receiver in DFU mode according to its manual, then click Check USB.")
@@ -112,6 +116,13 @@ internal static class Setup
         if (Quote(@"C:\path with spaces\qmk.exe") != "\"C:\\path with spaces\\qmk.exe\"") throw new Exception("Path quoting failed");
         if (Quote("a\"b") != "\"a\\\"b\"") throw new Exception("Quote escaping failed");
         if (Resource("COPYING").Length < 1000 || Resource("COPYING-LGPL").Length < 1000) throw new Exception("Licenses missing");
+        var sample = new DfuDevice { Id = @"USB\VID_0483&PID_DF11\ABC" };
+        if (RequireSingle(new[] { sample }, sample.Id) != sample) throw new Exception("Single target rejected");
+        int rejected = 0;
+        try { RequireSingle(new DfuDevice[0]); } catch (InvalidOperationException) { rejected++; }
+        try { RequireSingle(new[] { sample, sample }); } catch (InvalidOperationException) { rejected++; }
+        try { RequireSingle(new[] { sample }, @"USB\VID_0483&PID_DF11\OTHER"); } catch (InvalidOperationException) { rejected++; }
+        if (rejected != 3) throw new Exception("Target guards failed");
     }
 
     [STAThread]
@@ -119,6 +130,17 @@ internal static class Setup
     {
         if (args.Length == 1 && args[0] == "--self-test") { try { SelfTest(); return 0; } catch { return 1; } }
         Application.EnableVisualStyles(); Application.SetCompatibleTextRenderingDefault(false);
+        if (args.Length == 3 && args[0] == "--preview") {
+            System.Threading.Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo(args[2]);
+            using (var form = new SetupForm(null)) {
+                form.Shown += delegate {
+                    using (var bitmap = new Bitmap(form.Width, form.Height)) { form.DrawToBitmap(bitmap, form.ClientRectangle); bitmap.Save(args[1]); }
+                    form.Close();
+                };
+                Application.Run(form);
+            }
+            return 0;
+        }
         string expected = args.Length == 2 && args[0] == "--install" && IsDfu(args[1]) ? args[1] : null;
         if (args.Length > 0 && expected == null) return 2;
         Application.Run(new SetupForm(expected));

@@ -16,6 +16,11 @@ foreach ($file in @($compiler, $source, $gpl, $lgpl)) { if (!(Test-Path -Literal
 if ($LASTEXITCODE -ne 0) { throw 'Compilation failed' }
 $test = Start-Process -FilePath $exe -ArgumentList '--self-test' -Wait -PassThru
 if ($test.ExitCode -ne 0) { throw 'Installer self-test failed' }
+foreach ($language in @('en', 'ru')) {
+    $preview = Join-Path $out "setup-$language.png"
+    $ui = Start-Process -FilePath $exe -ArgumentList @('--preview', ('"' + $preview + '"'), $language) -Wait -PassThru
+    if ($ui.ExitCode -ne 0 -or !(Test-Path -LiteralPath $preview)) { throw "UI preview failed: $language" }
+}
 $hash = (Get-FileHash $exe -Algorithm SHA256).Hash.ToLowerInvariant()
 [IO.File]::WriteAllText((Join-Path $out 'Malahit-STM32-DFU-Setup.exe.sha256'), "$hash  Malahit-STM32-DFU-Setup.exe`n", [Text.Encoding]::ASCII)
 Write-Host "Built and self-tested: $exe SHA256=$hash"
