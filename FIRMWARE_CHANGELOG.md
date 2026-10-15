@@ -7,6 +7,7 @@ Sources:
 - «Прошивки» Telegram topic — author's release-only posts (consolidated changelogs). Coverage: 2024-04-25 — 2026-05-27.
 - Live Telegram MCP lookup via Hermes on 2026-10-12: MLite-880 firmware topic, posts from 2026-10-11 through 2026-10-12.
 - Telegram post 490557 checked via its public embed on 2026-10-15; the downloaded 1.61 archive was checked locally.
+- Read-only Telegram lookup through Hermes on ThinkPad on 2026-10-15: context of 1.61 post 490557 and later messages through the morning of October 15; author messages 490558, 490559 and 490561 establish the language-selection change.
 
 All MLite-880 `.bin` files included in this repository are in [`Firmware/MLite-880/`](Firmware/MLite-880/). The [`Firmware/DSP4/`](Firmware/DSP4/) directory is reserved for a separate receiver family.
 
@@ -42,23 +43,33 @@ Firmware 1.40 and 1.50 were never posted to the chat nor to «Прошивки»
 
 ### English
 
-RX9CIM posted `MLite880_1_61_141026.zip` in the MLite-880 technical topic on 2026-10-14. The linked post contains the archive without a change list; functional changes are not established by this file check.
+RX9CIM posted `MLite880_1_61_141026.zip` in the MLite-880 technical topic on 2026-10-14. The archive post itself has no caption, but the author described the change immediately afterward:
+
+- **Interface language selection**, located in the **Visual** menu (author messages 490558 at 07:51:05 UTC and 490559 at 07:51:14 UTC).
+- In response to a user's concern about finding the setting after switching to Chinese, the author explained that the **selector entry is labelled in three languages** (490561, 07:53:23 UTC). This describes the entry label; it is not an independently verified enumeration of the available language choices.
+
+User reports, separate from the author's notes: Boris/Barys confirmed that language switching works (490727, 2026-10-14). OA7EKY reported receiving two DRM30 stations in Peru with 1.61 (490785, 2026-10-15). The reception report does not establish a new DRM feature in 1.61, since DRM was already present in 1.60. No complete author changelog or additional confirmed 1.61 fixes was found in the checked context.
 
 File in this repo: [`Firmware/MLite-880/MLite880_v1.61_20261014.bin`](Firmware/MLite-880/MLite880_v1.61_20261014.bin), identical to `MLite880_1_61_141026.bin` extracted from the downloaded ZIP. Size: **2,097,152 bytes**; SHA-256: `58364536d07f925cdde3c353926c238d948b62ae86a32d7cf46a518eec7c57bf`; CRC32: `0x6D84E063`.
 
 Source archive SHA-256: `84d4a18e00b741f24bb004fe9909d0d1fbadb5e2a49dcbc5a2b7b82cf45d0e56`. Archive integrity passed, and the project copy matches the copy in Telegram Desktop downloads. Receiver flashing was not performed for this addition.
 
-Source: [author's archive post](https://t.me/MalahitReceiver/409671/490557).
+Sources: [author's archive](https://t.me/MalahitReceiver/409671/490557), [language-selection announcement](https://t.me/MalahitReceiver/409671/490558), [Visual menu location](https://t.me/MalahitReceiver/409671/490559), [trilingual entry label](https://t.me/MalahitReceiver/409671/490561), [user language test](https://t.me/MalahitReceiver/409671/490727), [user DRM30 report](https://t.me/MalahitReceiver/409671/490785).
 
 ### Русский
 
-RX9CIM выложил `MLite880_1_61_141026.zip` в технической теме MLite-880 14 октября 2026 года. В указанном посте есть архив без списка изменений; проверка файла не устанавливает функциональные отличия.
+RX9CIM выложил `MLite880_1_61_141026.zip` в технической теме MLite-880 14 октября 2026 года. Сам пост с архивом не содержит подписи, но сразу после него автор описал изменение:
+
+- **Выбор языка интерфейса**: «Посмотрите прошивку с выбором языка» (490558, 07:51:05 UTC). Настройка находится **в меню Visual** (490559, 07:51:14 UTC).
+- На замечание о том, как найти настройку после переключения на китайский, автор ответил: «На этот случай пункт назван на трех языках» (490561, 07:53:23 UTC). Речь о подписи пункта; по этой фразе не устанавливается полный список доступных языков.
+
+Пользовательские сообщения, отдельно от слов автора: Борис / Barys подтвердил работу переключения языка (490727, 14 октября). OA7EKY сообщил о приёме двух станций DRM30 в Перу на 1.61 (490785, 15 октября). Этот отчёт не доказывает новую функцию DRM именно в 1.61: DRM уже был в 1.60. Полного списка изменений автора и других подтверждённых исправлений именно 1.61 в проверенном контексте не найдено.
 
 Файл в репозитории: [`Firmware/MLite-880/MLite880_v1.61_20261014.bin`](Firmware/MLite-880/MLite880_v1.61_20261014.bin), побайтно совпадает с `MLite880_1_61_141026.bin` из скачанного ZIP. Размер: **2 097 152 байта**; SHA-256: `58364536d07f925cdde3c353926c238d948b62ae86a32d7cf46a518eec7c57bf`; CRC32: `0x6D84E063`.
 
 SHA-256 исходного архива: `84d4a18e00b741f24bb004fe9909d0d1fbadb5e2a49dcbc5a2b7b82cf45d0e56`. Целостность архива проверена; копия в папке проекта совпадает с копией в загрузках Telegram Desktop. Прошивка приёмника при добавлении не выполнялась.
 
-Источник: [пост автора с архивом](https://t.me/MalahitReceiver/409671/490557).
+Источники: [архив автора](https://t.me/MalahitReceiver/409671/490557), [анонс выбора языка](https://t.me/MalahitReceiver/409671/490558), [расположение в Visual](https://t.me/MalahitReceiver/409671/490559), [подпись пункта на трёх языках](https://t.me/MalahitReceiver/409671/490561), [проверка языка пользователем](https://t.me/MalahitReceiver/409671/490727), [пользовательский отчёт DRM30](https://t.me/MalahitReceiver/409671/490785).
 
 ---
 
