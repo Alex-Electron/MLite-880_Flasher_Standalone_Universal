@@ -1,0 +1,24 @@
+name: USB connection help
+on:
+  push:
+    paths:
+      - 'docs/index.html'
+      - 'docs/usb-help.js'
+      - 'tools/dfu-driver/usb-help.test.cjs'
+      - '.github/workflows/usb-help.yml'
+  pull_request:
+    paths:
+      - 'docs/index.html'
+      - 'docs/usb-help.js'
+      - 'tools/dfu-driver/usb-help.test.cjs'
+      - '.github/workflows/usb-help.yml'
+permissions:
+  contents: read
+jobs:
+  logic:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - run: node --test tools/dfu-driver/usb-help.test.cjs

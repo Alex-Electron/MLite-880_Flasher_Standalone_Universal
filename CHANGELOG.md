@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Single-file Windows WinUSB setup for MALAHIT receivers exposing STM32 DFU `0483:DF11`; original libwdi/QMK and Zadig tools are embedded unchanged. The helper checks the present device count, rechecks after elevation, and verifies the bound WinUSB service. See [source and limitations](tools/dfu-driver/README.md).
+- Web Flasher **v0.1.23**: USB help dialog with a direct EXE download, five UI languages and platform-specific advice. Cancelling the chooser no longer produces driver advice. Browser permission errors do not offer a driver installer. The exact device returned by the chooser is used, and failed opening attempts release USB handles.
 - Added MLite-880 firmware **1.61 dated 2026-10-14** as `Firmware/MLite-880/MLite880_v1.61_20261014.bin`, extracted unchanged from the author's Telegram archive. The existing command-line and web flashers discover it automatically. Source and checksums are in [firmware notes](FIRMWARE_CHANGELOG.md).
 
 ## [2.9.0] - 2026-10-13

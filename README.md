@@ -15,7 +15,7 @@
 2. Put the receiver into DFU mode and click **Connect receiver**.
 3. Pick a firmware from the list (it always shows the current files of this repository, each checked against GitHub before writing) or your own `.bin`, and click **Flash firmware**.
 
-Windows only: if the browser cannot open the receiver, assign the WinUSB driver to *STM32 BOOTLOADER* once with [Zadig](https://zadig.akeo.ie/).
+Windows only: if the browser cannot open the receiver, use the **USB connection help** button. It distinguishes browser permission errors from device opening failures and links to a [single-file WinUSB setup EXE](https://github.com/Alex-Electron/MLite-880_Flasher_Standalone_Universal/releases/download/dfu-driver-v1.0.0/Malahit-STM32-DFU-Setup.exe). Download, run, and click **Install WinUSB**; no manual extraction is needed. The setup supports MALAHIT MLite/DSP receivers exposing STM32 DFU `0483:DF11`, and does not flash firmware. [Details and source](tools/dfu-driver/README.md).
 
 The command-line scripts below are still here for offline use and for advanced users.
 
@@ -79,7 +79,7 @@ That's it. Starting from v2.0.0 the script automatically:
 Since v2.0.0 the `.bat` installs the WinUSB driver **silently** when needed. If the STM32 BOOTLOADER device is on the USB bus but the WinUSB driver is missing, the script:
 
 1. Requests administrator rights (one UAC prompt).
-2. Runs the bundled `qmk_driver_installer.exe` with `--vid 0x0483 --pid 0xdf11 --type 0` — installs WinUSB silently, no clicks required.
+2. Runs the bundled `qmk_driver_installer.exe` using a CSV entry for WinUSB and VID:PID `0483:DF11` — installs the driver after administrator approval.
 3. Continues to the firmware selection automatically.
 
 **First-run note:** because the installer is an unsigned binary from a GitHub release, Windows SmartScreen may show a warning the very first time. Click **More info → Run anyway** once and Windows will remember it by hash.
