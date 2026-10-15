@@ -130,7 +130,7 @@ internal sealed class SetupForm : Form
 {
     private readonly Label status = new Label();
     private readonly Button install = new Button(), check = new Button(), manual = new Button();
-    private readonly CheckBox confirm = new CheckBox();
+    private readonly Label confirm = new Label();
     private readonly string expected;
     private bool busy;
     private string folder;
@@ -155,19 +155,19 @@ internal sealed class SetupForm : Form
             "Connect only the intended receiver in DFU mode according to its manual. MLite-880: hold 1 at power-on for 3 seconds.\r\nInstalls WinUSB for STM32 DFU 0483:DF11 only. Receiver firmware is not changed."), Dock = DockStyle.Fill }, 0, 1);
         status.Dock = DockStyle.Fill; status.BorderStyle = BorderStyle.FixedSingle; status.Padding = new Padding(8); status.AutoEllipsis = true;
         layout.Controls.Add(status, 0, 2);
-        confirm.Text = Setup.T("Подключён нужный приёмник. Другие STM32 DFU отключены. ID 0483:DF11 сам по себе не определяет модель.",
-            "This is the intended receiver. Other STM32 DFU devices are disconnected. ID 0483:DF11 alone does not identify the model.");
-        confirm.Dock = DockStyle.Fill; confirm.CheckedChanged += delegate { UpdateButtons(); }; layout.Controls.Add(confirm, 0, 3);
+        confirm.Text = Setup.T("Нажимая «Установить WinUSB», вы подтверждаете, что это нужный приёмник. ID 0483:DF11 сам по себе не определяет модель.",
+            "By clicking Install WinUSB you confirm this is the intended receiver. ID 0483:DF11 alone does not identify the model.");
+        confirm.Dock = DockStyle.Fill; layout.Controls.Add(confirm, 0, 3);
         install.Text = Setup.T("Установить WinUSB", "Install WinUSB"); install.Dock = DockStyle.Fill; install.Click += async delegate { await Install(); }; layout.Controls.Add(install, 0, 4);
         check.Text = Setup.T("Проверить USB", "Check USB"); check.Dock = DockStyle.Fill; check.Click += delegate { RefreshDevice(); }; layout.Controls.Add(check, 0, 5);
         manual.Text = Setup.T("Открыть оригинальный Zadig (вручную)", "Open original Zadig (manual)"); manual.Dock = DockStyle.Fill; manual.Click += delegate { OpenZadig(); }; layout.Controls.Add(manual, 0, 6);
         Controls.Add(layout);
         FormClosing += delegate(object sender, FormClosingEventArgs e) { if (busy) e.Cancel = true; };
-        Shown += async delegate { RefreshDevice(); if (expected != null) { confirm.Checked = true; await Install(); } };
+        Shown += async delegate { RefreshDevice(); if (expected != null) await Install(); };
     }
 
     private void SetStatus(string text, bool success = false) { status.Text = text; status.ForeColor = success ? Color.DarkGreen : Color.Black; }
-    private void UpdateButtons() { install.Enabled = !busy && confirm.Checked; manual.Enabled = !busy && confirm.Checked; check.Enabled = !busy; confirm.Enabled = !busy; }
+    private void UpdateButtons() { install.Enabled = !busy; manual.Enabled = !busy; check.Enabled = !busy; }
     private void RefreshDevice()
     {
         try {
