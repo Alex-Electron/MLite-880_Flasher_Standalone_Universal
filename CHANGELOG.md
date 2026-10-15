@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- Added MLite-880 firmware **1.61 dated 2026-10-14** as `Firmware/MLite-880/MLite880_v1.61_20261014.bin`, extracted unchanged from the author's Telegram archive. The existing command-line and web flashers discover it automatically. Source and checksums are in [firmware notes](FIRMWARE_CHANGELOG.md).
+
 ## [2.9.0] - 2026-10-13
 
 ### Changed

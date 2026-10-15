@@ -6,6 +6,7 @@ Sources:
 - «Технический чат - MLite-880» Telegram topic — discussion + occasional release notes by the author. Export window: 2026-02-03 — 2026-05-27.
 - «Прошивки» Telegram topic — author's release-only posts (consolidated changelogs). Coverage: 2024-04-25 — 2026-05-27.
 - Live Telegram MCP lookup via Hermes on 2026-10-12: MLite-880 firmware topic, posts from 2026-10-11 through 2026-10-12.
+- Telegram post 490557 checked via its public embed on 2026-10-15; the downloaded 1.61 archive was checked locally.
 
 All MLite-880 `.bin` files included in this repository are in [`Firmware/MLite-880/`](Firmware/MLite-880/). The [`Firmware/DSP4/`](Firmware/DSP4/) directory is reserved for a separate receiver family.
 
@@ -31,8 +32,33 @@ Firmware files the author actually attached to the chat:
 | 1.59 | `MLite880_v1.59_20260922.bin` (заводской пакет Manual-Flash; в чат перезалита 2026-09-22) | 2026-09-22 *(interim / промежуточная)* |
 | 1.60 | `MLite880_1_60_021026_1016.zip`, `…_1325.zip`, `…_2044.zip` (three builds the same day; this repo has **2044**) | 2026-10-02 07:18 / 10:39 / 17:46 *(test / тестовая)* |
 | 1.60 | `MLite880_1_60_111026.zip` (newer test build; this repo has the extracted BIN) | 2026-10-11 16:00:57 UTC *(test / тестовая)* |
+| 1.61 | `MLite880_1_61_141026.zip` (this repo has the extracted BIN) | 2026-10-14 07:50:50 UTC |
 
 Firmware 1.40 and 1.50 were never posted to the chat nor to «Прошивки» — the author calls both "interim" releases (1.40 was a factory-only build for new hardware, 1.50 leaked through the manufacturer and was effectively rolled into 1.51).
+
+---
+
+## [1.61] — 2026-10-14
+
+### English
+
+RX9CIM posted `MLite880_1_61_141026.zip` in the MLite-880 technical topic on 2026-10-14. The linked post contains the archive without a change list; functional changes are not established by this file check.
+
+File in this repo: [`Firmware/MLite-880/MLite880_v1.61_20261014.bin`](Firmware/MLite-880/MLite880_v1.61_20261014.bin), identical to `MLite880_1_61_141026.bin` extracted from the downloaded ZIP. Size: **2,097,152 bytes**; SHA-256: `58364536d07f925cdde3c353926c238d948b62ae86a32d7cf46a518eec7c57bf`; CRC32: `0x6D84E063`.
+
+Source archive SHA-256: `84d4a18e00b741f24bb004fe9909d0d1fbadb5e2a49dcbc5a2b7b82cf45d0e56`. Archive integrity passed, and the project copy matches the copy in Telegram Desktop downloads. Receiver flashing was not performed for this addition.
+
+Source: [author's archive post](https://t.me/MalahitReceiver/409671/490557).
+
+### Русский
+
+RX9CIM выложил `MLite880_1_61_141026.zip` в технической теме MLite-880 14 октября 2026 года. В указанном посте есть архив без списка изменений; проверка файла не устанавливает функциональные отличия.
+
+Файл в репозитории: [`Firmware/MLite-880/MLite880_v1.61_20261014.bin`](Firmware/MLite-880/MLite880_v1.61_20261014.bin), побайтно совпадает с `MLite880_1_61_141026.bin` из скачанного ZIP. Размер: **2 097 152 байта**; SHA-256: `58364536d07f925cdde3c353926c238d948b62ae86a32d7cf46a518eec7c57bf`; CRC32: `0x6D84E063`.
+
+SHA-256 исходного архива: `84d4a18e00b741f24bb004fe9909d0d1fbadb5e2a49dcbc5a2b7b82cf45d0e56`. Целостность архива проверена; копия в папке проекта совпадает с копией в загрузках Telegram Desktop. Прошивка приёмника при добавлении не выполнялась.
+
+Источник: [пост автора с архивом](https://t.me/MalahitReceiver/409671/490557).
 
 ---
 

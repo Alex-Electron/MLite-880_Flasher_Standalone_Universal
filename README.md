@@ -54,7 +54,7 @@ Once the folder is on your computer, follow the flashing steps below.
 
 ## 🚀 How to Flash Firmware
 
-1. All current MLite-880 firmware `.bin` files (as of October 11, 2026) are in `Firmware/MLite-880/`. Put future MLite-880 `.bin` files in that same directory; the flasher will detect them automatically. Keep DSP4 images in `Firmware/DSP4/` when support for that model is added.
+1. All included MLite-880 firmware `.bin` files, including **1.61 dated October 14, 2026**, are in `Firmware/MLite-880/`. Put future MLite-880 `.bin` files in that same directory; the flasher will detect them automatically. Keep DSP4 images in `Firmware/DSP4/` when support for that model is added.
 2. Connect your receiver to your computer via USB.
 3. Put the receiver into **DFU mode**: Press and hold the **1** button, turn on the radio, wait for 3 seconds, then release the **1** button. The radio will now be in DFU mode.
 4. Run the flasher:
